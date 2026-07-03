@@ -304,7 +304,13 @@
             const container = document.querySelector('.dp-modal-container');
             const rect = input.getBoundingClientRect();
             
-            container.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+            // Prevent going out of bottom bound (open above the input instead)
+            const datepickerHeight = 310; // exact height of dp-card is around 300px
+            let topPos = rect.bottom + window.scrollY + 5;
+            if (rect.bottom + datepickerHeight > window.innerHeight) {
+                topPos = rect.top + window.scrollY - datepickerHeight - 5;
+            }
+            container.style.top = topPos + 'px';
             
             // Prevent going out of right bound
             let leftPos = rect.left + window.scrollX;

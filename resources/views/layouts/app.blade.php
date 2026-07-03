@@ -84,6 +84,7 @@
         <!-- Top Header -->
         <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 flex-shrink-0 transition-all duration-300">
             <div class="flex items-center gap-4">
+                @yield('back_button')
                 <!-- Page Title -->
                 <h1 class="text-xl font-bold text-gray-900">@yield('title')</h1>
             </div>

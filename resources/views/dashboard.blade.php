@@ -61,9 +61,9 @@
             </div>
             <div class="flex-1 border-b border-gray-100 pb-4">
                 <p class="text-sm text-gray-900 font-medium mb-1">
-                    Formulir CCTV <a href="{{ route('form-cctv.show', $form->id) }}" class="text-blue-600 hover:underline">{{ $form->no_ref }}</a> ditambahkan
+                    {{ $form->type }} <a href="{{ $form->route }}" class="text-blue-600 hover:underline">{{ $form->no_ref }}</a> ditambahkan
                 </p>
-                <p class="text-xs text-gray-500">{{ $form->created_at->diffForHumans() }} (Area: {{ $form->lokasi }})</p>
+                <p class="text-xs text-gray-500">{{ $form->created_at->diffForHumans() }} {{ $form->type === 'CCTV' ? '(Area: ' . $form->lokasi . ')' : '(Pemohon: ' . $form->nama_pemohon . ')' }}</p>
             </div>
         </div>
         @empty
