@@ -294,10 +294,11 @@
             <div class="footer-section clearfix">
                 <div class="signature-box">
                     <p>Yogyakarta, <span>{{ $form->kota_tanggal ? \Carbon\Carbon::parse($form->kota_tanggal)->locale('id')->translatedFormat('j F Y') : '................................' }}</span></p>
-                    <p class="mt-4">Mengetahui,</p>
+                    <p style="margin-top: 15px;">Mengetahui,</p>
+                    <p style="margin-top: 5px; text-align: center;">{{ $form->mengetahui_jabatan ?: '..........................................' }}</p>
                     <div style="height: 60px;"></div>
                     <p><span>{{ $form->mengetahui_nama ?: '(..................................................)' }}</span></p>
-                    <p style="text-align: center;">NIPP. {{ $form->mengetahui_nipp ?: '..........................................' }}</p>
+                    <p style="margin-top: 5px; text-align: center;">NIPP. {{ $form->mengetahui_nipp ?: '..........................................' }}</p>
                 </div>
             </div>
 

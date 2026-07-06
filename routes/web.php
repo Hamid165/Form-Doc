@@ -2,16 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\FormCctvController;
+use App\Http\Controllers\FormCctv\FormCctvController;
 use App\Http\Controllers\FormPencabutanHakAksesController;
-use App\Http\Controllers\MasterCctvController;
-use App\Http\Controllers\MasterSignerController;
+use App\Http\Controllers\FormCctv\MasterCctvController;
+use App\Http\Controllers\FormCctv\MasterSignerController;
 
 Route::get('/', function () {
     $totalKategori = 1; // Dummy untuk saat ini
     $totalJenisFormulir = 2; // Baru ada CCTV dan Pencabutan Hak Akses
     
-    $totalFormulirBulanIni = \App\Models\FormCctv::whereMonth('created_at', date('m'))
+    $totalFormulirBulanIni = \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
                                 ->count() + \App\Models\FormPencabutanHakAkses::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
@@ -20,7 +20,7 @@ Route::get('/', function () {
     $totalPengguna = 2; // Dummy: Pitra, Hamid (sebelum ada auth)
 
     $recentForms = collect()
-        ->concat(\App\Models\FormCctv::latest()->take(5)->get()->map(function($item) {
+        ->concat(\App\Models\FormCctv\FormCctv::latest()->take(5)->get()->map(function($item) {
             $item->type = 'CCTV';
             $item->route = route('form-cctv.show', $item->id);
             $item->title = "Formulir Pemeliharaan CCTV - {$item->id_cctv}";
@@ -46,7 +46,7 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             'nama' => 'Formulir Pemeliharaan CCTV',
             'kategori' => 'Umum',
             'route' => route('form-cctv.index'),
-            'total' => \App\Models\FormCctv::count()
+            'total' => \App\Models\FormCctv\FormCctv::count()
         ],
         [
             'nama' => 'Permohonan Pencabutan Hak Akses',
@@ -80,9 +80,14 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
 })->name('formulir.index');
 
 Route::get('form-cctv/create-v2', [FormCctvController::class, 'createV2'])->name('form-cctv.create-v2');
+Route::post('form-cctv/parse-excel', [FormCctvController::class, 'parseExcel'])->name('form-cctv.parse-excel');
+Route::get('form-cctv/template-items', [FormCctvController::class, 'downloadTemplateItems'])->name('form-cctv.template-items');
 Route::resource('form-cctv', FormCctvController::class);
 
 Route::resource('form-pencabutan-hak-akses', FormPencabutanHakAksesController::class);
 
+Route::post('master-cctv/import', [MasterCctvController::class, 'import'])->name('master-cctv.import');
+Route::get('master-cctv/template', [MasterCctvController::class, 'downloadTemplate'])->name('master-cctv.template');
 Route::resource('master-cctv', MasterCctvController::class)->only(['store', 'update', 'destroy']);
+
 Route::resource('master-signer', MasterSignerController::class)->only(['store', 'update', 'destroy']);

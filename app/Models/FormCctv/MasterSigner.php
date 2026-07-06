@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\FormCctv;
 
 use Illuminate\Database\Eloquent\Model;
 
 class MasterSigner extends Model
 {
-    protected $fillable = ['nama', 'nipp'];
+    protected $fillable = ['nama', 'nipp', 'jabatan'];
 }

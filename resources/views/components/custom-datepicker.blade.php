@@ -105,13 +105,19 @@
         transition: all 0.2s ease;
     }
 
-    .dp-day:hover:not(.dp-empty, .dp-selected, .dp-prev-month) {
+    .dp-day:hover:not(.dp-empty, .dp-selected, .dp-prev-month, .dp-disabled) {
         background-color: #f0f0f0;
     }
 
     .dp-day.dp-prev-month {
         color: #c4c4c4;
         cursor: default;
+    }
+
+    .dp-day.dp-disabled {
+        color: #d1d5db;
+        cursor: not-allowed;
+        background-color: #f9fafb;
     }
 
     .dp-day.dp-selected {
@@ -216,6 +222,28 @@
         let currentTargetInput = null;
         let currentDate = new Date(); 
         let selectedDate = new Date();
+        let currentMinDate = new Date();
+
+        function parseDateString(str, format) {
+            if (!str) return null;
+            if (format === 'id') {
+                const parts = str.split(' ');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const monthNamesId = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                    const month = monthNamesId.indexOf(parts[1]);
+                    const year = parseInt(parts[2], 10);
+                    if (month !== -1) return new Date(year, month, day);
+                }
+            } else {
+                const parts = str.split('-');
+                if (parts.length === 3) {
+                    return new Date(parts[2], parseInt(parts[1], 10) - 1, parts[0]);
+                }
+            }
+            let d = new Date(str);
+            return isNaN(d) ? null : d;
+        }
 
         const months = [
             "January", "February", "March", "April", "May", "June",
@@ -276,24 +304,30 @@
             // Current month days
             for (let i = 1; i <= daysInMonth; i++) {
                 const dayEl = document.createElement('div');
+                const cellDate = new Date(year, month, i);
                 
                 let isSelected = i === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear();
+                let isDisabled = cellDate < currentMinDate;
                 
-                dayEl.className = isSelected ? 'dp-day dp-selected' : 'dp-day';
+                if (isDisabled) {
+                    dayEl.className = 'dp-day dp-disabled';
+                } else {
+                    dayEl.className = isSelected ? 'dp-day dp-selected' : 'dp-day';
+
+                    dayEl.addEventListener('click', () => {
+                        selectedDate = new Date(year, month, i);
+                        currentDate = new Date(year, month, i);
+                        renderCalendar();
+                    });
+                    
+                    dayEl.addEventListener('dblclick', () => {
+                        selectedDate = new Date(year, month, i);
+                        currentDate = new Date(year, month, i);
+                        confirmSelection();
+                    });
+                }
+
                 dayEl.textContent = i < 10 ? `0${i}` : i;
-
-                dayEl.addEventListener('click', () => {
-                    selectedDate = new Date(year, month, i);
-                    currentDate = new Date(year, month, i);
-                    renderCalendar();
-                });
-                
-                dayEl.addEventListener('dblclick', () => {
-                    selectedDate = new Date(year, month, i);
-                    currentDate = new Date(year, month, i);
-                    confirmSelection();
-                });
-
                 daysGrid.appendChild(dayEl);
             }
         }
@@ -319,10 +353,34 @@
             }
             container.style.left = leftPos + 'px';
             
+            // Determine minimum date
+            currentMinDate = new Date();
+            currentMinDate.setHours(0, 0, 0, 0);
+
+            // If it's a table row, check previous rows for a minimum date
+            if (input.name && input.name.match(/items\[(\d+)\]\[tanggal\]/)) {
+                let match = input.name.match(/items\[(\d+)\]\[tanggal\]/);
+                let rowNo = parseInt(match[1]);
+                
+                for (let r = rowNo - 1; r >= 1; r--) {
+                    let prevInput = document.querySelector(`input[name="items[${r}][tanggal]"]`);
+                    if (prevInput && prevInput.value) {
+                        let parsedPrevDate = parseDateString(prevInput.value, prevInput.getAttribute('data-format'));
+                        if (parsedPrevDate) {
+                            parsedPrevDate.setHours(0, 0, 0, 0);
+                            if (parsedPrevDate > currentMinDate) {
+                                currentMinDate = parsedPrevDate;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+
             // Parse existing date if available
             if (input.value) {
-                let parsed = new Date(input.value);
-                if (!isNaN(parsed)) {
+                let parsed = parseDateString(input.value, input.getAttribute('data-format'));
+                if (parsed) {
                     selectedDate = parsed;
                     currentDate = new Date(parsed);
                 }
@@ -349,9 +407,9 @@
                 
                 if (currentTargetInput.getAttribute('data-format') === 'id') {
                     const monthNamesId = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                    currentTargetInput.value = `${selectedDate.getDate()} ${monthNamesId[selectedDate.getMonth()]} ${year}`;
+                    currentTargetInput.value = `${day} ${monthNamesId[selectedDate.getMonth()]} ${year}`;
                 } else {
-                    currentTargetInput.value = `${year}-${month}-${day}`;
+                    currentTargetInput.value = `${day}-${month}-${year}`;
                 }
                 
                 // Trigger events to clear HTML5 validation custom validity

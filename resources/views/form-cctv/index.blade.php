@@ -69,12 +69,8 @@
             <input type="text" x-model="searchQuery" @input="performSearch" placeholder="Cari No. Ref / ID CCTV..." class="h-[40px] pl-9 pr-4 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors w-full sm:w-64">
             <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
         </div>
-        <a href="{{ route('form-cctv.create-v2') }}" class="inline-flex items-center justify-center px-4 h-[40px] bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold transition-colors w-auto">
-            Tambah Versi 2
-        </a>
-        <a href="{{ route('form-cctv.create') }}" class="inline-flex items-center justify-center px-4 h-[40px] bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors w-auto">
-            Tambah
-        </a>
+
+
     </div>
 </div>
 
@@ -132,9 +128,6 @@
         <p class="text-gray-900 font-semibold mb-1">Belum ada data formulir</p>
         <p class="text-sm text-gray-500 mb-6">Silakan buat formulir baru untuk memulai pencatatan.</p>
         <div class="flex items-center justify-center gap-2">
-            <a href="{{ route('form-cctv.create-v2') }}" class="inline-flex items-center justify-center px-4 h-[40px] bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold transition-colors w-auto">
-                Tambah Versi 2
-            </a>
             <a href="{{ route('form-cctv.create') }}" class="inline-flex items-center justify-center px-4 h-[40px] bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors w-auto">
                 Tambah
             </a>
@@ -178,9 +171,12 @@
                     <input type="text" name="lokasi" placeholder="Lokasi" required class="w-full h-[42px] pl-10 pr-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-slate-900 text-sm font-medium focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
                 </div>
             </div>
+            <button type="button" onclick="document.getElementById('importCctvModal').classList.remove('hidden')" class="bg-green-600 hover:bg-green-700 text-white px-4 h-[42px] rounded-lg text-sm font-semibold transition-all shadow-sm focus:ring-4 focus:ring-green-500/20 shrink-0 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                Import
+            </button>
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 h-[42px] rounded-lg text-sm font-semibold transition-all shadow-sm focus:ring-4 focus:ring-blue-500/20 shrink-0">Tambah</button>
         </form>
-        
         <div class="space-y-2 mb-4 flex-1">
             @forelse($masterCctvs as $cctv)
                 <div x-data="{ editing: false }" class="p-3 bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg border border-gray-200">
@@ -239,10 +235,10 @@
         <form action="{{ route('master-signer.store') }}" method="POST" class="flex items-end gap-3 mb-6">
             @csrf
             <div class="flex-1">
-                <label class="block text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-2">Nama Lengkap <span class="text-red-500 ml-1">*</span></label>
+                <label class="block text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-2">Nama <span class="text-red-500 ml-1">*</span></label>
                 <div class="relative">
                     <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                    <input type="text" name="nama" placeholder="Nama Lengkap" required class="w-full h-[42px] pl-10 pr-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-slate-900 text-sm font-medium focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
+                    <input type="text" name="nama" placeholder="Nama" required class="w-full h-[42px] pl-10 pr-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-slate-900 text-sm font-medium focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
                 </div>
             </div>
             <div class="flex-1">
@@ -252,6 +248,13 @@
                     <input type="text" name="nipp" placeholder="NIPP" required class="w-full h-[42px] pl-10 pr-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-slate-900 text-sm font-medium focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
                 </div>
             </div>
+            <div class="flex-1">
+                <label class="block text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-2">Jabatan</label>
+                <div class="relative">
+                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <input type="text" name="jabatan" placeholder="Jabatan" class="w-full h-[42px] pl-10 pr-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-slate-900 text-sm font-medium focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
+                </div>
+            </div>
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 h-[42px] rounded-lg text-sm font-semibold transition-all shadow-sm focus:ring-4 focus:ring-blue-500/20 shrink-0">Tambah</button>
         </form>
         
@@ -259,13 +262,16 @@
             @forelse($masterSigners as $signer)
                 <div x-data="{ editing: false }" class="p-3 bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg border border-gray-200">
                     <div x-show="!editing" class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <p class="font-semibold text-sm text-gray-900">{{ $signer->nama }}</p>
+                        <div class="flex flex-wrap items-center gap-2 pr-2">
+                            <p class="font-semibold text-sm text-gray-900" style="word-break: break-word;">{{ $signer->nama }}</p>
                             @if($signer->nipp)
-                                <span class="text-xs text-gray-600 bg-gray-200 px-2 py-0.5 rounded-full">NIPP: {{ $signer->nipp }}</span>
+                                <span class="text-xs text-gray-600 bg-gray-200 px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">NIPP: {{ $signer->nipp }}</span>
+                            @endif
+                            @if($signer->jabatan)
+                                <span class="text-xs text-gray-600 bg-gray-200 px-2 py-0.5 rounded-full text-center" style="word-break: break-word;">{{ $signer->jabatan }}</span>
                             @endif
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 shrink-0">
                             <button @click="editing = true" type="button" class="text-amber-500 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 h-[36px] w-[36px] flex items-center justify-center rounded-lg transition-colors" title="Edit">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             </button>
@@ -280,8 +286,9 @@
                     <form x-show="editing" style="display: none;" action="{{ route('master-signer.update', $signer->id) }}" method="POST" class="flex flex-col gap-2 w-full m-0">
                         @csrf @method('PUT')
                         <div class="flex gap-2">
-                            <input type="text" name="nama" value="{{ $signer->nama }}" required class="flex-1 min-w-0 h-[36px] px-3 rounded-lg border border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                            <input type="text" name="nipp" value="{{ $signer->nipp }}" required class="flex-1 min-w-0 h-[36px] px-3 rounded-lg border border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
+                            <input type="text" name="nama" value="{{ $signer->nama }}" required class="flex-1 min-w-0 h-[36px] px-3 rounded-lg border border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Nama">
+                            <input type="text" name="nipp" value="{{ $signer->nipp }}" required class="flex-1 min-w-0 h-[36px] px-3 rounded-lg border border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="NIPP">
+                            <input type="text" name="jabatan" value="{{ $signer->jabatan }}" class="flex-1 min-w-0 h-[36px] px-3 rounded-lg border border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Jabatan">
                         </div>
                         <div class="flex gap-2 justify-end">
                             <button type="button" @click="editing = false" class="bg-red-500 hover:bg-red-600 text-white px-4 h-[32px] rounded-lg text-sm font-semibold transition-colors shadow-sm">Batal</button>
@@ -329,6 +336,40 @@
     
     /* Pagination Styles Override removed */
 </style>
+<!-- Import Modal -->
+<div id="importCctvModal" class="fixed inset-0 z-50 hidden bg-gray-900/50 backdrop-blur-sm flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 m-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-gray-900">Import Data ID-CCTV</h3>
+            <button type="button" onclick="document.getElementById('importCctvModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <form action="{{ route('master-cctv.import') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            
+            <div class="mb-5">
+                <p class="text-sm text-gray-600 mb-3">Silakan upload file Excel berformat .xlsx yang berisi data ID CCTV dan Lokasi.</p>
+                <a href="{{ route('master-cctv.template') }}" class="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline mb-4">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download Template Excel (XLSX)
+                </a>
+                
+                <label class="block text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-2">File Excel <span class="text-red-500 ml-1">*</span></label>
+                <div class="relative flex items-center border-2 border-slate-200 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer w-full h-[42px] px-3 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10">
+                    <input type="file" name="file" accept=".xlsx, .xls, .csv" required class="w-full text-sm text-slate-700 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer outline-none">
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="document.getElementById('importCctvModal').classList.add('hidden')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 h-[42px] rounded-lg text-sm font-semibold transition-all">Batal</button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 h-[42px] rounded-lg text-sm font-semibold transition-all shadow-sm">Import Data</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     function confirmDelete(form) {
         Swal.fire({

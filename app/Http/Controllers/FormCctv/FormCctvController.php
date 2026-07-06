@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\FormCctv;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller; // need to import base controller
 
-use App\Models\FormCctv;
-use App\Models\FormCctvItem;
-use App\Models\MasterCctv;
-use App\Models\MasterSigner;
+use App\Models\FormCctv\FormCctv;
+use App\Models\FormCctv\FormCctvItem;
+use App\Models\FormCctv\MasterCctv;
+use App\Models\FormCctv\MasterSigner;
 class FormCctvController extends Controller
 {
     public function index(Request $request)
@@ -29,16 +30,10 @@ class FormCctvController extends Controller
 
     public function create()
     {
-        $masterCctvs = MasterCctv::orderBy('id_cctv', 'asc')->get();
+        $usedIds = FormCctv::pluck('id_cctv')->toArray();
+        $masterCctvs = MasterCctv::whereNotIn('id_cctv', $usedIds)->orderBy('id_cctv', 'asc')->get();
         $masterSigners = MasterSigner::orderBy('nama', 'asc')->get();
         return view('form-cctv.create', compact('masterCctvs', 'masterSigners'));
-    }
-
-    public function createV2()
-    {
-        $masterCctvs = MasterCctv::orderBy('id_cctv', 'asc')->get();
-        $masterSigners = MasterSigner::orderBy('nama', 'asc')->get();
-        return view('form-cctv.create-v2', compact('masterCctvs', 'masterSigners'));
     }
 
     public function store(Request $request)
@@ -47,7 +42,7 @@ class FormCctvController extends Controller
             'no_ref' => 'nullable|string|max:255',
             'tanggal' => 'nullable|date',
             'business_area' => 'nullable|string|max:255',
-            'id_cctv' => 'nullable|string|max:255',
+            'id_cctv' => 'nullable|string|max:255|unique:form_cctvs,id_cctv',
             'lokasi' => 'nullable|string|max:255',
             'items' => 'nullable|array',
             'items.*.tanggal' => 'nullable|string|max:255',
@@ -58,6 +53,7 @@ class FormCctvController extends Controller
             'kota_tanggal' => 'nullable|string',
             'mengetahui_nama' => 'nullable|string|max:255',
             'mengetahui_nipp' => 'nullable|string|max:255',
+            'mengetahui_jabatan' => 'nullable|string|max:255',
         ]);
 
         $form = FormCctv::create([
@@ -69,21 +65,17 @@ class FormCctvController extends Controller
             'kota_tanggal' => $validatedData['kota_tanggal'] ?? null,
             'mengetahui_nama' => $validatedData['mengetahui_nama'] ?? null,
             'mengetahui_nipp' => $validatedData['mengetahui_nipp'] ?? null,
+            'mengetahui_jabatan' => $validatedData['mengetahui_jabatan'] ?? null,
         ]);
 
         if (isset($validatedData['items']) && is_array($validatedData['items'])) {
             foreach ($validatedData['items'] as $index => $itemData) {
+                // Skip completely empty rows
+                if (empty($itemData['tanggal']) && empty($itemData['keterangan']) && empty($itemData['paraf']) && empty($itemData['perawatan']) && empty($itemData['perbaikan'])) {
+                    continue;
+                }
+
                 $no = $index;
-                
-                // Determine jenis_kegiatan based on checkboxes.
-                // If both are checked, we can store a specific value, but the schema uses enum('perawatan', 'perbaikan'). 
-                // Wait, if we use enum, we can't store both. Let's change how we store it or just save the first one checked.
-                // Or better, let's just save JSON or modify the schema if needed.
-                // Since the user asked for checkboxes, if checked = 'V', if unchecked = '-'. 
-                // The current schema is enum('perawatan', 'perbaikan'). I should alter it to store checkboxes state as string or two columns.
-                // Actually, let's just bypass the enum issue by updating the schema or just relying on strings if enum allows it, but enum is strict.
-                // I will update the migration later, or for now, just save it as string if the DB is SQLite, but Laragon uses MySQL.
-                // Let's modify the migration or use a simpler approach. I'll pass 'perawatan' or 'perbaikan' or null.
                 
                 $perawatan = isset($itemData['perawatan']) ? 'V' : '-';
                 $perbaikan = isset($itemData['perbaikan']) ? 'V' : '-';
@@ -144,6 +136,7 @@ class FormCctvController extends Controller
             'kota_tanggal' => 'nullable|string',
             'mengetahui_nama' => 'nullable|string|max:255',
             'mengetahui_nipp' => 'nullable|string|max:255',
+            'mengetahui_jabatan' => 'nullable|string|max:255',
         ]);
 
         $form->update([
@@ -155,12 +148,18 @@ class FormCctvController extends Controller
             'kota_tanggal' => $validatedData['kota_tanggal'] ?? null,
             'mengetahui_nama' => $validatedData['mengetahui_nama'] ?? null,
             'mengetahui_nipp' => $validatedData['mengetahui_nipp'] ?? null,
+            'mengetahui_jabatan' => $validatedData['mengetahui_jabatan'] ?? null,
         ]);
         
         $form->items()->delete(); // recreate items for simplicity
 
         if (isset($validatedData['items']) && is_array($validatedData['items'])) {
             foreach ($validatedData['items'] as $index => $itemData) {
+                // Skip completely empty rows
+                if (empty($itemData['tanggal']) && empty($itemData['keterangan']) && empty($itemData['paraf']) && empty($itemData['perawatan']) && empty($itemData['perbaikan'])) {
+                    continue;
+                }
+
                 $no = $index;
                 
                 $perawatan = isset($itemData['perawatan']) ? 'V' : '-';
@@ -179,6 +178,37 @@ class FormCctvController extends Controller
         }
 
         return redirect()->route('form-cctv.index')->with('success', "Formulir {$form->id_cctv} Berhasil Diperbarui.");
+    }
+
+    public function parseExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls|max:2048'
+        ]);
+
+        try {
+            $import = new \App\Imports\FormCctv\FormCctvItemImport();
+            $data = \Maatwebsite\Excel\Facades\Excel::toCollection($import, $request->file('file'))->first();
+            
+            // Format data from collection
+            $formattedData = $import->collection($data);
+
+            return response()->json([
+                'success' => true,
+                'data' => $formattedData
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Form CCTV Parse Excel Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat membaca file Excel. Pastikan format file benar.'
+            ], 500);
+        }
+    }
+
+    public function downloadTemplateItems()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\FormCctv\FormCctvItemTemplateExport, 'Template_Isi_Tabel_CCTV.xlsx');
     }
 
     public function destroy(string $id)
