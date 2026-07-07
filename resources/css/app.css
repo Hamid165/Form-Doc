@@ -8,3 +8,94 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Modern TomSelect Theme (Mini/Inline Version) */
+.ts-wrapper.modern-select {
+    width: 100%;
+}
+
+.ts-wrapper.modern-select .ts-control {
+    background-color: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 4px !important;
+    min-height: 24px !important;
+    /* Dikecilkan */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 2px 8px !important;
+    /* Padding dikecilkan */
+    font-family: 'Inter', system-ui, sans-serif !important;
+    font-size: 11px !important;
+    /* Font disesuaikan dengan A4 */
+    color: #1f2937 !important;
+    transition: all 0.2s ease !important;
+}
+
+.ts-wrapper.modern-select.focus .ts-control {
+    border-color: #3b82f6 !important;
+    outline: 1px solid #3b82f6 !important;
+    outline-offset: 0px !important;
+    box-shadow: none !important;
+}
+
+.ts-wrapper.modern-select .ts-dropdown {
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 2px !important;
+    overflow: hidden !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+.ts-wrapper.modern-select .ts-dropdown .option {
+    padding: 6px 12px !important;
+    /* Item list dikecilkan */
+    font-size: 11px !important;
+    color: #1f2937 !important;
+    transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+.ts-wrapper.modern-select .ts-dropdown .active,
+.ts-wrapper.modern-select .ts-dropdown .option:hover {
+    background-color: #f3f4f6 !important;
+    color: #3b82f6 !important;
+}
+
+.ts-wrapper.modern-select .ts-control input::placeholder {
+    color: #9ca3af !important;
+}
+
+/* Ubah ikon panah solid menjadi chevron (V) modern */
+.ts-wrapper.modern-select .ts-control::after {
+    content: "" !important;
+    display: block !important;
+    width: 14px !important;
+    height: 14px !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    position: absolute !important;
+    right: 8px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    pointer-events: none !important;
+    border: none !important;
+}
+
+/* Modifier untuk rata tengah (Center) */
+.ts-wrapper.modern-select.text-center .ts-control {
+    justify-content: center !important;
+}
+.ts-wrapper.modern-select.text-center .ts-control > .item {
+    text-align: center !important;
+    width: 100% !important; /* Memastikan item mengambil sisa ruang */
+    padding-right: 14px !important; /* Kompensasi ikon panah agar benar-benar di tengah */
+}
+.ts-wrapper.modern-select.text-center .ts-control input {
+    text-align: center !important;
+}
+.ts-wrapper.modern-select.text-center .ts-dropdown .option {
+    text-align: center !important;
+}

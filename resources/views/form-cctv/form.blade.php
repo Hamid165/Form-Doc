@@ -575,13 +575,15 @@ document.addEventListener('DOMContentLoaded', function() {
         var tsIdCctv = new TomSelect("#id_cctv", {
             create: false,
             sortField: { field: "text", direction: "asc" },
-            placeholder: "ID CCTV"
+            placeholder: "ID CCTV",
+            wrapperClass: 'ts-wrapper modern-select'
         });
 
         var tsLokasi = new TomSelect("#lokasi", {
             create: false,
             sortField: { field: "text", direction: "asc" },
-            placeholder: "LOKASI"
+            placeholder: "LOKASI",
+            wrapperClass: 'ts-wrapper modern-select'
         });
 
         var isSyncingCctv = false;
@@ -611,9 +613,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // --- NAMA <-> NIPP <-> JABATAN sync ---
-        var tomNama = new TomSelect("#mengetahui_nama", { create: false, placeholder: "-- Pilih Nama --" });
-        var tomNipp = new TomSelect("#mengetahui_nipp", { create: false, placeholder: "-- Pilih NIPP --" });
-        var tomJabatan = new TomSelect("#mengetahui_jabatan", { create: false, placeholder: "-- Pilih Jabatan --" });
+        var tomNama = new TomSelect("#mengetahui_nama", { create: false, placeholder: "-- Pilih Nama --", wrapperClass: 'ts-wrapper modern-select text-center' });
+        var tomNipp = new TomSelect("#mengetahui_nipp", { create: false, placeholder: "-- Pilih NIPP --", wrapperClass: 'ts-wrapper modern-select text-center' });
+        var tomJabatan = new TomSelect("#mengetahui_jabatan", { create: false, placeholder: "-- Pilih Jabatan --", wrapperClass: 'ts-wrapper modern-select text-center' });
 
         var isSyncingSigner = false;
 

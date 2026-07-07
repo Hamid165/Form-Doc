@@ -39,7 +39,7 @@ class FormPencabutanHakAksesController extends Controller
         $jabatanMengetahuiList = FormPencabutanHakAkses::whereNotNull('jabatan_mengetahui')->distinct()->pluck('jabatan_mengetahui');
         $mengetahuiNamaList = FormPencabutanHakAkses::whereNotNull('mengetahui_nama')->distinct()->pluck('mengetahui_nama');
 
-        return view('form-pencabutan-hak-akses.create-v2', compact(
+        return view('form-pencabutan-hak-akses.create', compact(
             'formTemplate', 'form', 'masterPemohons', 
             'bagianFungsiList', 'kotaTanggalList', 'jabatanMengetahuiList', 'mengetahuiNamaList'
         ));

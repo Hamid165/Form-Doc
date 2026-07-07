@@ -635,7 +635,8 @@
             document.querySelectorAll('.custom-tomselect').forEach(function(el) {
                 let ts = new TomSelect(el, {
                     create: true,
-                    sortField: { field: "text", direction: "asc" }
+                    sortField: { field: "text", direction: "asc" },
+                    wrapperClass: 'ts-wrapper modern-select'
                 });
                 el.tomselect = ts; // Simpan instance untuk diakses nanti
             });

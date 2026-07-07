@@ -11,8 +11,10 @@ class MasterCctvController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_cctv' => 'required|string|max:255',
+            'id_cctv' => 'required|string|max:255|unique:master_cctvs,id_cctv',
             'lokasi' => 'required|string|max:255',
+        ], [
+            'id_cctv.unique' => 'ID CCTV ini sudah terdaftar di database. Silakan gunakan ID yang berbeda.',
         ]);
 
         MasterCctv::create($request->all());
@@ -23,8 +25,10 @@ class MasterCctvController extends Controller
     public function update(Request $request, MasterCctv $master_cctv)
     {
         $request->validate([
-            'id_cctv' => 'required|string|max:255',
+            'id_cctv' => 'required|string|max:255|unique:master_cctvs,id_cctv,' . $master_cctv->id,
             'lokasi' => 'required|string|max:255',
+        ], [
+            'id_cctv.unique' => 'ID CCTV ini sudah terdaftar di database. Silakan gunakan ID yang berbeda.',
         ]);
 
         $oldIdCctv = $master_cctv->id_cctv;
