@@ -7,16 +7,22 @@ use App\Http\Controllers\FormPencabutanHakAkses\FormPencabutanHakAksesController
 use App\Http\Controllers\FormCctv\MasterCctvController;
 use App\Http\Controllers\FormCctv\MasterSignerController;
 use App\Http\Controllers\FormPencabutanHakAkses\MasterPemohonController;
+use App\Http\Controllers\FormPemeliharaan\FormPemeliharaanController;
+use App\Http\Controllers\FormPemeliharaan\MasterPerangkatController;
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
 Route::get('/', function () {
     $totalKategori = 1; // Dummy untuk saat ini
-    $totalJenisFormulir = 2; // Baru ada CCTV dan Pencabutan Hak Akses
+    $totalJenisFormulir = 3; // CCTV, Pencabutan Hak Akses, Pemeliharaan Perangkat
     
     $totalFormulirBulanIni = \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
-                                ->count() + \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::whereMonth('created_at', date('m'))
+                                ->count()
+                            + \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::whereMonth('created_at', date('m'))
+                                ->whereYear('created_at', date('Y'))
+                                ->count()
+                            + \App\Models\FormPemeliharaan\FormPemeliharaan::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
                                 ->count();
                                 
@@ -33,6 +39,12 @@ Route::get('/', function () {
             $item->type = 'Pencabutan Hak Akses';
             $item->route = route('form-pencabutan-hak-akses.show', $item->id);
             $item->title = "Pencabutan Hak Akses - {$item->nama_pemohon}";
+            return $item;
+        }))
+        ->concat(\App\Models\FormPemeliharaan\FormPemeliharaan::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Pemeliharaan Perangkat';
+            $item->route = route('form-pemeliharaan.show', $item->id);
+            $item->title = "Pemeliharaan Perangkat - {$item->no_ref}";
             return $item;
         }))
         ->sortByDesc('created_at')
@@ -60,6 +72,8 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             $total = \App\Models\FormCctv\FormCctv::count();
         } elseif ($template->nama === 'Permohonan Pencabutan Hak Akses') {
             $total = \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::count();
+        } elseif ($template->nama === 'Checklist Pemeliharaan Perangkat Jaringan') {
+            $total = \App\Models\FormPemeliharaan\FormPemeliharaan::count();
         }
         
         $formulirs->push([
@@ -125,3 +139,16 @@ Route::get('master-pemohon/template', [MasterPemohonController::class, 'download
 Route::post('master-pemohon', [MasterPemohonController::class, 'store'])->name('master-pemohon.store');
 Route::put('master-pemohon/{id}', [MasterPemohonController::class, 'update'])->name('master-pemohon.update');
 Route::delete('master-pemohon/{id}', [MasterPemohonController::class, 'destroy'])->name('master-pemohon.destroy');
+
+// ==============================================================
+// ROUTES FORMULIR CHECKLIST PEMELIHARAAN PERANGKAT JARINGAN
+// ==============================================================
+Route::get('form-pemeliharaan/{form_pemeliharaan}/pdf', [FormPemeliharaanController::class, 'exportPdf'])->name('form-pemeliharaan.pdf');
+Route::patch('form-pemeliharaan/{form_pemeliharaan}/confirm', [FormPemeliharaanController::class, 'confirm'])->name('form-pemeliharaan.confirm');
+Route::resource('form-pemeliharaan', FormPemeliharaanController::class);
+
+// Master Data Perangkat Jaringan
+Route::post('master-perangkat/import', [MasterPerangkatController::class, 'import'])->name('master-perangkat.import');
+Route::get('master-perangkat/template', [MasterPerangkatController::class, 'downloadTemplate'])->name('master-perangkat.template');
+Route::get('master-perangkat/{master_perangkat}/info', [MasterPerangkatController::class, 'getInfo'])->name('master-perangkat.info');
+Route::resource('master-perangkat', MasterPerangkatController::class)->only(['store', 'update', 'destroy']);

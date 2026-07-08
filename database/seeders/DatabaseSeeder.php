@@ -45,5 +45,20 @@ class DatabaseSeeder extends Seeder
                 'versi_dokumen' => '002-2020',
             ]);
         }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Checklist Pemeliharaan Perangkat Jaringan')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Checklist Pemeliharaan Perangkat Jaringan',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-pemeliharaan.index',
+                'no_dokumen' => 'FR.SM/TI/015.015/07-2026',
+                'tanggal_dokumen' => '01 Juli 2026',
+                'versi_dokumen' => '001-2026',
+            ]);
+        }
+
+        $this->call([
+            MasterPerangkatSeeder::class,
+        ]);
     }
 }
