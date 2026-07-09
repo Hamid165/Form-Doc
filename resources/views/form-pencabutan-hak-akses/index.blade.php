@@ -76,7 +76,17 @@
 </div>
 
 <!-- ======================= BAGIAN ATAS: DAFTAR FORMULIR ======================= -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8" x-data="{ search: '' }">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8" x-data="{ 
+    search: '',
+    get hasResults() {
+        if (this.search === '') return true;
+        const searchLower = this.search.toLowerCase();
+        if (!this.$refs.list) return true;
+        return Array.from(this.$refs.list.children).some(
+            el => el.getAttribute('data-searchable') === 'true' && el.innerText.toLowerCase().includes(searchLower)
+        );
+    }
+}">
     <!-- Header -->
     <div class="flex justify-between items-end mb-8">
         <div class="flex items-center gap-4">
@@ -105,9 +115,9 @@
     </div>
 
     <!-- List of Submissions -->
-    <div class="space-y-2">
+    <div class="space-y-2" x-ref="list">
         @forelse ($forms as $form)
-        <div x-show="search === '' || $el.innerText.toLowerCase().includes(search.toLowerCase())" class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md transition-shadow group relative">
+        <div data-searchable="true" x-show="search === '' || $el.innerText.toLowerCase().includes(search.toLowerCase())" class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md transition-shadow group relative">
             <div class="flex-1 grid grid-cols-12 gap-4 items-center">
                 <div class="col-span-2">
                     <p class="text-xs text-gray-500 font-medium mb-0.5">No. Ref</p>
@@ -159,6 +169,17 @@
         </div>
         @endforelse
     </div>
+
+    @if($forms->count() > 0)
+    <!-- Empty State for Search -->
+    <div x-show="!hasResults" style="display: none;" class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center mt-4">
+        <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        </div>
+        <p class="text-gray-900 font-semibold mb-1">Data tidak ditemukan</p>
+        <p class="text-sm text-gray-500 mb-0">Tidak ada formulir yang cocok dengan pencarian "<span x-text="search" class="font-semibold text-gray-700"></span>".</p>
+    </div>
+    @endif
     
     @if($forms->hasPages())
         <div class="mt-6 border-t border-gray-100 pt-6">

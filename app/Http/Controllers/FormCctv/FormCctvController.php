@@ -71,6 +71,11 @@ class FormCctvController extends Controller
             'mengetahui_jabatan' => $validatedData['mengetahui_jabatan'] ?? null,
         ]);
 
+        // Update all other forms' business area if it was provided
+        if (!empty($validatedData['business_area'])) {
+            FormCctv::where('id', '!=', $form->id)->update(['business_area' => $validatedData['business_area']]);
+        }
+
         if (isset($validatedData['items']) && is_array($validatedData['items'])) {
             foreach ($validatedData['items'] as $index => $itemData) {
                 // Skip completely empty rows
@@ -157,6 +162,11 @@ class FormCctvController extends Controller
             'mengetahui_nipp' => $validatedData['mengetahui_nipp'] ?? null,
             'mengetahui_jabatan' => $validatedData['mengetahui_jabatan'] ?? null,
         ]);
+
+        // Update all other forms' business area if it was provided
+        if (!empty($validatedData['business_area'])) {
+            FormCctv::where('id', '!=', $form->id)->update(['business_area' => $validatedData['business_area']]);
+        }
         
         $form->items()->delete(); // recreate items for simplicity
 

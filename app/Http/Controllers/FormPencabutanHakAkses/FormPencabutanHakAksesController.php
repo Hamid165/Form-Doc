@@ -82,6 +82,11 @@ class FormPencabutanHakAksesController extends Controller
             'mengetahui_nama' => $validatedData['mengetahui_nama'] ?? null,
         ]);
 
+        // Update all other forms' business area if it was provided
+        if (!empty($validatedData['business_area'])) {
+            FormPencabutanHakAkses::where('id', '!=', $form->id)->update(['business_area' => $validatedData['business_area']]);
+        }
+
         if (isset($validatedData['items']) && is_array($validatedData['items'])) {
             foreach ($validatedData['items'] as $index => $itemData) {
                 // Skip completely empty rows
@@ -185,6 +190,11 @@ class FormPencabutanHakAksesController extends Controller
             'jabatan_mengetahui' => $validatedData['jabatan_mengetahui'] ?? null,
             'mengetahui_nama' => $validatedData['mengetahui_nama'] ?? null,
         ]);
+        
+        // Update all other forms' business area if it was provided
+        if (!empty($validatedData['business_area'])) {
+            FormPencabutanHakAkses::where('id', '!=', $form->id)->update(['business_area' => $validatedData['business_area']]);
+        }
         
         $form->items()->delete();
 

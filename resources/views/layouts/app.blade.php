@@ -42,35 +42,38 @@
         }
     </style>
 </head>
-<body class="text-gray-800 h-screen flex overflow-hidden">
+<body class="text-gray-800 h-screen flex overflow-hidden" x-data="{ sidebarOpen: true }">
 
     <!-- Sidebar -->
-    <aside class="w-64 min-w-[256px] max-w-[256px] bg-white border-r border-gray-200 flex-shrink-0 flex flex-col overflow-hidden">
+    <aside :class="sidebarOpen ? 'w-64 min-w-[256px] max-w-[256px]' : 'w-20 min-w-[80px] max-w-[80px]'" class="bg-white border-r border-gray-200 flex-shrink-0 flex flex-col overflow-hidden transition-all duration-300">
         <!-- Logo Area -->
-        <div class="h-16 flex items-center px-6 gap-3 border-b border-gray-200 whitespace-nowrap min-w-max w-64">
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('images/logo-kai.svg') }}" class="w-8 h-8" alt="Logo KAI">
+        <div class="h-16 flex items-center px-5 gap-3 border-b border-gray-200 whitespace-nowrap overflow-hidden flex-shrink-0">
+            <button @click="sidebarOpen = !sidebarOpen" class="p-2 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none flex-shrink-0" title="Toggle Sidebar">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <div class="flex items-center gap-3 transition-opacity duration-300" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                <img src="{{ asset('images/logo-kai.svg') }}" class="w-8 h-8 flex-shrink-0" alt="Logo KAI">
                 <span class="font-bold text-lg text-gray-900">Formulir</span>
             </div>
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 py-6 space-y-2 overflow-y-auto whitespace-nowrap min-w-max w-64">
+        <nav class="flex-1 py-6 space-y-2 overflow-y-auto whitespace-nowrap overflow-hidden">
             <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-4 px-4 py-2.5 mx-3 rounded-lg font-medium transition-colors">
                 <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                <span>Dashboard</span>
+                <span :class="sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'" class="transition-opacity duration-300">Dashboard</span>
             </a>
             <a href="{{ route('formulir.index') }}" class="{{ request()->routeIs('formulir.index') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-4 px-4 py-2.5 mx-3 rounded-lg font-medium transition-colors">
                 <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                <span>Formulir</span>
+                <span :class="sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'" class="transition-opacity duration-300">Formulir</span>
             </a>
         </nav>
         
         <!-- User Profile -->
-        <div class="px-5 py-4 border-t border-gray-200 whitespace-nowrap min-w-max w-64">
+        <div class="px-5 py-4 border-t border-gray-200 whitespace-nowrap overflow-hidden flex-shrink-0">
             <div class="flex items-center gap-3">
-                <img src="https://ui-avatars.com/api/?name=Admin+KAI&background=0D8ABC&color=fff" alt="User" class="w-10 h-10 rounded-full flex-shrink-0">
-                <div>
+                <img src="https://ui-avatars.com/api/?name=Admin+KAI&background=0D8ABC&color=fff" alt="User" class="w-10 h-10 rounded-full flex-shrink-0 -ml-1">
+                <div :class="sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'" class="transition-opacity duration-300">
                     <p class="text-sm font-medium text-gray-900">Admin KAI</p>
                     <p class="text-xs text-gray-500">admin@kai.id</p>
                 </div>

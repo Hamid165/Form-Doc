@@ -102,24 +102,24 @@
     @forelse ($forms as $form)
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md transition-shadow group relative">
 
-        <div class="flex-1 grid grid-cols-12 gap-4 items-center">
-            <div class="col-span-2">
+        <div class="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 items-start md:items-center">
+            <div class="col-span-1 md:col-span-2">
                 <p class="text-xs text-gray-500 font-medium mb-0.5">No. Ref</p>
                 <p class="text-sm font-semibold text-gray-900">{{ $form->no_ref ?: '-' }}</p>
             </div>
-            <div class="col-span-2">
+            <div class="col-span-1 md:col-span-2">
                 <p class="text-xs text-gray-500 font-medium mb-0.5">ID CCTV</p>
                 <p class="text-sm font-medium text-gray-900">{{ $form->id_cctv ?: '-' }}</p>
             </div>
-            <div class="col-span-3">
+            <div class="col-span-1 md:col-span-3">
                 <p class="text-xs text-gray-500 font-medium mb-0.5">Lokasi</p>
                 <p class="text-sm font-medium text-gray-900 truncate" title="{{ $form->lokasi }}">{{ $form->lokasi ?: '-' }}</p>
             </div>
-            <div class="col-span-2">
+            <div class="col-span-1 md:col-span-2">
                 <p class="text-xs text-gray-500 font-medium mb-0.5">Tanggal</p>
                 <p class="text-sm font-medium text-gray-900">{{ $form->tanggal ? \Carbon\Carbon::parse($form->tanggal)->format('d M Y') : '-' }}</p>
             </div>
-            <div class="col-span-3 flex justify-end items-center">
+            <div class="col-span-1 md:col-span-3 flex justify-start md:justify-end items-center mt-2 md:mt-0">
                 <!-- Actions -->
                 <div class="flex items-center gap-2">
                     <a href="{{ route('form-cctv.edit', $form->id) }}" class="text-amber-500 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 h-[40px] w-[40px] flex items-center justify-center rounded-lg transition-colors" title="Edit">
@@ -176,7 +176,7 @@
             <h2 class="text-lg font-bold text-gray-900">Data ID-CCTV</h2>
         </div>
         
-        <form action="{{ route('master-cctv.store') }}" method="POST" class="flex items-end gap-3 mb-6">
+        <form action="{{ route('master-cctv.store') }}" method="POST" class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 mb-6">
             @csrf
             <div class="flex-1">
                 <label class="block text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-2">ID CCTV <span class="text-red-500 ml-1">*</span></label>
@@ -192,11 +192,13 @@
                     <input type="text" name="lokasi" placeholder="Lokasi" required class="w-full h-[42px] pl-10 pr-3 border-2 border-slate-200 rounded-lg bg-slate-50 text-slate-900 text-sm font-medium focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
                 </div>
             </div>
-            <button type="button" onclick="document.getElementById('importCctvModal').classList.remove('hidden')" class="bg-green-600 hover:bg-green-700 text-white px-4 h-[42px] rounded-lg text-sm font-semibold transition-all shadow-sm focus:ring-4 focus:ring-green-500/20 shrink-0 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                Import
-            </button>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 h-[42px] rounded-lg text-sm font-semibold transition-all shadow-sm focus:ring-4 focus:ring-blue-500/20 shrink-0">Tambah</button>
+            <div class="flex items-center gap-2 mt-2 sm:mt-0">
+                <button type="button" onclick="document.getElementById('importCctvModal').classList.remove('hidden')" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-4 h-[42px] rounded-lg text-sm font-semibold transition-all shadow-sm focus:ring-4 focus:ring-green-500/20 shrink-0 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    Import
+                </button>
+                <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-5 h-[42px] rounded-lg text-sm font-semibold transition-all shadow-sm focus:ring-4 focus:ring-blue-500/20 shrink-0">Tambah</button>
+            </div>
         </form>
         <div class="space-y-2 mb-4 flex-1">
             @forelse($masterCctvs as $cctv)

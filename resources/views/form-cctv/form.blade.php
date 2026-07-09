@@ -321,24 +321,63 @@
         padding: 0 !important;
         margin: 0 !important;
     }
+    
+    /* Responsive Styling for Mobile */
+    @media screen and (max-width: 768px) {
+        .a4-wrapper {
+            padding: 10px !important;
+        }
+        .a4-container {
+            width: 100% !important;
+            padding: 15px !important;
+            box-shadow: none !important;
+        }
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 15px;
+        }
+        .a4-container table {
+            min-width: 600px; /* Ensure tables don't squish too much, triggering scroll */
+        }
+        .header-table {
+            min-width: 600px;
+        }
+        .small-info-table {
+            min-width: auto;
+        }
+        .zoom-container {
+            zoom: 1 !important;
+        }
+        .top-nav-container {
+            width: 100% !important;
+        }
+    }
 </style>
 
 
 <div class="a4-wrapper" style="flex-direction: column; align-items: center;">
-    <div style="width: 273mm; margin-bottom: 20px;">
+    <div class="top-nav-container" style="width: 100%; max-width: 273mm; margin-bottom: 20px;">
         <a href="{{ route('form-cctv.index') }}" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors mb-6">
             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             Kembali ke Daftar Formulir Pemeliharaan CCTV
         </a>
     </div>
-    <div style="zoom: 1.3;">
-        <div class="a4-container">
+    <div class="zoom-container" style="zoom: 1.3; width: 100%; display: flex; justify-content: center;">
+        <div class="a4-container" style="max-width: 100%; overflow-x: auto;">
             <form id="cctv-form" action="{{ $action }}" method="POST">
                 @csrf
                 @if(isset($method) && $method === 'PUT')
                     @method('PUT')
                 @endif
             
+            <div class="table-responsive">
             <table class="header-table">
                 <tr>
                     <td rowspan="2" style="width: 15%; text-align: center;">
@@ -370,6 +409,7 @@
                     <td>: </td>
                 </tr>
             </table>
+            </div>
 
             <div class="info-section">
                 <!-- PENGATURAN LEBAR TABEL KIRI (NO REF) -->
@@ -434,6 +474,7 @@
                 </button>
             </div>
 
+            <div class="table-responsive">
             <table class="main-table">
                 <thead>
                     <tr>
@@ -486,6 +527,7 @@
                     @endfor
                 </tbody>
             </table>
+            </div>
             
             <div class="no-print" style="text-align: right; margin-top: 10px;">
                 <button type="button" id="btn-add-row" class="btn-tambah-baris">Tambah Baris</button>
@@ -493,7 +535,7 @@
 
             <div class="footer-section clearfix">
                 <div class="signature-box">
-                    <p>Yogyakarta, <input type="text" name="kota_tanggal" class="form-input-inline {{ isset($method) && $method === 'PUT' ? '' : 'custom-date-picker' }}" data-format="id" style="width: 130px; text-align: center; cursor: pointer; {{ isset($method) && $method === 'PUT' ? 'pointer-events:none; background:#f9f9f9;' : '' }}" value="{{ old('kota_tanggal', $form->kota_tanggal) }}" placeholder="Tanggal" autocomplete="off" required oninvalid="this.setCustomValidity('Bagian ini harus diisi')" oninput="this.setCustomValidity('')" {{ isset($method) && $method === 'PUT' ? 'readonly' : '' }}></p>
+                    <p>Yogyakarta, <input type="text" name="kota_tanggal" class="form-input-inline {{ isset($method) && $method === 'PUT' ? '' : 'custom-date-picker' }}" data-format="id" style="width: 130px; text-align: center; cursor: pointer; {{ isset($method) && $method === 'PUT' ? 'pointer-events:none; background:#f9f9f9;' : '' }}" value="{{ isset($method) && $method === 'PUT' ? \Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y') : old('kota_tanggal', $form->kota_tanggal) }}" placeholder="Tanggal" autocomplete="off" required oninvalid="this.setCustomValidity('Bagian ini harus diisi')" oninput="this.setCustomValidity('')" {{ isset($method) && $method === 'PUT' ? 'readonly' : '' }}></p>
                     <p style="margin-top: 15px;">Mengetahui,</p>
                     <p style="position: relative; margin-top: 5px;">
                         <select id="mengetahui_jabatan" name="mengetahui_jabatan" class="form-input-inline sync-signer" data-type="jabatan" style="width: 100%; text-align: center; appearance: none; cursor: pointer; text-align-last: center;">

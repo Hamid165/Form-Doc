@@ -178,6 +178,39 @@
     .btn-print:hover {
         background-color: #388e3c;
     }
+
+    /* Responsive Styling for Mobile Screens */
+    @media screen and (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+        .a4-container {
+            width: 100% !important;
+            padding: 15px !important;
+            box-shadow: none !important;
+            min-height: auto;
+        }
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 15px;
+        }
+        .a4-container table {
+            min-width: 600px;
+        }
+        .header-table {
+            min-width: 600px;
+        }
+        .small-info-table {
+            min-width: auto;
+        }
+    }
     </style>
 </head>
 <body>
@@ -189,6 +222,7 @@
             <button onclick="window.print()" class="btn-print">Print</button>
         </div>
 
+        <div class="table-responsive">
         <table class="header-table">
             <tr>
                 <td rowspan="2" style="width: 15%; text-align: center;">
@@ -220,6 +254,7 @@
                 <td>: </td>
             </tr>
         </table>
+        </div>
 
         <div class="info-section">
             <!-- PENGATURAN LEBAR TABEL KIRI (NO REF) -->
@@ -251,6 +286,7 @@
             </table>
         </div>
 
+        <div class="table-responsive">
         <table class="main-table">
             <thead>
                 <tr>
@@ -296,6 +332,7 @@
                 @endfor
             </tbody>
         </table>
+        </div>
 
             <div class="footer-section clearfix">
                 <div class="signature-box">
