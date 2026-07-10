@@ -6,7 +6,7 @@ Sistem Manajemen Formulir berbasis web yang dibangun menggunakan **Laravel 13**.
 
 Sebelum memulai, pastikan komputer Anda telah terinstal perangkat lunak berikut:
 
-- [PHP](https://www.php.net/downloads) (Minimal Versi **8.4**)
+- [PHP](https://www.php.net/downloads) (PHP Versi ≥ 8.3)
 - [Composer](https://getcomposer.org/download/)
 - [Node.js &amp; npm](https://nodejs.org/en/download/)
 - Git
