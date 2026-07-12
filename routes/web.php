@@ -9,13 +9,15 @@ use App\Http\Controllers\FormCctv\MasterSignerController;
 use App\Http\Controllers\FormPencabutanHakAkses\MasterPemohonController;
 use App\Http\Controllers\FormPemeliharaan\FormPemeliharaanController;
 use App\Http\Controllers\FormPemeliharaan\MasterPerangkatController;
+use App\Http\Controllers\FormAvailability\FormAvailabilityController;
+
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
 Route::get('/', function () {
     $totalKategori = 1; // Dummy untuk saat ini
-    $totalJenisFormulir = 3; // CCTV, Pencabutan Hak Akses, Pemeliharaan Perangkat
-    
+    $totalJenisFormulir = 4; // CCTV, Pencabutan Hak Akses, Pemeliharaan Perangkat, Avaibility system ticketing
+
     $totalFormulirBulanIni = \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
                                 ->count()
@@ -24,8 +26,11 @@ Route::get('/', function () {
                                 ->count()
                             + \App\Models\FormPemeliharaan\FormPemeliharaan::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
+                                ->count()
+                            + \App\Models\FormAvailability\FormAvailability::whereMonth('created_at', date('m'))
+                                ->whereYear('created_at', date('Y'))
                                 ->count();
-                                
+
     $totalPengguna = 2; // Dummy: Pitra, Hamid (sebelum ada auth)
 
     $recentForms = collect()
@@ -47,6 +52,12 @@ Route::get('/', function () {
             $item->title = "Pemeliharaan Perangkat - {$item->no_ref}";
             return $item;
         }))
+        ->concat(\App\Models\FormAvailability\FormAvailability::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Availability System Ticketing';
+            $item->route = route('form-availability.show', $item->id);
+            $item->title = "Availability Ticketing - {$item->no_ref}";
+            return $item;
+        }))
         ->sortByDesc('created_at')
         ->take(5);
 
@@ -62,9 +73,9 @@ Route::put('/formulir/template/{id}', [FormTemplateController::class, 'update'])
 
 Route::get('/formulir', function (\Illuminate\Http\Request $request) {
     $kategori = $request->query('kategori', 'All');
-    
+
     $templates = \App\Models\FormTemplate::all();
-    
+
     $formulirs = collect();
     foreach ($templates as $template) {
         $total = 0;
@@ -74,8 +85,10 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             $total = \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::count();
         } elseif ($template->nama === 'Checklist Pemeliharaan Perangkat Jaringan') {
             $total = \App\Models\FormPemeliharaan\FormPemeliharaan::count();
+        }elseif ($template->nama === 'Availability System Ticketing') {
+            $total = \App\Models\FormAvailability\FormAvailability::count();
         }
-        
+
         $formulirs->push([
             'id' => $template->id,
             'nama' => $template->nama,
@@ -95,12 +108,12 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
     $perPage = 10;
     $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
     $currentItems = $formulirs->slice(($currentPage - 1) * $perPage, $perPage)->all();
-    
+
     $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
-        $currentItems, 
-        $formulirs->count(), 
-        $perPage, 
-        $currentPage, 
+        $currentItems,
+        $formulirs->count(),
+        $perPage,
+        $currentPage,
         ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
     );
     $paginated->appends(['kategori' => $kategori]);
@@ -151,3 +164,26 @@ Route::post('master-perangkat/import', [MasterPerangkatController::class, 'impor
 Route::get('master-perangkat/template', [MasterPerangkatController::class, 'downloadTemplate'])->name('master-perangkat.template');
 Route::get('master-perangkat/{master_perangkat}/info', [MasterPerangkatController::class, 'getInfo'])->name('master-perangkat.info');
 Route::resource('master-perangkat', MasterPerangkatController::class)->only(['store', 'update', 'destroy']);
+
+
+// ==============================================================
+// ROUTES FORMULIR AVAILABILITY SYSTEM TICKETING
+// ==============================================================
+
+Route::patch(
+    'form-availability/{form_availability}/confirm',
+    [FormAvailabilityController::class, 'confirm']
+)->name('form-availability.confirm');
+
+Route::get(
+    'form-availability/{form_availability}/excel',
+    [
+        FormAvailabilityController::class,
+        'exportExcel',
+    ]
+)->name('form-availability.excel');
+
+Route::resource(
+    'form-availability',
+    FormAvailabilityController::class
+);

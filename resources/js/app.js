@@ -1,1 +1,1 @@
-//
+import './form-availability.js';

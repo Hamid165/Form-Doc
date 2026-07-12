@@ -167,7 +167,7 @@
         background-color: #00a4e4;
         color: #ffffff;
     }
-    
+
     .dp-hidden {
         display: none !important;
     }
@@ -177,7 +177,7 @@
     <div id="datepicker-overlay"></div>
     <div class="dp-modal-container">
         <div class="dp-card">
-            
+
             <div class="dp-header">
                 <div class="dp-select-wrapper">
                     <select id="dp-month-select"></select>
@@ -218,9 +218,9 @@
         const daysGrid = document.getElementById('dp-days-grid');
         const btnCancel = document.getElementById('dp-btn-cancel');
         const btnConfirm = document.getElementById('dp-btn-confirm');
-        
+
         let currentTargetInput = null;
-        let currentDate = new Date(); 
+        let currentDate = new Date();
         let selectedDate = new Date();
         let currentMinDate = new Date();
         let currentDisabledDates = [];
@@ -284,10 +284,10 @@
 
         function renderCalendar() {
             daysGrid.innerHTML = '';
-            
+
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            
+
             monthSelect.value = month;
             yearSelect.value = year;
 
@@ -307,11 +307,11 @@
             for (let i = 1; i <= daysInMonth; i++) {
                 const dayEl = document.createElement('div');
                 const cellDate = new Date(year, month, i);
-                
+
                 let isSelected = i === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear();
                 let cellTime = cellDate.getTime();
                 let isDisabled = cellDate < currentMinDate || currentDisabledDates.includes(cellTime);
-                
+
                 if (isDisabled) {
                     dayEl.className = 'dp-day dp-disabled';
                 } else {
@@ -322,7 +322,7 @@
                         currentDate = new Date(year, month, i);
                         renderCalendar();
                     });
-                    
+
                     dayEl.addEventListener('dblclick', () => {
                         selectedDate = new Date(year, month, i);
                         currentDate = new Date(year, month, i);
@@ -337,10 +337,10 @@
 
         function openModal(input) {
             currentTargetInput = input;
-            
+
             const container = document.querySelector('.dp-modal-container');
             const rect = input.getBoundingClientRect();
-            
+
             // Prevent going out of bottom bound (open above the input instead)
             const datepickerHeight = 310; // exact height of dp-card is around 300px
             let topPos = rect.bottom + window.scrollY + 5;
@@ -348,14 +348,14 @@
                 topPos = rect.top + window.scrollY - datepickerHeight - 5;
             }
             container.style.top = topPos + 'px';
-            
+
             // Prevent going out of right bound
             let leftPos = rect.left + window.scrollX;
             if (leftPos + 380 > window.innerWidth) {
                 leftPos = window.innerWidth - 400; // rough width of datepicker
             }
             container.style.left = leftPos + 'px';
-            
+
             // Determine minimum date
             currentMinDate = new Date();
             currentMinDate.setHours(0, 0, 0, 0);
@@ -364,7 +364,7 @@
             if (input.name && input.name.match(/items\[(\d+)\]\[tanggal\]/)) {
                 let match = input.name.match(/items\[(\d+)\]\[tanggal\]/);
                 let rowNo = parseInt(match[1]);
-                
+
                 for (let r = rowNo - 1; r >= 1; r--) {
                     let prevInput = document.querySelector(`input[name="items[${r}][tanggal]"]`);
                     if (prevInput && prevInput.value) {
@@ -406,7 +406,7 @@
                 selectedDate = new Date();
                 currentDate = new Date();
             }
-            
+
             initDropdowns();
             renderCalendar();
             modal.classList.remove('dp-hidden');
@@ -422,7 +422,7 @@
                 const year = selectedDate.getFullYear();
                 const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
                 const day = String(selectedDate.getDate()).padStart(2, '0');
-                
+
                 if (currentTargetInput.getAttribute('data-format') === 'id' || currentTargetInput.getAttribute('data-format') === 'id-dash') {
                     const monthNamesId = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
                     if (currentTargetInput.getAttribute('data-format') === 'id-dash') {
@@ -433,7 +433,7 @@
                 } else {
                     currentTargetInput.value = `${day}-${month}-${year}`;
                 }
-                
+
                 // Trigger events to clear HTML5 validation custom validity
                 currentTargetInput.dispatchEvent(new Event('input', { bubbles: true }));
                 currentTargetInput.dispatchEvent(new Event('change', { bubbles: true }));

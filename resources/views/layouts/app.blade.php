@@ -9,17 +9,20 @@
     <!-- Tom Select -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-    
+
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('images/favicon.svg') }}">
-    
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @vite([
+    'resources/css/app.css',
+    'resources/js/app.js'
+    ])
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -68,7 +71,7 @@
                 <span :class="sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'" class="transition-opacity duration-300">Formulir</span>
             </a>
         </nav>
-        
+
         <!-- User Profile -->
         <div class="px-5 py-4 border-t border-gray-200 whitespace-nowrap overflow-hidden flex-shrink-0">
             <div class="flex items-center gap-3">
@@ -83,7 +86,7 @@
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col min-w-0 bg-white shadow-[inset_1px_0_0_0_rgba(0,0,0,0.05)]">
-        
+
         <!-- Top Header -->
         <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 flex-shrink-0 transition-all duration-300">
             <div class="flex items-center gap-4">
@@ -91,7 +94,7 @@
                 <!-- Page Title -->
                 <h1 class="text-xl font-bold text-gray-900">@yield('title')</h1>
             </div>
-            
+
             <div class="flex items-center gap-4">
                 <div class="w-8 h-8 rounded-full overflow-hidden border border-gray-200 shadow-sm">
                      <img src="https://ui-avatars.com/api/?name=Admin+KAI&background=0D8ABC&color=fff" alt="User">
@@ -106,15 +109,15 @@
             </div>
         </main>
     </div>
-    
+
     @include('components.custom-datepicker')
-    
+
     <!-- Lenis Smooth Scroll -->
     <script src="https://unpkg.com/lenis@1.0.45/dist/lenis.min.js"></script>
     <script>
         const scrollWrapper = document.getElementById('scroll-wrapper');
         const scrollContent = document.getElementById('scroll-content');
-        
+
         const lenis = new Lenis({
             wrapper: scrollWrapper,
             content: scrollContent,
@@ -122,15 +125,15 @@
             smoothWheel: true,
             wheelMultiplier: 1.5, // Meningkatkan kecepatan respons scroll
         })
-        
+
         function raf(time) {
             lenis.raf(time)
             requestAnimationFrame(raf)
         }
-        
+
         requestAnimationFrame(raf)
     </script>
-    
+
     @yield('scripts')
 </body>
 </html>
