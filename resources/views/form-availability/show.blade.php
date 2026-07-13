@@ -609,7 +609,7 @@
                     {{ $form_availability->daop_divre
                         ?: '................' }},
 
-                    {{ $form_availability->tanggal?->format('d/m/Y')
+                    {{ $form_availability->tanggal?->translatedFormat('d F Y')
                         ?: '................' }}
 
                 </p>
