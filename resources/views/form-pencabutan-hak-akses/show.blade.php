@@ -193,6 +193,14 @@
             background-color: #388e3c;
         }
 
+        .print-only {
+            display: none !important;
+        }
+        .eof-cell {
+            text-align: center;
+            font-style: italic;
+        }
+
         @media print {
             body {
                 margin: 0;
@@ -205,6 +213,12 @@
                 padding: 20mm;
             }
             .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: table-cell !important;
+            }
+            .screen-only {
                 display: none !important;
             }
         }
@@ -312,8 +326,13 @@
             </thead>
             <tbody>
                 @php
-                    $items = $form->items->keyBy('no')->toArray();
-                    $maxItems = max(4, count($items));
+                    $rawItems = $form->items ? array_values($form->items->toArray()) : [];
+                    $items = array_filter($rawItems, function($item) {
+                        return !empty($item['nama_pengguna']) || !empty($item['jenis_akun']) || !empty($item['unit_kerja']) || !empty($item['alasan']);
+                    });
+                    $items = array_values($items); // re-index
+                    $countItems = count($items);
+                    $maxItems = max(4, $countItems + 1);
                 @endphp
                 
                 @for ($i = 0; $i < $maxItems; $i++)
@@ -321,10 +340,26 @@
                         $item = $items[$i] ?? null;
                     @endphp
                     <tr>
-                        <td>{{ $item['nama_pengguna'] ?? '' }}</td>
-                        <td>{{ $item['jenis_akun'] ?? '' }}</td>
-                        <td>{{ $item['unit_kerja'] ?? '' }}</td>
-                        <td>{{ $item['alasan'] ?? '' }}</td>
+                        @if ($item)
+                            <td>{{ $item['nama_pengguna'] ?? '' }}</td>
+                            <td>{{ $item['jenis_akun'] ?? '' }}</td>
+                            <td>{{ $item['unit_kerja'] ?? '' }}</td>
+                            <td>{{ $item['alasan'] ?? '' }}</td>
+                        @else
+                            @if ($i === $countItems)
+                                <td style="text-align: center;">
+                                    <span style="font-style: italic;">-eof-</span>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            @else
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            @endif
+                        @endif
                     </tr>
                 @endfor
             </tbody>

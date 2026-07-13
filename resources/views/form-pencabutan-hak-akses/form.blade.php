@@ -316,6 +316,25 @@
 
 <div class="a4-wrapper" style="flex-direction: column; align-items: center;">
     <div style="width: 273mm; margin-bottom: 20px;">
+        @if ($errors->has('no_ref'))
+            <div class="relative flex items-center p-4 mb-6 border border-red-200 rounded-xl bg-red-50" role="alert">
+                <div class="flex items-center justify-center w-10 h-10 bg-red-100 rounded-lg shrink-0">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-bold text-red-800">Gagal!</h3>
+                    <p class="text-sm text-red-600 mt-0.5">{{ $errors->first('no_ref') }}</p>
+                </div>
+                <button type="button" class="absolute top-4 right-4 ml-auto text-red-400 hover:text-red-600 transition-colors" onclick="this.parentElement.style.display='none'">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        @endif
+        
         <a href="{{ route('form-pencabutan-hak-akses.index') }}" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors mb-6">
             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             Kembali ke Daftar Formulir Pencabutan Hak Akses

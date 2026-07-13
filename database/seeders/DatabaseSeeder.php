@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
         if (!\App\Models\FormTemplate::where('nama', 'Permohonan Pencabutan Hak Akses')->exists()) {
             \App\Models\FormTemplate::create([
                 'nama' => 'Permohonan Pencabutan Hak Akses',
-                'kategori' => 'Public',
+                'kategori' => 'Lainnya',
                 'route_name' => 'form-pencabutan-hak-akses.index',
                 'no_dokumen' => 'FR.SM/TI/013.004/10-2020',
                 'tanggal_dokumen' => '12 Oktober 2020',
