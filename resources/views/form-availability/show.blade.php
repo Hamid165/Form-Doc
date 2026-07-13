@@ -600,6 +600,35 @@
         {{-- FOOTER DOKUMEN --}}
         <div class="document-footer">
 
+            {{-- PETUNJUK --}}
+            <div class="document-instructions">
+
+                <p>
+                    LAPORAN DIKIRIM SETIAP HARI JAM 10.00
+                </p>
+
+                <p>
+                    YANG DILAPORKAN KEJADIAN MULAI
+                    JAM 00.00 S/D 23.59
+                </p>
+
+                <p>
+                    KIRIM VIA EMAIL KE HELP DESK
+                    (it.helpdesk@kai.id)
+                </p>
+
+                <p>
+                    PERANGKAT TICKETING MENCAKUP
+                    PC, SCANNER, PRINTER, DLL
+                </p>
+
+                <p>
+                    TERMASUK PADA LOKET, CIC,
+                    BOARDING, OA, CS, OPERATOR
+                </p>
+
+            </div>
+
 
             {{-- TANDA TANGAN --}}
             <div class="document-signature">
@@ -609,7 +638,7 @@
                     {{ $form_availability->daop_divre
                         ?: '................' }},
 
-                    {{ $form_availability->tanggal?->translatedFormat('d F Y')
+                    {{ $form_availability->tanggal?->format('d/m/Y')
                         ?: '................' }}
 
                 </p>
@@ -619,12 +648,21 @@
 
                     MENGETAHUI
 
-                    <br>
+                    @if (
+                        filled(
+                            $form_availability
+                                ->jabatan_penandatangan
+                        )
+                    )
 
-                    {{ strtoupper(
-                        $form_availability->mengetahui?->jabatan
-                        ?: 'SENIOR MANAGER/MANAGER/JM/ASMEN'
-                    ) }}
+                        <br>
+
+                        {{ strtoupper(
+                            $form_availability
+                                ->jabatan_penandatangan
+                        ) }}
+
+                    @endif
 
                 </p>
 
@@ -634,26 +672,46 @@
 
 
                 {{-- IDENTITAS PEJABAT --}}
-                <div class="signature-identity">
+                @if (
+                    !$form_availability
+                        ->identitasPenandatanganKosong()
+                )
 
-                    <div class="signature-person-name">
+                    <div class="signature-identity">
 
-                        {{ $form_availability->mengetahui?->nama
-                            ?: '-' }}
+                        @if (
+                            filled(
+                                $form_availability
+                                    ->nama_penandatangan
+                            )
+                        )
+
+                            <div
+                                class="signature-person-name"
+                                style="white-space: pre-line;"
+                            >{{ $form_availability->nama_penandatangan }}</div>
+
+                        @endif
+
+
+                        @if (
+                            $form_availability
+                                ->tampilkanNippPenandatangan()
+                        )
+
+                            <div class="signature-nipp">
+
+                                NIPP.
+
+                                {{ $form_availability->nipp_penandatangan }}
+
+                            </div>
+
+                        @endif
 
                     </div>
 
-
-                    <div class="signature-nipp">
-
-                        NIPP.
-
-                        {{ $form_availability->mengetahui?->nipp
-                            ?: '-' }}
-
-                    </div>
-
-                </div>
+                @endif
 
             </div>
 
@@ -674,7 +732,7 @@
 
                 @if ($form_availability->petugas_nipp)
 
-                    — NIPP
+                    - NIPP
 
                     {{ $form_availability->petugas_nipp }}
 

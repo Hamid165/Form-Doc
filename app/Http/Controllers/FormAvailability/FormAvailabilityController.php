@@ -2,48 +2,117 @@
 
 namespace App\Http\Controllers\FormAvailability;
 
+use App\Exports\FormAvailability\FormAvailabilityExport;
 use App\Http\Controllers\Controller;
 use App\Models\FormAvailability\FormAvailability;
 use App\Models\FormCctv\MasterSigner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Exports\FormAvailability\FormAvailabilityExport;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class FormAvailabilityController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->query('search');
+        /*
+         * Pencarian daftar formulir.
+         */
+        $search = trim(
+            (string) $request->query('search', '')
+        );
+
+        /*
+         * Pencarian Master Signer.
+         */
+        $signerSearch = trim(
+            (string) $request->query(
+                'signer_search',
+                ''
+            )
+        );
 
         $forms = FormAvailability::with([
-                'items',
-                'mengetahui',
-            ])
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('no_ref', 'like', "%{$search}%")
-                        ->orWhere(
-                            'business_area',
-                            'like',
-                            "%{$search}%"
-                        )
-                        ->orWhere(
-                            'daop_divre',
-                            'like',
-                            "%{$search}%"
-                        );
-                });
-            })
+            'items',
+            'mengetahui',
+        ])
+            ->when(
+                $search !== '',
+                function ($query) use ($search) {
+                    $query->where(
+                        function ($subQuery) use ($search) {
+                            $subQuery
+                                ->where(
+                                    'no_ref',
+                                    'like',
+                                    "%{$search}%"
+                                )
+                                ->orWhere(
+                                    'business_area',
+                                    'like',
+                                    "%{$search}%"
+                                )
+                                ->orWhere(
+                                    'daop_divre',
+                                    'like',
+                                    "%{$search}%"
+                                );
+                        }
+                    );
+                }
+            )
             ->latest()
-            ->paginate(10)
+            ->paginate(
+                10,
+                ['*'],
+                'page'
+            )
             ->withQueryString();
 
-        $masterSigners = MasterSigner::orderBy('nama', 'asc')->paginate(5, ['*'], 'signer_page');
+        $masterSigners = MasterSigner::query()
+            ->when(
+                $signerSearch !== '',
+                function ($query) use ($signerSearch) {
+                    $query->where(
+                        function ($subQuery) use (
+                            $signerSearch
+                        ) {
+                            $subQuery
+                                ->where(
+                                    'nama',
+                                    'like',
+                                    "%{$signerSearch}%"
+                                )
+                                ->orWhere(
+                                    'nipp',
+                                    'like',
+                                    "%{$signerSearch}%"
+                                )
+                                ->orWhere(
+                                    'jabatan',
+                                    'like',
+                                    "%{$signerSearch}%"
+                                );
+                        }
+                    );
+                }
+            )
+            ->orderBy('nama')
+            ->paginate(
+                10,
+                ['*'],
+                'signer_page'
+            )
+            ->withQueryString();
 
         return view(
             'form-availability.index',
-            compact('forms', 'masterSigners', 'search')
+            compact(
+                'forms',
+                'masterSigners',
+                'search',
+                'signerSearch'
+            )
         );
     }
 
@@ -91,10 +160,36 @@ class FormAvailabilityController extends Controller
                     $validated['petugas_nipp'] ?? null,
 
                 /*
-                 * ID pejabat dari tabel master_signers.
+                 * Master signer hanya dipakai pada mode master.
                  */
                 'mengetahui_id' =>
-                    $validated['mengetahui_id'],
+                    $validated['mengetahui_nipp_mode'] === 'master'
+                        ? ($validated['mengetahui_id'] ?? null)
+                        : null,
+
+                'mengetahui_nipp_mode' =>
+                    $validated['mengetahui_nipp_mode'],
+
+                'mengetahui_nama_override' =>
+                    $validated['mengetahui_nipp_mode'] === 'custom'
+                        ? trim(
+                            $validated['mengetahui_nama_override']
+                        )
+                        : null,
+
+                'mengetahui_nipp_override' =>
+                    $validated['mengetahui_nipp_mode'] === 'custom'
+                        ? (
+                            filled(
+                                $validated['mengetahui_nipp_override']
+                                ?? null
+                            )
+                                ? trim(
+                                    $validated['mengetahui_nipp_override']
+                                )
+                                : null
+                        )
+                        : null,
 
                 'status' => 'draft',
             ]);
@@ -206,10 +301,36 @@ class FormAvailabilityController extends Controller
                     $validated['petugas_nipp'] ?? null,
 
                 /*
-                 * ID pejabat harus ikut diperbarui.
+                 * Master signer hanya dipakai pada mode master.
                  */
                 'mengetahui_id' =>
-                    $validated['mengetahui_id'],
+                    $validated['mengetahui_nipp_mode'] === 'master'
+                        ? ($validated['mengetahui_id'] ?? null)
+                        : null,
+
+                'mengetahui_nipp_mode' =>
+                    $validated['mengetahui_nipp_mode'],
+
+                'mengetahui_nama_override' =>
+                    $validated['mengetahui_nipp_mode'] === 'custom'
+                        ? trim(
+                            $validated['mengetahui_nama_override']
+                        )
+                        : null,
+
+                'mengetahui_nipp_override' =>
+                    $validated['mengetahui_nipp_mode'] === 'custom'
+                        ? (
+                            filled(
+                                $validated['mengetahui_nipp_override']
+                                ?? null
+                            )
+                                ? trim(
+                                    $validated['mengetahui_nipp_override']
+                                )
+                                : null
+                        )
+                        : null,
             ]);
 
             /*
@@ -258,10 +379,29 @@ class FormAvailabilityController extends Controller
     public function confirm(
         FormAvailability $form_availability
     ) {
-        if (!$form_availability->mengetahui_id) {
+        $mode =
+            $form_availability->mode_penandatangan;
+
+        if (
+            $mode === 'master'
+            && !$form_availability->mengetahui_id
+        ) {
             return back()->withErrors([
                 'mengetahui_id' =>
-                    'Pejabat yang mengetahui harus dipilih sebelum form diselesaikan.',
+                    'Master Sign harus dipilih sebelum form diselesaikan.',
+            ]);
+        }
+
+        if (
+            $mode === 'custom'
+            && blank(
+                $form_availability
+                    ->mengetahui_nama_override
+            )
+        ) {
+            return back()->withErrors([
+                'mengetahui_nama_override' =>
+                    'Jabatan dan nama manual harus diisi sebelum form diselesaikan.',
             ]);
         }
 
@@ -372,13 +512,33 @@ class FormAvailabilityController extends Controller
                 'max:50',
             ],
 
-            /*
-             * Sekarang wajib memilih pejabat.
-             */
             'mengetahui_id' => [
-                'required',
+                'nullable',
+                'required_if:mengetahui_nipp_mode,master',
                 'integer',
                 'exists:master_signers,id',
+            ],
+
+            'mengetahui_nipp_mode' => [
+                'required',
+                Rule::in([
+                    'master',
+                    'custom',
+                    'hidden',
+                ]),
+            ],
+
+            'mengetahui_nama_override' => [
+                'nullable',
+                'string',
+                'max:255',
+                'required_if:mengetahui_nipp_mode,custom',
+            ],
+
+            'mengetahui_nipp_override' => [
+                'nullable',
+                'string',
+                'max:50',
             ],
 
             'items' => [
@@ -442,8 +602,8 @@ class FormAvailabilityController extends Controller
             'jumlah_perangkat_ticketing.required' =>
                 'Jumlah total perangkat wajib diisi.',
 
-            'mengetahui_id.required' =>
-                'Pejabat yang mengetahui wajib dipilih.',
+            'mengetahui_id.required_if' =>
+                'Master Sign wajib dipilih.',
 
             'mengetahui_id.exists' =>
                 'Pejabat yang dipilih tidak ditemukan.',
@@ -468,6 +628,21 @@ class FormAvailabilityController extends Controller
 
             'items.*.lama_gangguan.required' =>
                 'Lama gangguan wajib diisi.',
+
+            'mengetahui_nipp_mode.required' =>
+                'Pengaturan NIPP penandatangan wajib dipilih.',
+
+            'mengetahui_nipp_mode.in' =>
+                'Pengaturan NIPP penandatangan tidak valid.',
+
+            'mengetahui_nipp_override.max' =>
+                'NIPP khusus maksimal 50 karakter.',
+
+            'mengetahui_nama_override.required_if' =>
+                'Jabatan dan nama manual wajib diisi.',
+
+            'mengetahui_nama_override.max' =>
+                'Jabatan dan nama manual maksimal 255 karakter.',
         ]);
     }
 }

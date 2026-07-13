@@ -597,39 +597,86 @@ class FormAvailabilityExport implements
             )
         );
 
+        $signatureTitle = 'MENGETAHUI';
+
+        /*
+         * Jabatan penandatangan:
+         * - master mengambil jabatan dari master signer
+         * - custom mengambil baris pertama input manual
+         * - hidden dikosongkan
+         */
+        if (
+            filled(
+                $this->form
+                    ->jabatan_penandatangan
+            )
+        ) {
+            $signatureTitle .=
+                "\n"
+                . strtoupper(
+                    $this->form
+                        ->jabatan_penandatangan
+                );
+        }
+
         $put(
             $rows,
             $this->signatureTitleRow,
             5,
-            "MENGETAHUI\n"
-            . strtoupper(
-                $this->form
-                    ->mengetahui?->jabatan
-                ?: 'SENIOR MANAGER/MANAGER/JM/ASMEN'
-            )
+            $signatureTitle
         );
+
+        /*
+         * Nama penandatangan:
+         * - master mengambil nama master signer
+         * - custom mengambil baris kedua dan seterusnya
+         *   dari input manual
+         * - hidden dikosongkan
+         */
+        $signatureName = '';
+
+        if (
+            !$this->form
+                ->identitasPenandatanganKosong()
+            && filled(
+                $this->form
+                    ->nama_penandatangan
+            )
+        ) {
+            $signatureName = strtoupper(
+                $this->form->nama_penandatangan
+            );
+        }
 
         $put(
             $rows,
             $this->signatureNameRow,
             5,
-            strtoupper(
-                $this->form
-                    ->mengetahui?->nama
-                ?: '-'
-            )
+            $signatureName
         );
+
+        /*
+         * NIPP penandatangan:
+         * - master mengambil NIPP master
+         * - custom mengambil NIPP manual
+         * - hidden dikosongkan
+         */
+        $signatureNipp = '';
+
+        if (
+            $this->form
+                ->tampilkanNippPenandatangan()
+        ) {
+            $signatureNipp =
+                'NIPP. '
+                . $this->form->nipp_penandatangan;
+        }
 
         $put(
             $rows,
             $this->signatureNippRow,
             5,
-            'NIPP. '
-            . (
-                $this->form
-                    ->mengetahui?->nipp
-                ?: '-'
-            )
+            $signatureNipp
         );
 
         /*
@@ -1281,10 +1328,35 @@ class FormAvailabilityExport implements
 
         /*
          * Mengetahui dan jabatan.
+         * Tinggi baris menyesuaikan jabatan master/manual.
          */
+        $signatureTitle =
+            'MENGETAHUI';
+
+        if (
+            filled(
+                $this->form
+                    ->jabatan_penandatangan
+            )
+        ) {
+            $signatureTitle .=
+                "\n"
+                . strtoupper(
+                    $this->form
+                        ->jabatan_penandatangan
+                );
+        }
+
         $sheet->getRowDimension(
             $this->signatureTitleRow
-        )->setRowHeight(32);
+        )->setRowHeight(
+            $this->calculateTextHeight(
+                $signatureTitle,
+                30,
+                32,
+                60
+            )
+        );
 
         /*
          * Ruang tanda tangan.
@@ -1302,7 +1374,18 @@ class FormAvailabilityExport implements
          */
         $sheet->getRowDimension(
             $this->signatureNameRow
-        )->setRowHeight(22);
+        )->setRowHeight(
+            $this->calculateTextHeight(
+                (string) (
+                    $this->form
+                        ->nama_penandatangan
+                    ?? ''
+                ),
+                30,
+                22,
+                60
+            )
+        );
 
         $sheet->getRowDimension(
             $this->signatureNippRow

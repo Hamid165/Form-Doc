@@ -644,7 +644,9 @@ document.addEventListener('DOMContentLoaded', () => {
         );
 
         const rtsInput = card.querySelector(
-            '.js-rts-input'
+            '.js-rts-input:checked'
+        ) || card.querySelector(
+            'select.js-rts-input'
         );
 
         const deviceInput = card.querySelector(
@@ -678,15 +680,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (rtsSummary) {
-            const selectedOption =
-                rtsInput?.options[
-                    rtsInput.selectedIndex
-                ];
+            if (!rtsInput) {
+                rtsSummary.textContent =
+                    'RTS belum dipilih';
+            } else if (rtsInput.tagName === 'SELECT') {
+                const selectedOption =
+                    rtsInput.options[
+                        rtsInput.selectedIndex
+                    ];
 
-            rtsSummary.textContent =
-                selectedOption?.value
-                    ? selectedOption.textContent.trim()
-                    : 'RTS belum dipilih';
+                rtsSummary.textContent =
+                    selectedOption?.value
+                        ? selectedOption.textContent.trim()
+                        : 'RTS belum dipilih';
+            } else {
+                rtsSummary.textContent =
+                    rtsInput.value
+                    || 'RTS belum dipilih';
+            }
         }
 
         if (deviceSummary) {
@@ -1325,6 +1336,360 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /*
  * =========================================================
+ * LIVE SEARCH MASTER SIGNER
+ * Mengubah hanya tabel signer tanpa reload halaman.
+ * =========================================================
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchForm = document.getElementById(
+        'masterSignerSearchForm'
+    );
+
+    const searchInput = document.getElementById(
+        'masterSignerSearchInput'
+    );
+
+    const resetButton = document.getElementById(
+        'masterSignerResetSearch'
+    );
+
+    const loadingElement = document.getElementById(
+        'masterSignerSearchLoading'
+    );
+
+    if (!searchForm || !searchInput) {
+        return;
+    }
+
+    let debounceTimer = null;
+    let activeController = null;
+    let requestSequence = 0;
+
+    const setLoading = (isLoading) => {
+        if (!loadingElement) {
+            return;
+        }
+
+        loadingElement.classList.toggle(
+            'hidden',
+            !isLoading
+        );
+
+        loadingElement.classList.toggle(
+            'flex',
+            isLoading
+        );
+    };
+
+    const updateResetButton = () => {
+        if (!resetButton) {
+            return;
+        }
+
+        const hasKeyword =
+            searchInput.value.trim() !== '';
+
+        resetButton.classList.toggle(
+            'hidden',
+            !hasKeyword
+        );
+    };
+
+    const buildSearchUrl = () => {
+        const url = new URL(
+            searchForm.action,
+            window.location.origin
+        );
+
+        const keyword =
+            searchInput.value.trim();
+
+        if (keyword !== '') {
+            url.searchParams.set(
+                'signer_search',
+                keyword
+            );
+        } else {
+            url.searchParams.delete(
+                'signer_search'
+            );
+        }
+
+        /*
+         * Menjaga tab Master Signer tetap aktif,
+         * termasuk setelah halaman direfresh.
+         */
+        url.searchParams.set(
+            'signer_page',
+            '1'
+        );
+
+        return url;
+    };
+
+    const replaceSearchResult = (html) => {
+        const parser =
+            new DOMParser();
+
+        const responseDocument =
+            parser.parseFromString(
+                html,
+                'text/html'
+            );
+
+        const newResult =
+            responseDocument.getElementById(
+                'masterSignerTableResult'
+            );
+
+        const currentResult =
+            document.getElementById(
+                'masterSignerTableResult'
+            );
+
+        const newTotal =
+            responseDocument.getElementById(
+                'masterSignerTotalData'
+            );
+
+        const currentTotal =
+            document.getElementById(
+                'masterSignerTotalData'
+            );
+
+        if (!newResult || !currentResult) {
+            throw new Error(
+                'Bagian tabel Master Signer tidak ditemukan.'
+            );
+        }
+
+        /*
+         * Bersihkan directive Alpine lama sebelum
+         * isi tabel diganti, jika Alpine tersedia.
+         */
+        if (
+            window.Alpine
+            && typeof window.Alpine.destroyTree
+                === 'function'
+        ) {
+            window.Alpine.destroyTree(
+                currentResult
+            );
+        }
+
+        currentResult.innerHTML =
+            newResult.innerHTML;
+
+        if (newTotal && currentTotal) {
+            currentTotal.textContent =
+                newTotal.textContent.trim();
+        }
+
+        /*
+         * Aktifkan kembali @click tombol Edit dan
+         * tombol Tambah Signer pada empty state.
+         */
+        if (
+            window.Alpine
+            && typeof window.Alpine.initTree
+                === 'function'
+        ) {
+            window.Alpine.initTree(
+                currentResult
+            );
+        }
+    };
+
+    const loadSearchResult = async (
+        url,
+        updateBrowserUrl = true
+    ) => {
+        if (activeController) {
+            activeController.abort();
+        }
+
+        const controller =
+            new AbortController();
+
+        activeController = controller;
+
+        const currentSequence =
+            ++requestSequence;
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(
+                url.toString(),
+                {
+                    method: 'GET',
+
+                    headers: {
+                        Accept: 'text/html',
+
+                        'X-Requested-With':
+                            'XMLHttpRequest',
+                    },
+
+                    signal:
+                        controller.signal,
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `Pencarian signer gagal (${response.status}).`
+                );
+            }
+
+            const html =
+                await response.text();
+
+            if (
+                currentSequence
+                !== requestSequence
+            ) {
+                return;
+            }
+
+            replaceSearchResult(html);
+
+            if (updateBrowserUrl) {
+                window.history.replaceState(
+                    {
+                        masterSignerSearch: true,
+                    },
+                    '',
+                    url.toString()
+                );
+            }
+
+            updateResetButton();
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error(
+                    'Master Signer search error:',
+                    error
+                );
+            }
+        } finally {
+            if (
+                currentSequence
+                === requestSequence
+            ) {
+                setLoading(false);
+                activeController = null;
+            }
+        }
+    };
+
+    const executeSearch = () => {
+        loadSearchResult(
+            buildSearchUrl(),
+            true
+        );
+    };
+
+    searchInput.addEventListener(
+        'input',
+        () => {
+            updateResetButton();
+
+            window.clearTimeout(
+                debounceTimer
+            );
+
+            debounceTimer =
+                window.setTimeout(
+                    executeSearch,
+                    400
+                );
+        }
+    );
+
+    searchForm.addEventListener(
+        'submit',
+        (event) => {
+            event.preventDefault();
+
+            window.clearTimeout(
+                debounceTimer
+            );
+
+            executeSearch();
+        }
+    );
+
+    resetButton?.addEventListener(
+        'click',
+        () => {
+            searchInput.value = '';
+
+            updateResetButton();
+
+            window.clearTimeout(
+                debounceTimer
+            );
+
+            executeSearch();
+            searchInput.focus();
+        }
+    );
+
+    document.addEventListener(
+        'click',
+        (event) => {
+            const paginationLink =
+                event.target.closest(
+                    '#masterSignerTableResult nav a'
+                );
+
+            if (!paginationLink) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const url = new URL(
+                paginationLink.href,
+                window.location.origin
+            );
+
+            loadSearchResult(
+                url,
+                true
+            );
+        }
+    );
+
+    document.addEventListener(
+        'click',
+        (event) => {
+            const emptyResetButton =
+                event.target.closest(
+                    '[data-master-signer-empty-reset]'
+                );
+
+            if (!emptyResetButton) {
+                return;
+            }
+
+            event.preventDefault();
+
+            searchInput.value = '';
+            updateResetButton();
+            executeSearch();
+            searchInput.focus();
+        }
+    );
+
+    updateResetButton();
+});
+
+
+/*
+ * =========================================================
  * DROPDOWN AKSI AVAILABILITY
  * Digunakan pada halaman index.blade.php
  * =========================================================
@@ -1845,4 +2210,360 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModal();
         }
     });
+});
+
+
+/*
+ * =========================================================
+ * DATE PICKER
+ * Membuka kalender saat kolom atau ikon diklik
+ * =========================================================
+ */
+
+document.addEventListener('click', (event) => {
+    const trigger = event.target.closest(
+        '[data-availability-date-trigger]'
+    );
+
+    const clickedInput = event.target.closest(
+        '[data-availability-date-input]'
+    );
+
+    let dateInput = null;
+
+    if (trigger) {
+        event.preventDefault();
+
+        const wrapper = trigger.closest(
+            '[data-availability-date-picker]'
+        );
+
+        dateInput = wrapper?.querySelector(
+            '[data-availability-date-input]'
+        );
+    } else if (clickedInput) {
+        dateInput = clickedInput;
+    }
+
+    if (
+        !dateInput
+        || dateInput.disabled
+        || dateInput.readOnly
+    ) {
+        return;
+    }
+
+    dateInput.focus({
+        preventScroll: true,
+    });
+
+    /*
+     * Browser modern seperti Chrome dan Edge
+     * dapat membuka kalender lewat showPicker().
+     */
+    if (typeof dateInput.showPicker === 'function') {
+        try {
+            dateInput.showPicker();
+        } catch (error) {
+            /*
+             * Browser tertentu tetap akan membuka
+             * kalender melalui klik normal input.
+             */
+        }
+
+        return;
+    }
+
+    /*
+     * Fallback untuk browser yang belum
+     * mendukung showPicker().
+     */
+    if (trigger) {
+        dateInput.click();
+    }
+});
+
+/*
+ * =========================================================
+ * PREVIEW PEJABAT DAN IDENTITAS TANDA TANGAN
+ * =========================================================
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    const signerSelect = document.querySelector(
+        '[data-signer-select]'
+    );
+
+    const signerPreview = document.querySelector(
+        '[data-signer-preview]'
+    );
+
+    const modeInputs = Array.from(
+        document.querySelectorAll(
+            '[data-signer-nipp-mode]'
+        )
+    );
+
+    const masterWrapper = document.querySelector(
+        '[data-signer-master-wrapper]'
+    );
+
+    const customWrapper = document.querySelector(
+        '[data-signer-custom-wrapper]'
+    );
+
+    const emptyNote = document.querySelector(
+        '[data-signer-empty-note]'
+    );
+
+    const customNameInput = document.querySelector(
+        '[data-signer-name-custom]'
+    );
+
+    const customNippInput = document.querySelector(
+        '[data-signer-nipp-custom]'
+    );
+
+    /*
+     * Jangan lanjut kalau komponen form tanda tangan
+     * tidak ditemukan pada halaman ini.
+     */
+    if (
+        !signerSelect
+        || !signerPreview
+        || modeInputs.length === 0
+    ) {
+        return;
+    }
+
+    const nameElement = signerPreview.querySelector(
+        '[data-signer-name]'
+    );
+
+    const positionElement = signerPreview.querySelector(
+        '[data-signer-position]'
+    );
+
+    const nippElement = signerPreview.querySelector(
+        '[data-signer-nipp]'
+    );
+
+    const getSelectedMode = () => {
+        const selectedMode = modeInputs.find(
+            (input) => input.checked
+        );
+
+        return selectedMode?.value || 'master';
+    };
+
+    const getSelectedOption = () => {
+        return signerSelect.options[
+            signerSelect.selectedIndex
+        ];
+    };
+
+    /*
+     * Atur field yang tampil, disabled, dan required
+     * berdasarkan mode yang dipilih.
+     */
+    const updateSignerFields = () => {
+        const mode = getSelectedMode();
+
+        const isMaster =
+            mode === 'master';
+
+        const isCustom =
+            mode === 'custom';
+
+        const isHidden =
+            mode === 'hidden';
+
+        /*
+         * MASTER SIGN
+         */
+        if (masterWrapper) {
+            masterWrapper.hidden = !isMaster;
+        }
+
+        signerSelect.disabled = !isMaster;
+        signerSelect.required = isMaster;
+
+        /*
+         * INPUT MANUAL
+         */
+        if (customWrapper) {
+            customWrapper.hidden = !isCustom;
+        }
+
+        if (customNameInput) {
+            customNameInput.disabled = !isCustom;
+            customNameInput.required = isCustom;
+        }
+
+        if (customNippInput) {
+            customNippInput.disabled = !isCustom;
+            customNippInput.required = false;
+        }
+
+        /*
+         * MODE KOSONG
+         */
+        if (emptyNote) {
+            emptyNote.hidden = !isHidden;
+        }
+    };
+
+    const updateSignerPreview = () => {
+        const mode = getSelectedMode();
+
+        updateSignerFields();
+
+        /*
+         * MODE KOSONG
+         */
+        if (mode === 'hidden') {
+            signerPreview.hidden = true;
+
+            return;
+        }
+
+        /*
+         * MODE MANUAL
+         */
+        if (mode === 'custom') {
+            const manualIdentity =
+                customNameInput?.value.trim()
+                || '';
+
+            const manualNipp =
+                customNippInput?.value.trim()
+                || '';
+
+            signerPreview.hidden = false;
+
+            if (nameElement) {
+                nameElement.textContent =
+                    manualIdentity
+                    || 'Jabatan dan nama belum diisi';
+
+                nameElement.style.whiteSpace =
+                    'pre-line';
+            }
+
+            if (positionElement) {
+                positionElement.hidden = true;
+                positionElement.textContent = '';
+            }
+
+            if (nippElement) {
+                nippElement.hidden =
+                    manualNipp === '';
+
+                nippElement.textContent =
+                    manualNipp
+                        ? `NIPP ${manualNipp}`
+                        : '';
+            }
+
+            return;
+        }
+
+        /*
+         * MODE MASTER
+         */
+        const selectedOption =
+            getSelectedOption();
+
+        const hasSelection =
+            Boolean(selectedOption?.value);
+
+        signerPreview.hidden =
+            !hasSelection;
+
+        if (!hasSelection) {
+            return;
+        }
+
+        const masterName =
+            selectedOption.dataset.name
+            || selectedOption.textContent.trim();
+
+        const masterPosition =
+            selectedOption.dataset.position
+            || 'Jabatan belum tersedia';
+
+        const masterNipp =
+            selectedOption.dataset.nipp?.trim()
+            || '';
+
+        if (nameElement) {
+            nameElement.style.whiteSpace = '';
+            nameElement.textContent =
+                masterName;
+        }
+
+        if (positionElement) {
+            positionElement.hidden = false;
+            positionElement.textContent =
+                masterPosition;
+        }
+
+        if (nippElement) {
+            nippElement.hidden =
+                masterNipp === '';
+
+            nippElement.textContent =
+                masterNipp
+                    ? `NIPP ${masterNipp}`
+                    : '';
+        }
+    };
+
+    /*
+     * Ketika master signer berubah.
+     */
+    signerSelect.addEventListener(
+        'change',
+        updateSignerPreview
+    );
+
+    /*
+     * Ketika pilihan mode berubah.
+     */
+    modeInputs.forEach((input) => {
+        input.addEventListener(
+            'change',
+            () => {
+                updateSignerPreview();
+
+                if (
+                    input.checked
+                    && input.value === 'custom'
+                ) {
+                    window.setTimeout(() => {
+                        customNameInput?.focus();
+                    }, 50);
+                }
+            }
+        );
+    });
+
+    /*
+     * Preview input manual.
+     */
+    customNameInput?.addEventListener(
+        'input',
+        updateSignerPreview
+    );
+
+    customNippInput?.addEventListener(
+        'input',
+        updateSignerPreview
+    );
+
+    /*
+     * Jalankan ketika halaman pertama dibuka,
+     * termasuk ketika halaman edit dibuka.
+     */
+    updateSignerPreview();
 });

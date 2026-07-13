@@ -4,6 +4,25 @@
 
 @section('content')
 
+@php
+    /*
+     * Menentukan tab yang harus dibuka setelah pencarian/paginasi.
+     * Jika tidak ada parameter khusus, tab terakhir disimpan di browser.
+     */
+    $forcedTab = null;
+
+    if (request()->filled('search') || request()->has('page')) {
+        $forcedTab = 'forms';
+    }
+
+    if (
+        request()->filled('signer_search')
+        || request()->has('signer_page')
+    ) {
+        $forcedTab = 'signer';
+    }
+@endphp
+
 <div class="mx-auto w-full max-w-7xl space-y-6">
 
     {{-- KEMBALI KE KATALOG --}}
@@ -28,756 +47,1202 @@
         Kembali ke Katalog Formulir
     </a>
 
+    {{-- HEADER KAI --}}
+    <header class="availability-index-hero">
 
-    {{-- HEADER --}}
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="availability-index-hero-copy">
 
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">
+            <div class="availability-index-brandline">
+                <span class="availability-index-brandmark">KAI</span>
+
+                <span class="availability-index-brandtext">
+                    Monitoring operasional
+                </span>
+            </div>
+            <h1>
                 Availability System Ticketing
             </h1>
 
-            <p class="mt-1 text-sm text-gray-500">
-                Kelola laporan availability perangkat ticketing setiap stasiun.
+            <p class="availability-index-description">
+                Kelola laporan availability perangkat ticketing dan
+                identitas penandatangan dalam satu halaman.
             </p>
         </div>
 
+        <div class="availability-index-hero-action">
 
-        <a
-            href="{{ route('form-availability.create') }}"
-            class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200"
-        >
-            <svg
-                class="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <a
+                href="{{ route('form-availability.create') }}"
+                class="availability-index-create-button"
             >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4v16m8-8H4"
-                />
-            </svg>
+                <svg
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 4v16m8-8H4"
+                    />
+                </svg>
 
-            Buat Form Baru
-        </a>
+                Buat Form Baru
+            </a>
 
-    </div>
+            <div
+                class="availability-index-rail"
+                aria-hidden="true"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
 
+        </div>
 
-    {{-- FLASH MESSAGE --}}
+    </header>
+
+    {{-- =========================================================
+         NOTIFIKASI GLOBAL
+         Berlaku untuk simpan, ubah, hapus, import, dan konfirmasi.
+    ========================================================== --}}
     @if (session('success'))
-        <div x-data="{ show: true, percent: 100 }"
-             x-init="
-                let duration = 5000;
-                let interval = 50;
-                let step = (interval / duration) * 100;
-                let timer = setInterval(() => {
+        <div
+            x-data="{ show: true, percent: 100 }"
+            x-init="
+                const duration = 5000;
+                const interval = 50;
+                const step = (interval / duration) * 100;
+
+                const timer = setInterval(() => {
                     percent -= step;
+
                     if (percent <= 0) {
                         percent = 0;
                         clearInterval(timer);
                         show = false;
                     }
                 }, interval);
-             "
-             x-show="show"
-             x-transition:leave="transition ease-in duration-300 transform opacity-0 scale-95"
-             class="relative flex items-center gap-3 rounded-xl border border-emerald-100 bg-[#f0fdf4] p-4 text-emerald-800 shadow-sm transition-all mb-6"
+            "
+            x-show="show"
+            x-transition:leave="transition ease-in duration-300 transform opacity-0 scale-95"
+            class="relative flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-emerald-800 shadow-sm"
         >
-            <!-- SUCCESS ICON -->
-            <div class="w-10 h-10 bg-[#dcfce7] rounded-lg flex items-center justify-center shrink-0">
-                <svg class="w-5 h-5 text-[#059669]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
+                <svg
+                    class="h-5 w-5 text-emerald-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                 </svg>
             </div>
 
-            <!-- MESSAGE CONTENT -->
-            <div class="flex-1 flex flex-col">
-                <h4 class="text-sm font-bold text-[#065f46] mb-0.5">Berhasil!</h4>
-                <span class="text-[13px] font-medium text-[#059669]">
+            <div class="min-w-0 flex-1">
+                <h4 class="text-sm font-bold text-emerald-800">
+                    Berhasil
+                </h4>
+
+                <p class="mt-0.5 text-[13px] font-medium text-emerald-600">
                     {{ session('success') }}
-                </span>
+                </p>
             </div>
 
-            <!-- TIMER PROGRESS & CLOSE BUTTON -->
-            <div class="flex items-center gap-3 shrink-0">
-                <!-- CIRCULAR TIMER SVG -->
-                <div class="relative w-6 h-6">
-                    <!-- BACKGROUND RING -->
-                    <svg class="w-6 h-6 transform -rotate-90">
-                        <circle cx="12" cy="12" r="9" stroke="#bbf7d0" stroke-width="2" fill="transparent" />
-                        <circle cx="12" cy="12" r="9" stroke="#059669" stroke-width="2" fill="transparent"
-                                stroke-dasharray="56.54"
-                                :stroke-dashoffset="56.54 - (56.54 * percent / 100)"
-                                stroke-linecap="round"
-                                class="transition-all duration-75 ease-linear"
+            <div class="flex shrink-0 items-center gap-3">
+
+                <div class="relative h-6 w-6">
+                    <svg class="h-6 w-6 -rotate-90">
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            stroke="#bbf7d0"
+                            stroke-width="2"
+                            fill="transparent"
+                        />
+
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            stroke="#059669"
+                            stroke-width="2"
+                            fill="transparent"
+                            stroke-dasharray="56.54"
+                            :stroke-dashoffset="56.54 - (56.54 * percent / 100)"
+                            stroke-linecap="round"
+                            class="transition-all duration-75 ease-linear"
                         />
                     </svg>
                 </div>
 
-                <!-- CLOSE BUTTON -->
-                <button @click="show = false" class="text-[#10b981] hover:text-[#047857] transition-colors p-1 rounded-md hover:bg-[#dcfce7]">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                <button
+                    type="button"
+                    @click="show = false"
+                    class="rounded-md p-1 text-emerald-500 transition hover:bg-emerald-100 hover:text-emerald-700"
+                    aria-label="Tutup notifikasi"
+                >
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                        />
                     </svg>
                 </button>
+
             </div>
         </div>
     @endif
 
     @if ($errors->any() || session('error'))
-        <div x-data="{ show: true, percent: 100 }"
-             x-init="
-                let duration = 5000;
-                let interval = 50;
-                let step = (interval / duration) * 100;
-                let timer = setInterval(() => {
+        <div
+            x-data="{ show: true, percent: 100 }"
+            x-init="
+                const duration = 5000;
+                const interval = 50;
+                const step = (interval / duration) * 100;
+
+                const timer = setInterval(() => {
                     percent -= step;
+
                     if (percent <= 0) {
                         percent = 0;
                         clearInterval(timer);
                         show = false;
                     }
                 }, interval);
-             "
-             x-show="show"
-             x-transition:leave="transition ease-in duration-300 transform opacity-0 scale-95"
-             class="relative flex items-center gap-3 rounded-xl border border-red-100 bg-[#fef2f2] p-4 text-red-800 shadow-sm transition-all mb-6"
+            "
+            x-show="show"
+            x-transition:leave="transition ease-in duration-300 transform opacity-0 scale-95"
+            class="relative flex items-center gap-3 rounded-xl border border-red-100 bg-red-50 p-4 text-red-800 shadow-sm"
         >
-            <!-- ERROR ICON -->
-            <div class="w-10 h-10 bg-[#fee2e2] rounded-lg flex items-center justify-center shrink-0">
-                <svg class="w-5 h-5 text-[#dc2626]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-100">
+                <svg
+                    class="h-5 w-5 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                 </svg>
             </div>
 
-            <!-- MESSAGE CONTENT -->
-            <div class="flex-1 flex flex-col">
-                <h4 class="text-sm font-bold text-[#991b1b] mb-0.5">Gagal!</h4>
-                <span class="text-[13px] font-medium text-[#dc2626]">
+            <div class="min-w-0 flex-1">
+                <h4 class="text-sm font-bold text-red-800">
+                    Gagal
+                </h4>
+
+                <p class="mt-0.5 text-[13px] font-medium text-red-600">
                     {{ session('error') ?? $errors->first() }}
-                </span>
+                </p>
             </div>
 
-            <!-- TIMER PROGRESS & CLOSE BUTTON -->
-            <div class="flex items-center gap-3 shrink-0">
-                <!-- CIRCULAR TIMER SVG -->
-                <div class="relative w-6 h-6">
-                    <!-- BACKGROUND RING -->
-                    <svg class="w-6 h-6 transform -rotate-90">
-                        <circle cx="12" cy="12" r="9" stroke="#fecaca" stroke-width="2" fill="transparent" />
-                        <circle cx="12" cy="12" r="9" stroke="#dc2626" stroke-width="2" fill="transparent"
-                                stroke-dasharray="56.54"
-                                :stroke-dashoffset="56.54 - (56.54 * percent / 100)"
-                                stroke-linecap="round"
-                                class="transition-all duration-75 ease-linear"
+            <div class="flex shrink-0 items-center gap-3">
+
+                <div class="relative h-6 w-6">
+                    <svg class="h-6 w-6 -rotate-90">
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            stroke="#fecaca"
+                            stroke-width="2"
+                            fill="transparent"
+                        />
+
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            stroke="#dc2626"
+                            stroke-width="2"
+                            fill="transparent"
+                            stroke-dasharray="56.54"
+                            :stroke-dashoffset="56.54 - (56.54 * percent / 100)"
+                            stroke-linecap="round"
+                            class="transition-all duration-75 ease-linear"
                         />
                     </svg>
                 </div>
 
-                <!-- CLOSE BUTTON -->
-                <button @click="show = false" class="text-[#f87171] hover:text-[#dc2626] transition-colors p-1 rounded-md hover:bg-[#fee2e2]">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                <button
+                    type="button"
+                    @click="show = false"
+                    class="rounded-md p-1 text-red-500 transition hover:bg-red-100 hover:text-red-700"
+                    aria-label="Tutup notifikasi"
+                >
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                        />
                     </svg>
                 </button>
+
             </div>
         </div>
     @endif
 
+    {{-- =========================================================
+         TAB UTAMA
+    ========================================================== --}}
+    <div
+        x-data="{
+            tab: 'forms',
 
-    {{-- Tab Switcher --}}
-    <div x-data="{ tab: '{{ request()->has('signer_page') ? 'signer' : 'forms' }}' }" class="space-y-6">
-        <div class="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit border border-gray-200">
-            <button @click="tab = 'forms'" :class="tab === 'forms' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all">Daftar Formulir</button>
-            <button @click="tab = 'signer'" :class="tab === 'signer' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all">Master Signer</button>
+            setTab(value) {
+                this.tab = value;
+                localStorage.setItem(
+                    'availability.activeTab',
+                    value
+                );
+            }
+        }"
+        x-init="
+            const forcedTab = @js($forcedTab);
+            const savedTab = localStorage.getItem(
+                'availability.activeTab'
+            );
+
+            if (
+                forcedTab === 'forms'
+                || forcedTab === 'signer'
+            ) {
+                tab = forcedTab;
+                localStorage.setItem(
+                    'availability.activeTab',
+                    forcedTab
+                );
+            } else if (
+                savedTab === 'forms'
+                || savedTab === 'signer'
+            ) {
+                tab = savedTab;
+            }
+        "
+        class="space-y-6"
+    >
+        {{-- TAB SWITCHER --}}
+        <div class="availability-index-tabs">
+
+            <button
+                type="button"
+                @click="setTab('forms')"
+                :class="tab === 'forms' ? 'is-active' : ''"
+                class="availability-index-tab"
+            >
+                <span class="availability-index-tab-number">01</span>
+                Daftar Formulir
+            </button>
+
+            <button
+                type="button"
+                @click="setTab('signer')"
+                :class="tab === 'signer' ? 'is-active' : ''"
+                class="availability-index-tab"
+            >
+                <span class="availability-index-tab-number">02</span>
+                Master Signer
+            </button>
+
         </div>
 
-        {{-- TAB: Daftar Formulir --}}
-        <div x-show="tab === 'forms'" class="space-y-6">
+        {{-- =====================================================
+             TAB DAFTAR FORMULIR
+        ====================================================== --}}
+        <section
+            x-show="tab === 'forms'"
+            x-cloak
+            class="space-y-6"
+        >
+            {{-- SEARCH + TOTAL --}}
+            <div class="availability-index-toolbar">
 
-            {{-- SEARCH DAN JUMLAH DATA --}}
-            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="availability-index-section-heading">
+                    <span class="availability-index-section-number">01</span>
+
+                    <div>
+                        <span class="availability-index-section-kicker">
+                            Data laporan
+                        </span>
+
+                        <h2>Daftar Formulir</h2>
+
+                        <p>
+                            Cari, pantau status, dan buka laporan availability.
+                        </p>
+                    </div>
+                </div>
 
                 <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-            <form
-                id="availabilitySearchForm"
-                action="{{ route('form-availability.index') }}"
-                method="GET"
-                class="flex w-full max-w-xl items-center gap-2"
-            >
-
-                <div class="relative flex-1">
-
-                    {{-- ICON SEARCH --}}
-                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-
-                        <svg
-                            class="h-5 w-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="m21 21-4.35-4.35m2.35-5.65a8 8 0 11-16 0 8 8 0 0116 0z"
-                            />
-                        </svg>
-
-                    </div>
-
-
-                    {{-- INPUT SEARCH --}}
-                    <input
-                        type="text"
-                        id="availabilitySearchInput"
-                        name="search"
-                        value="{{ request('search') }}"
-                        placeholder="Cari no. referensi, business area, atau DAOP..."
-                        autocomplete="off"
-                        class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-11 text-sm text-gray-900 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-100"
+                    <form
+                        id="availabilitySearchForm"
+                        action="{{ route('form-availability.index') }}"
+                        method="GET"
+                        class="flex w-full max-w-xl items-center gap-2"
                     >
+                        <div class="relative flex-1">
 
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <svg
+                                    class="h-5 w-5 text-gray-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="m21 21-4.35-4.35m2.35-5.65a8 8 0 11-16 0 8 8 0 0116 0z"
+                                    />
+                                </svg>
+                            </div>
 
-                    {{-- LOADING SEARCH --}}
-                    <div
-                        id="availabilitySearchLoading"
-                        class="pointer-events-none absolute inset-y-0 right-0 hidden items-center pr-3"
-                    >
-                        <svg
-                            class="h-5 w-5 animate-spin text-gray-500"
-                            viewBox="0 0 24 24"
-                            fill="none"
+                            <input
+                                type="text"
+                                id="availabilitySearchInput"
+                                name="search"
+                                value="{{ request('search') }}"
+                                placeholder="Cari no. referensi, business area, atau DAOP..."
+                                autocomplete="off"
+                                class="availability-index-search-input"
+                            >
+
+                            <div
+                                id="availabilitySearchLoading"
+                                class="pointer-events-none absolute inset-y-0 right-0 hidden items-center pr-3"
+                            >
+                                <svg
+                                    class="h-5 w-5 animate-spin text-gray-500"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                >
+                                    <circle
+                                        class="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        stroke-width="4"
+                                    />
+
+                                    <path
+                                        class="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                    />
+                                </svg>
+                            </div>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            id="availabilityResetSearch"
+                            class="{{ request('search') ? '' : 'hidden' }} availability-index-reset-button"
                         >
-                            <circle
-                                class="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                stroke-width="4"
-                            />
+                            Reset
+                        </button>
+                    </form>
 
-                            <path
-                                class="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                            />
-                        </svg>
+                    <div class="availability-index-total">
+                        Total
+
+                        <span
+                            id="availabilityTotalData"
+                            class="font-semibold text-gray-900"
+                        >
+                            {{ $forms->total() }}
+                        </span>
+
+                        laporan
                     </div>
 
                 </div>
-
-
-                {{-- RESET --}}
-                <button
-                    type="button"
-                    id="availabilityResetSearch"
-                    class="{{ request('search') ? '' : 'hidden' }} rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-                >
-                    Reset
-                </button>
-
-            </form>
-
-
-            {{-- TOTAL DATA --}}
-            <div class="whitespace-nowrap text-sm text-gray-500">
-
-                Total
-
-                <span
-                    id="availabilityTotalData"
-                    class="font-semibold text-gray-900"
-                >
-                    {{ $forms->total() }}
-                </span>
-
-                laporan
-
             </div>
 
-        </div>
-
-    </div>
-
-
-    {{-- HASIL TABEL UNTUK LIVE SEARCH --}}
-    <div id="availabilityTableResult">
-
-        <div class="rounded-xl border border-gray-200 bg-white shadow-sm">
-
-            <div class="overflow-x-auto rounded-xl">
-
-                <table class="min-w-full divide-y divide-gray-200">
-
-                    <thead class="bg-gray-50">
-
-                        <tr>
-
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                No.
-                            </th>
-
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                No. Referensi
-                            </th>
-
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                Tanggal
-                            </th>
-
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                Business Area
-                            </th>
-
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                DAOP/DIVRE
-                            </th>
-
-                            <th class="px-5 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                Stasiun
-                            </th>
-
-                            <th class="px-5 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                Perangkat
-                            </th>
-
-                            <th class="px-5 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                Status
-                            </th>
-
-                            <th class="w-32 px-4 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-600"></th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody class="divide-y divide-gray-100 bg-white">
-
-                        @forelse ($forms as $form)
-
-                                <tr
-                                    data-availability-row-url="{{ route(
-                                        'form-availability.show',
-                                        $form
-                                    ) }}"
-                                    tabindex="0"
-                                    role="link"
-                                    aria-label="Lihat detail laporan {{ $form->no_ref ?: $form->id }}"
-                                    class="cursor-pointer transition hover:bg-gray-50 focus:bg-gray-50 focus:outline-none"
-                                >
-
-                                {{-- NOMOR --}}
-                                <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
-                                    {{ $forms->firstItem() + $loop->index }}
-                                </td>
-
-
-                                {{-- NO REFERENSI --}}
-                                <td class="whitespace-nowrap px-5 py-4">
-
-                                    <div class="font-semibold text-gray-900">
-                                        {{ $form->no_ref ?: '-' }}
-                                    </div>
-
-                                    <div class="mt-1 text-xs text-gray-400">
-                                        Dibuat
-                                        {{ $form->created_at?->format('d M Y, H:i') }}
-                                    </div>
-
-                                </td>
-
-
-                                {{-- TANGGAL --}}
-                                <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-700">
-                                    {{ $form->tanggal?->format('d M Y') ?: '-' }}
-                                </td>
-
-
-                                {{-- BUSINESS AREA --}}
-                                <td class="px-5 py-4 text-sm text-gray-700">
-                                    {{ $form->business_area ?: '-' }}
-                                </td>
-
-
-                                {{-- DAOP/DIVRE --}}
-                                <td class="px-5 py-4 text-sm text-gray-700">
-                                    {{ $form->daop_divre ?: '-' }}
-                                </td>
-
-
-                                {{-- STASIUN --}}
-                                <td class="whitespace-nowrap px-5 py-4 text-center">
-
-                                    <span class="inline-flex min-w-9 justify-center rounded-md bg-gray-100 px-2.5 py-1 text-sm font-semibold text-gray-700">
-                                        {{ $form->jumlah_total_station ?? 0 }}
-                                    </span>
-
-                                </td>
-
-
-                                {{-- PERANGKAT --}}
-                                <td class="whitespace-nowrap px-5 py-4 text-center">
-
-                                    <span class="inline-flex min-w-9 justify-center rounded-md bg-gray-100 px-2.5 py-1 text-sm font-semibold text-gray-700">
-                                        {{ $form->jumlah_perangkat_ticketing ?? 0 }}
-                                    </span>
-
-                                </td>
-
-
-                                {{-- STATUS --}}
-                                <td class="whitespace-nowrap px-5 py-4 text-center">
-
-                                    @if ($form->status === 'selesai')
-
-                                        <span class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600">
-
-                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-
-                                            Selesai
-
-                                        </span>
-
-                                    @elseif ($form->status === 'dicetak')
-
-                                        <span class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600">
-
-                                            <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
-
-                                            Dicetak
-
-                                        </span>
-
-                                    @else
-
-                                        <span class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600">
-
-                                            <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
-
-                                            Draft
-
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                 {{-- AKSI --}}
-                                 <td class="w-56 whitespace-nowrap px-4 py-3 text-right">
-
-                                     <div class="flex items-center justify-end gap-1.5">
-
-                                         {{-- EDIT --}}
-                                         @if ($form->status === 'draft')
-                                             <a
-                                                 href="{{ route('form-availability.edit', $form) }}"
-                                                 class="text-amber-500 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 h-9 w-9 flex items-center justify-center rounded-lg transition-colors"
-                                                 title="Edit"
-                                             >
-                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                                 </svg>
-                                             </a>
-                                         @endif
-
-                                         {{-- CETAK PDF --}}
-                                         <button
-                                             type="button"
-                                             data-availability-print-url="{{ route('form-availability.show', $form) }}"
-                                             class="text-emerald-600 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 h-9 w-9 flex items-center justify-center rounded-lg transition-colors"
-                                             title="Cetak / Lihat PDF"
-                                         >
-                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                                             </svg>
-                                         </button>
-
-                                         {{-- HAPUS --}}
-                                         <form
-                                             method="POST"
-                                             action="{{ route('form-availability.destroy', $form) }}"
-                                             data-availability-confirm
-                                             data-confirm-type="delete"
-                                             data-confirm-title="Hapus Laporan"
-                                             data-confirm-message="Laporan {{ $form->no_ref ?: '#' . $form->id }} akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan."
-                                             class="inline-block m-0"
-                                         >
-                                             @csrf
-                                             @method('DELETE')
-                                             <button
-                                                 type="submit"
-                                                 class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 h-9 w-9 flex items-center justify-center rounded-lg transition-colors"
-                                                 title="Hapus"
-                                             >
-                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                 </svg>
-                                             </button>
-                                         </form>
-
-                                         {{-- LAINNYA DROPDOWN --}}
-                                         <div class="inline-flex relative">
-                                             <button
-                                                 type="button"
-                                                 data-availability-action-toggle
-                                                 aria-expanded="false"
-                                                 class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-200"
-                                             >
-                                                 Lainnya
-                                                 <svg
-                                                     data-availability-action-chevron
-                                                     class="h-4 w-4 transition-transform duration-150"
-                                                     fill="none"
-                                                     stroke="currentColor"
-                                                     viewBox="0 0 24 24"
-                                                 >
-                                                     <path
-                                                         stroke-linecap="round"
-                                                         stroke-linejoin="round"
-                                                         stroke-width="2"
-                                                         d="m19 9-7 7-7-7"
-                                                     />
-                                                 </svg>
-                                             </button>
-
-                                             {{-- TEMPLATE DROPDOWN --}}
-                                             <template data-availability-action-template>
-                                                 <div
-                                                     data-availability-action-menu
-                                                     class="fixed z-[9999] hidden w-48 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-xl"
-                                                 >
-                                                     {{-- UNDUH EXCEL --}}
-                                                     <a
-                                                         href="{{ route('form-availability.excel', $form) }}"
-                                                         class="block px-4 py-2.5 text-left text-sm text-gray-700 transition hover:bg-gray-50"
-                                                     >
-                                                         Unduh Excel
-                                                     </a>
-
-                                                     {{-- KONFIRMASI SELESAI --}}
-                                                     @if ($form->status === 'draft')
-                                                         <form
-                                                             method="POST"
-                                                             action="{{ route('form-availability.confirm', $form) }}"
-                                                             data-availability-confirm
-                                                             data-confirm-type="complete"
-                                                             data-confirm-title="Konfirmasi Selesai"
-                                                             data-confirm-message="Laporan {{ $form->no_ref ?: '#' . $form->id }} akan ditandai sebagai selesai. Lanjutkan?"
-                                                         >
-                                                             @csrf
-                                                             @method('PATCH')
-                                                             <button
-                                                                 type="submit"
-                                                                 class="block w-full px-4 py-2.5 text-left text-sm text-gray-700 transition hover:bg-gray-50"
-                                                             >
-                                                                 Konfirmasi Selesai
-                                                             </button>
-                                                         </form>
-                                                     @endif
-                                                 </div>
-                                             </template>
-                                         </div>
-
-                                     </div>
-
-                                 </td>
-
-                            </tr>
-
-
-                            @empty
-
-                            <tr>
-
-                                <td
-                                    colspan="9"
-                                    class="availability-empty-cell"
-                                >
-
-                                    <div class="availability-empty-state">
-
-                                        {{-- ILUSTRASI EMPTY STATE KHAS KAI --}}
-                                        <svg
-                                            class="availability-empty-illustration"
-                                            viewBox="0 0 320 220"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            aria-hidden="true"
+            {{-- TABEL FORMULIR --}}
+            <div id="availabilityTableResult">
+
+                <div class="availability-index-table-card">
+
+                    <div class="availability-index-table-scroll">
+
+                        <table class="availability-index-table">
+
+                            <thead class="availability-index-table-head">
+                                <tr>
+                                    <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                        No.
+                                    </th>
+
+                                    <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                        No. Referensi
+                                    </th>
+
+                                    <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                        Tanggal
+                                    </th>
+
+                                    <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                        Business Area
+                                    </th>
+
+                                    <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                        DAOP/DIVRE
+                                    </th>
+
+                                    <th class="px-5 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                        Stasiun
+                                    </th>
+
+                                    <th class="px-5 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                        Perangkat
+                                    </th>
+
+                                    <th class="px-5 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                        Status
+                                    </th>
+
+                                    <th class="w-28 px-4 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-600">
+
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody class="divide-y divide-gray-100 bg-white">
+
+                                @forelse ($forms as $form)
+                                    <tr
+                                        data-availability-row-url="{{ route('form-availability.show', $form) }}"
+                                        tabindex="0"
+                                        role="link"
+                                        aria-label="Lihat detail laporan {{ $form->no_ref ?: $form->id }}"
+                                        class="availability-index-table-row cursor-pointer focus:outline-none"
+                                    >
+                                        <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                                            {{ $forms->firstItem() + $loop->index }}
+                                        </td>
+
+                                        <td class="whitespace-nowrap px-5 py-4">
+                                            <div class="font-semibold text-gray-900">
+                                                {{ $form->no_ref ?: '-' }}
+                                            </div>
+
+                                            <div class="mt-1 text-xs text-gray-400">
+                                                Dibuat
+                                                {{ $form->created_at?->format('d M Y, H:i') }}
+                                            </div>
+                                        </td>
+
+                                        <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-700">
+                                            {{ $form->tanggal?->format('d M Y') ?: '-' }}
+                                        </td>
+
+                                        <td class="px-5 py-4 text-sm text-gray-700">
+                                            {{ $form->business_area ?: '-' }}
+                                        </td>
+
+                                        <td class="px-5 py-4 text-sm text-gray-700">
+                                            {{ $form->daop_divre ?: '-' }}
+                                        </td>
+
+                                        <td class="whitespace-nowrap px-5 py-4 text-center">
+                                            <span class="availability-index-metric availability-index-metric-blue">
+                                                {{ $form->jumlah_total_station ?? 0 }}
+                                            </span>
+                                        </td>
+
+                                        <td class="whitespace-nowrap px-5 py-4 text-center">
+                                            <span class="availability-index-metric availability-index-metric-blue">
+                                                {{ $form->jumlah_perangkat_ticketing ?? 0 }}
+                                            </span>
+                                        </td>
+
+                                        <td class="whitespace-nowrap px-5 py-4 text-center">
+
+                                            @if ($form->status === 'selesai')
+                                                <span class="availability-index-status availability-index-status-complete">
+                                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                                    Selesai
+                                                </span>
+                                            @elseif ($form->status === 'dicetak')
+                                                <span class="availability-index-status availability-index-status-printed">
+                                                    <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                                                    Dicetak
+                                                </span>
+                                            @else
+                                                <span class="availability-index-status availability-index-status-draft">
+                                                    <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                                                    Draft
+                                                </span>
+                                            @endif
+
+                                        </td>
+
+                                        {{-- AKSI FORMULIR: DROPDOWN SEDERHANA --}}
+                                        <td
+                                            class="w-28 whitespace-nowrap px-4 py-3 text-right"
                                         >
-                                            {{-- LATAR --}}
-                                            <path
-                                                class="availability-empty-bg"
-                                                d="M63 170C40 151 33 119 47 93C61 68 91 60 114 70C132 39 177 28 208 50C229 65 240 91 235 116C258 122 273 143 267 164C261 184 239 195 217 195H95C82 195 71 183 63 170Z"
-                                            />
+                                            <div class="relative inline-flex">
 
-                                            {{-- PAPAN INFORMASI --}}
-                                            <rect
-                                                class="availability-empty-document"
-                                                x="206"
-                                                y="28"
-                                                width="78"
-                                                height="65"
-                                                rx="10"
-                                            />
+                                                <button
+                                                    type="button"
+                                                    data-availability-action-toggle
+                                                    aria-expanded="false"
+                                                    class="availability-index-more-button"
+                                                >
+                                                    Lainnya
 
-                                            <path
-                                                class="availability-empty-blue-line"
-                                                d="M224 48H265"
-                                                stroke-linecap="round"
-                                            />
+                                                    <svg
+                                                        data-availability-action-chevron
+                                                        class="h-4 w-4 transition-transform duration-150"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="m19 9-7 7-7-7"
+                                                        />
+                                                    </svg>
+                                                </button>
 
-                                            <path
-                                                class="availability-empty-gray-line"
-                                                d="M224 62H257"
-                                                stroke-width="4"
-                                                stroke-linecap="round"
-                                            />
+                                                <template data-availability-action-template>
+                                                    <div
+                                                        data-availability-action-menu
+                                                        class="availability-index-action-menu fixed z-[9999] hidden w-48"
+                                                    >
+                                                        <a
+                                                            href="{{ route('form-availability.show', $form) }}"
+                                                            class="availability-index-action-item"
+                                                        >
+                                                            Lihat Detail
+                                                        </a>
 
-                                            <path
-                                                class="availability-empty-orange-line"
-                                                d="M224 77H246"
-                                                stroke-width="4"
-                                                stroke-linecap="round"
-                                            />
+                                                        @if ($form->status === 'draft')
+                                                            <a
+                                                                href="{{ route('form-availability.edit', $form) }}"
+                                                                class="availability-index-action-item"
+                                                            >
+                                                                Edit Form
+                                                            </a>
+                                                        @endif
 
-                                            {{-- IKON TAMBAH --}}
-                                            <circle
-                                                class="availability-empty-plus-circle"
-                                                cx="67"
-                                                cy="61"
-                                                r="23"
-                                            />
+                                                        <button
+                                                            type="button"
+                                                            data-availability-print-url="{{ route('form-availability.show', $form) }}"
+                                                            class="availability-index-action-item"
+                                                        >
+                                                            Cetak / Lihat PDF
+                                                        </button>
 
-                                            <path
-                                                class="availability-empty-plus-line"
-                                                d="M67 50V72"
-                                            />
+                                                        <a
+                                                            href="{{ route('form-availability.excel', $form) }}"
+                                                            class="availability-index-action-item"
+                                                        >
+                                                            Unduh Excel
+                                                        </a>
 
-                                            <path
-                                                class="availability-empty-plus-line"
-                                                d="M56 61H78"
-                                            />
+                                                        @if ($form->status === 'draft')
+                                                            <form
+                                                                method="POST"
+                                                                action="{{ route('form-availability.confirm', $form) }}"
+                                                                data-availability-confirm
+                                                                data-confirm-type="complete"
+                                                                data-confirm-title="Konfirmasi Selesai"
+                                                                data-confirm-message="Laporan {{ $form->no_ref ?: '#' . $form->id }} akan ditandai sebagai selesai. Lanjutkan?"
+                                                            >
+                                                                @csrf
+                                                                @method('PATCH')
 
-                                            {{-- BADAN KERETA --}}
-                                            <rect
-                                                class="availability-empty-train"
-                                                x="83"
-                                                y="85"
-                                                width="152"
-                                                height="87"
-                                                rx="23"
-                                            />
+                                                                <button
+                                                                    type="submit"
+                                                                    class="availability-index-action-item"
+                                                                >
+                                                                    Konfirmasi Selesai
+                                                                </button>
+                                                            </form>
+                                                        @endif
 
-                                            {{-- KACA DEPAN --}}
-                                            <path
-                                                class="availability-empty-window"
-                                                d="M104 103C104 96.3726 109.373 91 116 91H201C207.627 91 213 96.3726 213 103V124H104V103Z"
-                                            />
+                                                        <form
+                                                            method="POST"
+                                                            action="{{ route('form-availability.destroy', $form) }}"
+                                                            data-availability-confirm
+                                                            data-confirm-type="delete"
+                                                            data-confirm-title="Hapus Laporan"
+                                                            data-confirm-message="Laporan {{ $form->no_ref ?: '#' . $form->id }} akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan."
+                                                        >
+                                                            @csrf
+                                                            @method('DELETE')
 
-                                            <path
-                                                class="availability-empty-dark-line"
-                                                d="M158 92V123"
-                                            />
+                                                            <button
+                                                                type="submit"
+                                                                class="availability-index-action-item availability-index-action-danger"
+                                                            >
+                                                                Hapus Laporan
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </template>
 
-                                            {{-- GARIS IDENTITAS KAI --}}
-                                            <path
-                                                class="availability-empty-blue-line"
-                                                d="M85 133H233"
-                                            />
+                                            </div>
+                                        </td>
+                                    </tr>
 
-                                            <path
-                                                class="availability-empty-orange-line"
-                                                d="M85 144H233"
-                                            />
+                                @empty
+                                    <tr>
+                                        <td
+                                            colspan="9"
+                                            class="availability-empty-cell"
+                                        >
+                                            <div class="availability-empty-state">
 
-                                            {{-- LAMPU --}}
-                                            <circle
-                                                class="availability-empty-train"
-                                                cx="111"
-                                                cy="158"
-                                                r="8"
-                                            />
+                                                {{-- ILUSTRASI EMPTY STATE KERETA --}}
+                                                <svg
+                                                    class="availability-empty-illustration"
+                                                    viewBox="0 0 320 220"
+                                                    fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    aria-hidden="true"
+                                                >
+                                                    {{-- LATAR --}}
+                                                    <path
+                                                        class="availability-empty-bg"
+                                                        d="M63 170C40 151 33 119 47 93C61 68 91 60 114 70C132 39 177 28 208 50C229 65 240 91 235 116C258 122 273 143 267 164C261 184 239 195 217 195H95C82 195 71 183 63 170Z"
+                                                    />
 
-                                            <circle
-                                                class="availability-empty-train"
-                                                cx="207"
-                                                cy="158"
-                                                r="8"
-                                            />
+                                                    {{-- PAPAN INFORMASI --}}
+                                                    <rect
+                                                        class="availability-empty-document"
+                                                        x="206"
+                                                        y="28"
+                                                        width="78"
+                                                        height="65"
+                                                        rx="10"
+                                                    />
 
-                                            {{-- REL --}}
-                                            <path
-                                                class="availability-empty-orange-line"
-                                                d="M63 173H257"
-                                                stroke-linecap="round"
-                                            />
+                                                    <path
+                                                        class="availability-empty-blue-line"
+                                                        d="M224 48H265"
+                                                        stroke-linecap="round"
+                                                    />
 
-                                            <path
-                                                class="availability-empty-gray-line"
-                                                d="M80 190H241"
-                                                stroke-linecap="round"
-                                            />
+                                                    <path
+                                                        class="availability-empty-gray-line"
+                                                        d="M224 62H257"
+                                                        stroke-width="4"
+                                                        stroke-linecap="round"
+                                                    />
 
-                                            <path
-                                                class="availability-empty-gray-line"
-                                                d="M100 180L91 200"
-                                                stroke-linecap="round"
-                                            />
+                                                    <path
+                                                        class="availability-empty-orange-line"
+                                                        d="M224 77H246"
+                                                        stroke-width="4"
+                                                        stroke-linecap="round"
+                                                    />
 
-                                            <path
-                                                class="availability-empty-gray-line"
-                                                d="M139 180L130 200"
-                                                stroke-linecap="round"
-                                            />
+                                                    {{-- IKON TAMBAH --}}
+                                                    <circle
+                                                        class="availability-empty-plus-circle"
+                                                        cx="67"
+                                                        cy="61"
+                                                        r="23"
+                                                    />
 
-                                            <path
-                                                class="availability-empty-gray-line"
-                                                d="M178 180L169 200"
-                                                stroke-linecap="round"
-                                            />
+                                                    <path
+                                                        class="availability-empty-plus-line"
+                                                        d="M67 50V72"
+                                                    />
 
-                                            <path
-                                                class="availability-empty-gray-line"
-                                                d="M217 180L208 200"
-                                                stroke-linecap="round"
-                                            />
-                                        </svg>
+                                                    <path
+                                                        class="availability-empty-plus-line"
+                                                        d="M56 61H78"
+                                                    />
 
+                                                    {{-- BADAN KERETA --}}
+                                                    <rect
+                                                        class="availability-empty-train"
+                                                        x="83"
+                                                        y="85"
+                                                        width="152"
+                                                        height="87"
+                                                        rx="23"
+                                                    />
 
-                                        {{-- HASIL PENCARIAN KOSONG --}}
-                                        @if (request('search'))
+                                                    {{-- KACA DEPAN --}}
+                                                    <path
+                                                        class="availability-empty-window"
+                                                        d="M104 103C104 96.3726 109.373 91 116 91H201C207.627 91 213 96.3726 213 103V124H104V103Z"
+                                                    />
 
-                                            <h3 class="availability-empty-title">
-                                                Data tidak ditemukan
-                                            </h3>
+                                                    <path
+                                                        class="availability-empty-dark-line"
+                                                        d="M158 92V123"
+                                                    />
 
-                                            <p class="availability-empty-description">
-                                                Tidak ada laporan Availability System Ticketing
-                                                yang cocok dengan pencarian
+                                                    {{-- GARIS IDENTITAS --}}
+                                                    <path
+                                                        class="availability-empty-blue-line"
+                                                        d="M85 133H233"
+                                                    />
 
-                                                <span class="availability-empty-keyword">
-                                                    “{{ request('search') }}”
-                                                </span>.
+                                                    <path
+                                                        class="availability-empty-orange-line"
+                                                        d="M85 144H233"
+                                                    />
 
-                                                Coba gunakan kata kunci lain atau reset pencarian.
-                                            </p>
+                                                    {{-- LAMPU --}}
+                                                    <circle
+                                                        class="availability-empty-train"
+                                                        cx="111"
+                                                        cy="158"
+                                                        r="8"
+                                                    />
+
+                                                    <circle
+                                                        class="availability-empty-train"
+                                                        cx="207"
+                                                        cy="158"
+                                                        r="8"
+                                                    />
+
+                                                    {{-- REL --}}
+                                                    <path
+                                                        class="availability-empty-orange-line"
+                                                        d="M63 173H257"
+                                                        stroke-linecap="round"
+                                                    />
+
+                                                    <path
+                                                        class="availability-empty-gray-line"
+                                                        d="M80 190H241"
+                                                        stroke-linecap="round"
+                                                    />
+
+                                                    <path
+                                                        class="availability-empty-gray-line"
+                                                        d="M100 180L91 200"
+                                                        stroke-linecap="round"
+                                                    />
+
+                                                    <path
+                                                        class="availability-empty-gray-line"
+                                                        d="M139 180L130 200"
+                                                        stroke-linecap="round"
+                                                    />
+
+                                                    <path
+                                                        class="availability-empty-gray-line"
+                                                        d="M178 180L169 200"
+                                                        stroke-linecap="round"
+                                                    />
+
+                                                    <path
+                                                        class="availability-empty-gray-line"
+                                                        d="M217 180L208 200"
+                                                        stroke-linecap="round"
+                                                    />
+                                                </svg>
+
+                                                @if (request('search'))
+
+                                                    <h3 class="availability-empty-title">
+                                                        Data tidak ditemukan
+                                                    </h3>
+
+                                                    <p class="availability-empty-description">
+                                                        Tidak ada laporan Availability System Ticketing
+                                                        yang cocok dengan pencarian
+
+                                                        <span class="availability-empty-keyword">
+                                                            “{{ request('search') }}”
+                                                        </span>.
+
+                                                        Coba gunakan kata kunci lain atau reset pencarian.
+                                                    </p>
+
+                                                    <button
+                                                        type="button"
+                                                        data-availability-empty-reset
+                                                        class="availability-empty-button"
+                                                    >
+                                                        <svg
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                stroke-linecap="round"
+                                                                stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M4 4v6h6M20 20v-6h-6M5.5 15a7 7 0 0011.9 2M18.5 9A7 7 0 006.6 7"
+                                                            />
+                                                        </svg>
+
+                                                        Reset Pencarian
+                                                    </button>
+
+                                                @else
+
+                                                    <div class="availability-empty-accent">
+                                                        <span class="availability-empty-accent-blue"></span>
+                                                        <span class="availability-empty-accent-orange"></span>
+                                                    </div>
+
+                                                    <h3 class="availability-empty-title">
+                                                        Belum ada laporan
+                                                    </h3>
+
+                                                    <p class="availability-empty-description">
+                                                        Jika belum tersedia, Anda dapat
+
+                                                        <a
+                                                            href="{{ route('form-availability.create') }}"
+                                                            class="availability-empty-link"
+                                                        >
+                                                            Buat Form
+                                                        </a>
+
+                                                        baru terlebih dahulu.
+                                                    </p>
+
+                                                @endif
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                    @if ($forms->hasPages())
+                        <div class="availability-index-pagination">
+                            {{ $forms->withQueryString()->links() }}
+                        </div>
+                    @endif
+
+                </div>
+            </div>
+        </section>
+
+        {{-- =====================================================
+             TAB MASTER SIGNER
+        ====================================================== --}}
+        <section
+            x-show="tab === 'signer'"
+            x-cloak
+            x-data="{
+                showAddModal: false,
+                showEditModal: false,
+                showImportModal: false,
+                editItem: null
+            }"
+            @master-signer-edit.window="
+                editItem = $event.detail;
+                showEditModal = true;
+            "
+            class="space-y-6"
+        >
+            {{-- SEARCH + ACTION + TOTAL --}}
+            <div class="availability-index-toolbar">
+
+                <div class="availability-index-section-heading">
+                    <span class="availability-index-section-number">02</span>
+
+                    <div>
+                        <span class="availability-index-section-kicker">
+                            Data penandatangan
+                        </span>
+
+                        <h2>Master Signer</h2>
+
+                        <p>
+                            Kelola identitas pejabat yang digunakan pada laporan.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+
+                    <form
+                        id="masterSignerSearchForm"
+                        action="{{ route('form-availability.index') }}"
+                        method="GET"
+                        class="flex w-full max-w-xl items-center gap-2"
+                    >
+                        <input
+                            type="hidden"
+                            name="signer_page"
+                            value="1"
+                        >
+
+                        <div class="relative flex-1">
+
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <svg
+                                    class="h-5 w-5 text-gray-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="m21 21-4.35-4.35m2.35-5.65a8 8 0 11-16 0 8 8 0 0116 0z"
+                                    />
+                                </svg>
+                            </div>
+
+                            <input
+                                type="text"
+                                id="masterSignerSearchInput"
+                                name="signer_search"
+                                value="{{ request('signer_search') }}"
+                                placeholder="Cari nama, NIPP, atau jabatan signer..."
+                                autocomplete="off"
+                                class="availability-index-search-input"
+                            >
+
+                            <div
+                                id="masterSignerSearchLoading"
+                                class="pointer-events-none absolute inset-y-0 right-0 hidden items-center pr-3"
+                            >
+                                <svg
+                                    class="h-5 w-5 animate-spin text-gray-500"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                >
+                                    <circle
+                                        class="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        stroke-width="4"
+                                    />
+
+                                    <path
+                                        class="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                    />
+                                </svg>
+                            </div>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            id="masterSignerResetSearch"
+                            class="{{ request('signer_search') ? '' : 'hidden' }} availability-index-reset-button"
+                        >
+                            Reset
+                        </button>
+                    </form>
+
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between xl:justify-end">
+
+                        <div class="availability-index-total">
+                            Total
+
+                            <span
+                                id="masterSignerTotalData"
+                                class="font-semibold text-gray-900"
+                            >
+                                {{ $masterSigners->total() }}
+                            </span>
+
+                            signer
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2">
+
+                            <a
+                                href="{{ route('master-signer.template') }}"
+                                class="availability-index-tool-button"
+                            >
+                                <svg
+                                    class="h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                    />
+                                </svg>
+
+                                Template
+                            </a>
+
+                            <button
+                                type="button"
+                                @click="showImportModal = true"
+                                class="availability-index-tool-button availability-index-tool-button-blue"
+                            >
+                                <svg
+                                    class="h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12"
+                                    />
+                                </svg>
+
+                                Import
+                            </button>
+
+                            <button
+                                type="button"
+                                @click="showAddModal = true"
+                                class="availability-index-add-button"
+                            >
+                                <svg
+                                    class="h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M12 4v16m8-8H4"
+                                    />
+                                </svg>
+
+                                Tambah Signer
+                            </button>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- TABEL MASTER SIGNER --}}
+            <div id="masterSignerTableResult">
+
+            <div class="availability-index-table-card">
+
+                <div class="availability-index-table-scroll">
+
+                    <table class="availability-index-table">
+
+                        <thead class="availability-index-table-head">
+                            <tr>
+                                <th class="w-16 px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                    No.
+                                </th>
+
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                    Nama
+                                </th>
+
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                    NIPP
+                                </th>
+
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                    Jabatan
+                                </th>
+
+                                <th class="w-28 px-4 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-600">
+
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-gray-100 bg-white">
+
+                            @forelse ($masterSigners as $idx => $signer)
+                                <tr class="availability-index-table-row">
+
+                                    <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                                        {{ $masterSigners->firstItem() + $idx }}
+                                    </td>
+
+                                    <td class="whitespace-nowrap px-5 py-4 text-sm font-semibold text-gray-900">
+                                        {{ $signer->nama }}
+                                    </td>
+
+                                    <td class="whitespace-nowrap px-5 py-4 font-mono text-sm text-gray-700">
+                                        {{ $signer->nipp }}
+                                    </td>
+
+                                    <td class="px-5 py-4 text-sm text-gray-600">
+                                        {{ $signer->jabatan ?: '-' }}
+                                    </td>
+
+                                    {{-- AKSI MASTER SIGNER: KEMBALI SEPERTI AWAL --}}
+                                    <td class="w-28 whitespace-nowrap px-4 py-3 text-right">
+
+                                        <div class="flex items-center justify-end gap-2">
 
                                             <button
                                                 type="button"
-                                                data-availability-empty-reset
-                                                class="availability-empty-button"
+                                                @click="
+                                                    editItem = {
+                                                        id: {{ $signer->id }},
+                                                        nama: @js($signer->nama),
+                                                        nipp: @js($signer->nipp),
+                                                        jabatan: @js($signer->jabatan ?? '')
+                                                    };
+                                                    showEditModal = true;
+                                                "
+                                                class="availability-index-icon-button availability-index-icon-edit"
+                                                title="Edit"
+                                                aria-label="Edit signer {{ $signer->nama }}"
                                             >
                                                 <svg
+                                                    class="h-4 w-4"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     viewBox="0 0 24 24"
@@ -786,221 +1251,635 @@
                                                         stroke-linecap="round"
                                                         stroke-linejoin="round"
                                                         stroke-width="2"
-                                                        d="M4 4v6h6M20 20v-6h-6M5.5 15a7 7 0 0011.9 2M18.5 9A7 7 0 006.6 7"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                                                     />
                                                 </svg>
-
-                                                Reset Pencarian
                                             </button>
 
-                                        @else
+                                            <form
+                                                method="POST"
+                                                action="{{ route('master-signer.destroy', $signer) }}"
+                                                data-availability-confirm
+                                                data-confirm-type="delete"
+                                                data-confirm-title="Hapus Master Signer"
+                                                data-confirm-message="Signer {{ $signer->nama }} akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan."
+                                                class="m-0 inline-block"
+                                            >
+                                                @csrf
+                                                @method('DELETE')
 
-                                            {{-- DATA BENAR-BENAR BELUM ADA --}}
-                                            <div class="availability-empty-accent">
-
-                                                <span class="availability-empty-accent-blue"></span>
-
-                                                <span class="availability-empty-accent-orange"></span>
-
-                                            </div>
-
-                                            <h3 class="availability-empty-title">
-                                                Belum ada laporan
-                                            </h3>
-
-                                            <p class="availability-empty-description">
-
-                                                Jika belum tersedia, Anda dapat
-
-                                                <a
-                                                    href="{{ route('form-availability.create') }}"
-                                                    class="availability-empty-link"
+                                                <button
+                                                    type="submit"
+                                                    class="availability-index-icon-button availability-index-icon-delete"
+                                                    title="Hapus"
+                                                    aria-label="Hapus signer {{ $signer->nama }}"
                                                 >
-                                                    Buat Form
-                                                </a>
+                                                    <svg
+                                                        class="h-4 w-4"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            </form>
 
-                                                baru terlebih dahulu.
+                                        </div>
+                                    </td>
+                                </tr>
 
-                                            </p>
+                            @empty
+                                <tr>
+                                    <td
+                                        colspan="5"
+                                        class="availability-empty-cell"
+                                    >
+                                        <div class="availability-empty-state">
 
-                                        @endif
+                                            {{-- ILUSTRASI EMPTY STATE KERETA --}}
+                                            <svg
+                                                class="availability-empty-illustration"
+                                                viewBox="0 0 320 220"
+                                                fill="none"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    class="availability-empty-bg"
+                                                    d="M63 170C40 151 33 119 47 93C61 68 91 60 114 70C132 39 177 28 208 50C229 65 240 91 235 116C258 122 273 143 267 164C261 184 239 195 217 195H95C82 195 71 183 63 170Z"
+                                                />
 
-                                    </div>
+                                                <rect
+                                                    class="availability-empty-document"
+                                                    x="206"
+                                                    y="28"
+                                                    width="78"
+                                                    height="65"
+                                                    rx="10"
+                                                />
 
-                                </td>
+                                                <path
+                                                    class="availability-empty-blue-line"
+                                                    d="M224 48H265"
+                                                    stroke-linecap="round"
+                                                />
 
-                            </tr>
+                                                <path
+                                                    class="availability-empty-gray-line"
+                                                    d="M224 62H257"
+                                                    stroke-width="4"
+                                                    stroke-linecap="round"
+                                                />
 
+                                                <path
+                                                    class="availability-empty-orange-line"
+                                                    d="M224 77H246"
+                                                    stroke-width="4"
+                                                    stroke-linecap="round"
+                                                />
+
+                                                <circle
+                                                    class="availability-empty-plus-circle"
+                                                    cx="67"
+                                                    cy="61"
+                                                    r="23"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-plus-line"
+                                                    d="M67 50V72"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-plus-line"
+                                                    d="M56 61H78"
+                                                />
+
+                                                <rect
+                                                    class="availability-empty-train"
+                                                    x="83"
+                                                    y="85"
+                                                    width="152"
+                                                    height="87"
+                                                    rx="23"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-window"
+                                                    d="M104 103C104 96.3726 109.373 91 116 91H201C207.627 91 213 96.3726 213 103V124H104V103Z"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-dark-line"
+                                                    d="M158 92V123"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-blue-line"
+                                                    d="M85 133H233"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-orange-line"
+                                                    d="M85 144H233"
+                                                />
+
+                                                <circle
+                                                    class="availability-empty-train"
+                                                    cx="111"
+                                                    cy="158"
+                                                    r="8"
+                                                />
+
+                                                <circle
+                                                    class="availability-empty-train"
+                                                    cx="207"
+                                                    cy="158"
+                                                    r="8"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-orange-line"
+                                                    d="M63 173H257"
+                                                    stroke-linecap="round"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-gray-line"
+                                                    d="M80 190H241"
+                                                    stroke-linecap="round"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-gray-line"
+                                                    d="M100 180L91 200"
+                                                    stroke-linecap="round"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-gray-line"
+                                                    d="M139 180L130 200"
+                                                    stroke-linecap="round"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-gray-line"
+                                                    d="M178 180L169 200"
+                                                    stroke-linecap="round"
+                                                />
+
+                                                <path
+                                                    class="availability-empty-gray-line"
+                                                    d="M217 180L208 200"
+                                                    stroke-linecap="round"
+                                                />
+                                            </svg>
+
+                                            @if (request('signer_search'))
+
+                                                <h3 class="availability-empty-title">
+                                                    Signer tidak ditemukan
+                                                </h3>
+
+                                                <p class="availability-empty-description">
+                                                    Tidak ada master signer yang cocok dengan pencarian
+
+                                                    <span class="availability-empty-keyword">
+                                                        “{{ request('signer_search') }}”
+                                                    </span>.
+
+                                                    Coba gunakan kata kunci lain atau reset pencarian.
+                                                </p>
+
+                                                <button
+                                                    type="button"
+                                                    data-master-signer-empty-reset
+                                                    class="availability-empty-button"
+                                                >
+                                                    <svg
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M4 4v6h6M20 20v-6h-6M5.5 15a7 7 0 0011.9 2M18.5 9A7 7 0 006.6 7"
+                                                        />
+                                                    </svg>
+
+                                                    Reset Pencarian
+                                                </button>
+
+                                            @else
+
+                                                <div class="availability-empty-accent">
+                                                    <span class="availability-empty-accent-blue"></span>
+                                                    <span class="availability-empty-accent-orange"></span>
+                                                </div>
+
+                                                <h3 class="availability-empty-title">
+                                                    Belum ada master signer
+                                                </h3>
+
+                                                <p class="availability-empty-description">
+                                                    Tambahkan signer agar dapat digunakan pada form availability.
+                                                </p>
+
+                                                <button
+                                                    type="button"
+                                                    @click="showAddModal = true"
+                                                    class="availability-empty-button"
+                                                >
+                                                    Tambah Signer
+                                                </button>
+
+                                            @endif
+
+                                        </div>
+                                    </td>
+                                </tr>
                             @endforelse
 
-                    </tbody>
+                        </tbody>
+                    </table>
 
-                </table>
-
-            </div>
-
-
-            {{-- PAGINATION --}}
-            @if ($forms->hasPages())
-
-                <div class="border-t border-gray-200 bg-gray-50 px-5 py-4">
-                    {{ $forms->withQueryString()->links() }}
                 </div>
 
-            @endif
+                @if ($masterSigners->hasPages())
+                    <div class="availability-index-pagination">
+                        {{ $masterSigners->withQueryString()->links() }}
+                    </div>
+                @endif
 
-        </div>
-
-    </div>
-
-        </div>
-
-        {{-- TAB: Master Signer --}}
-        <div x-show="tab === 'signer'" x-data="{
-            showAddModal: false,
-            editItem: null,
-            showEditModal: false,
-            showImportModal: false,
-        }" class="space-y-6" style="display: none;">
-            <div class="flex justify-end gap-2">
-                <a href="{{ route('master-signer.template') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-600 border border-gray-300 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Template Excel
-                </a>
-                <button @click="showImportModal = true" class="inline-flex items-center gap-1.5 text-sm text-gray-600 border border-gray-300 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12"></path></svg>
-                    Import Excel
-                </button>
-                <button @click="showAddModal = true" class="inline-flex items-center gap-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors font-semibold shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Tambah Signer
-                </button>
             </div>
 
-            <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 w-10">#</th>
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Nama</th>
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">NIPP</th>
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Jabatan</th>
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 w-24">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 bg-white">
-                        @forelse ($masterSigners as $idx => $signer)
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-500">{{ $masterSigners->firstItem() + $idx }}</td>
-                            <td class="whitespace-nowrap px-5 py-4 text-sm font-semibold text-gray-900">{{ $signer->nama }}</td>
-                            <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-700 font-mono">{{ $signer->nipp }}</td>
-                            <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-500">{{ $signer->jabatan ?: '-' }}</td>
-                            <td class="whitespace-nowrap px-5 py-4 text-sm">
-                                <div class="flex gap-2">
-                                    <button @click="editItem = {{ $signer->toJson() }}; showEditModal = true" class="text-yellow-600 hover:text-yellow-800 transition-colors" title="Edit">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </button>
-                                    <form method="POST" action="{{ route('master-signer.destroy', $signer) }}" onsubmit="return confirm('Hapus signer ini?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-700 transition-colors" title="Hapus">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="5" class="px-5 py-10 text-center text-gray-400">Belum ada data signer</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                        </div>
 
-            @if ($masterSigners->hasPages())
-                <div class="border border-gray-200 rounded-xl bg-gray-50 px-5 py-4 shadow-sm">
-                    {{ $masterSigners->links() }}
-                </div>
-            @endif
+            {{-- =================================================
+                 MODAL TAMBAH SIGNER
+            ================================================== --}}
+            <div
+                x-show="showAddModal"
+                x-transition.opacity
+                x-cloak
+                class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+                @keydown.escape.window="showAddModal = false"
+            >
+                <div
+                    @click.outside="showAddModal = false"
+                    class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+                >
+                    <div class="mb-5 flex items-start justify-between gap-4">
 
-            {{-- Add Modal --}}
-            <div x-show="showAddModal" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" style="display: none;">
-                <div @click.outside="showAddModal = false" class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Tambah Signer</h3>
-                    <form method="POST" action="{{ route('master-signer.store') }}" class="space-y-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">
+                                Tambah Signer
+                            </h3>
+
+                            <p class="mt-1 text-sm text-gray-500">
+                                Tambahkan identitas penandatangan baru.
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            @click="showAddModal = false"
+                            class="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                            aria-label="Tutup modal"
+                        >
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                        </button>
+
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="{{ route('master-signer.store') }}"
+                        class="space-y-4"
+                    >
                         @csrf
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
-                            <input type="text" name="nama" required placeholder="Contoh: Budi Santoso" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="mb-1 block text-sm font-medium text-gray-700">
+                                Nama
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="nama"
+                                required
+                                placeholder="Contoh: Budi Santoso"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            >
                         </div>
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">NIPP <span class="text-red-500">*</span></label>
-                            <input type="text" name="nipp" required placeholder="Contoh: 51324" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="mb-1 block text-sm font-medium text-gray-700">
+                                NIPP
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="nipp"
+                                required
+                                placeholder="Contoh: 51324"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            >
                         </div>
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Jabatan</label>
-                            <input type="text" name="jabatan" placeholder="Contoh: Senior Manager Sistem Informasi" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="mb-1 block text-sm font-medium text-gray-700">
+                                Jabatan
+                            </label>
+
+                            <input
+                                type="text"
+                                name="jabatan"
+                                placeholder="Contoh: Senior Manager Sistem Informasi"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            >
                         </div>
-                        <div class="flex justify-end gap-2 pt-2">
-                            <button type="button" @click="showAddModal = false" class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Batal</button>
-                            <button type="submit" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">Simpan</button>
+
+                        <div class="flex justify-end gap-2 border-t border-gray-100 pt-4">
+
+                            <button
+                                type="button"
+                                @click="showAddModal = false"
+                                class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                            >
+                                Batal
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                            >
+                                Simpan Signer
+                            </button>
+
                         </div>
                     </form>
                 </div>
             </div>
 
-            {{-- Edit Modal --}}
-            <div x-show="showEditModal" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" style="display: none;">
-                <div @click.outside="showEditModal = false" class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Edit Signer</h3>
+            {{-- =================================================
+                 MODAL EDIT SIGNER
+            ================================================== --}}
+            <div
+                x-show="showEditModal"
+                x-transition.opacity
+                x-cloak
+                class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+                @keydown.escape.window="showEditModal = false"
+            >
+                <div
+                    @click.outside="showEditModal = false"
+                    class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+                >
+                    <div class="mb-5 flex items-start justify-between gap-4">
+
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">
+                                Edit Signer
+                            </h3>
+
+                            <p class="mt-1 text-sm text-gray-500">
+                                Perbarui identitas penandatangan.
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            @click="showEditModal = false"
+                            class="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                            aria-label="Tutup modal"
+                        >
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                        </button>
+
+                    </div>
+
                     <template x-if="editItem">
-                        <form method="POST" :action="`/master-signer/${editItem.id}`" class="space-y-4">
-                            @csrf @method('PUT')
+                        <form
+                            method="POST"
+                            :action="`/master-signer/${editItem.id}`"
+                            class="space-y-4"
+                        >
+                            @csrf
+                            @method('PUT')
+
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
-                                <input type="text" name="nama" :value="editItem.nama" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label class="mb-1 block text-sm font-medium text-gray-700">
+                                    Nama
+                                    <span class="text-red-500">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="nama"
+                                    x-model="editItem.nama"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                >
                             </div>
+
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">NIPP <span class="text-red-500">*</span></label>
-                                <input type="text" name="nipp" :value="editItem.nipp" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label class="mb-1 block text-sm font-medium text-gray-700">
+                                    NIPP
+                                    <span class="text-red-500">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="nipp"
+                                    x-model="editItem.nipp"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                >
                             </div>
+
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Jabatan</label>
-                                <input type="text" name="jabatan" :value="editItem.jabatan" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label class="mb-1 block text-sm font-medium text-gray-700">
+                                    Jabatan
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="jabatan"
+                                    x-model="editItem.jabatan"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                >
                             </div>
-                            <div class="flex justify-end gap-2 pt-2">
-                                <button type="button" @click="showEditModal = false" class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Batal</button>
-                                <button type="submit" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">Perbarui</button>
+
+                            <div class="flex justify-end gap-2 border-t border-gray-100 pt-4">
+
+                                <button
+                                    type="button"
+                                    @click="showEditModal = false"
+                                    class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                                >
+                                    Batal
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                                >
+                                    Simpan Perubahan
+                                </button>
+
                             </div>
                         </form>
                     </template>
                 </div>
             </div>
 
-            {{-- Import Modal --}}
-            <div x-show="showImportModal" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" style="display: none;">
-                <div @click.outside="showImportModal = false" class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Import Data Signer</h3>
-                    <form method="POST" action="{{ route('master-signer.import') }}" enctype="multipart/form-data" class="space-y-4">
-                        @csrf
+            {{-- =================================================
+                 MODAL IMPORT SIGNER
+            ================================================== --}}
+            <div
+                x-show="showImportModal"
+                x-transition.opacity
+                x-cloak
+                class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+                @keydown.escape.window="showImportModal = false"
+            >
+                <div
+                    @click.outside="showImportModal = false"
+                    class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+                >
+                    <div class="mb-5 flex items-start justify-between gap-4">
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">File Excel (.xlsx, .xls, .csv)</label>
-                            <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                            <p class="text-xs text-gray-400 mt-1">Download <a href="{{ route('master-signer.template') }}" class="text-blue-600 underline">template Excel</a> untuk format yang benar</p>
+                            <h3 class="text-lg font-bold text-gray-900">
+                                Import Data Signer
+                            </h3>
+
+                            <p class="mt-1 text-sm text-gray-500">
+                                Unggah data signer menggunakan file Excel atau CSV.
+                            </p>
                         </div>
-                        <div class="flex justify-end gap-2 pt-2">
-                            <button type="button" @click="showImportModal = false" class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Batal</button>
-                            <button type="submit" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">Import</button>
+
+                        <button
+                            type="button"
+                            @click="showImportModal = false"
+                            class="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                            aria-label="Tutup modal"
+                        >
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                        </button>
+
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="{{ route('master-signer.import') }}"
+                        enctype="multipart/form-data"
+                        class="space-y-4"
+                    >
+                        @csrf
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">
+                                File Excel
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input
+                                type="file"
+                                name="file"
+                                accept=".xlsx,.xls,.csv"
+                                required
+                                class="w-full rounded-lg border border-gray-300 p-2 text-sm text-gray-500 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
+                            >
+
+                            <p class="mt-2 text-xs leading-5 text-gray-500">
+                                Gunakan
+
+                                <a
+                                    href="{{ route('master-signer.template') }}"
+                                    class="font-semibold text-blue-600 hover:underline"
+                                >
+                                    template Excel
+                                </a>
+
+                                agar struktur data sesuai.
+                            </p>
+                        </div>
+
+                        <div class="flex justify-end gap-2 border-t border-gray-100 pt-4">
+
+                            <button
+                                type="button"
+                                @click="showImportModal = false"
+                                class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                            >
+                                Batal
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                            >
+                                Import Signer
+                            </button>
+
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
-
+        </section>
     </div>
-
 </div>
 
 @include('components.availability-confirm-modal')
+
+
+
 @endsection
-
-
