@@ -138,6 +138,8 @@ Route::get('master-cctv/template', [MasterCctvController::class, 'downloadTempla
 Route::resource('master-cctv', MasterCctvController::class)->only(['store', 'update', 'destroy']);
 
 // Master Data Penandatangan (Signer) CCTV
+Route::post('master-signer/import', [MasterSignerController::class, 'import'])->name('master-signer.import');
+Route::get('master-signer/template', [MasterSignerController::class, 'downloadTemplate'])->name('master-signer.template');
 Route::resource('master-signer', MasterSignerController::class)->only(['store', 'update', 'destroy']);
 
 

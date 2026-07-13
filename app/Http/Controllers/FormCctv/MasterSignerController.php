@@ -54,4 +54,30 @@ class MasterSignerController extends Controller
         $master_signer->delete();
         return back()->with('success', "Penandatangan {$nama} berhasil dihapus.");
     }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048',
+        ]);
+
+        try {
+            \Maatwebsite\Excel\Facades\Excel::import(
+                new \App\Imports\FormPemeliharaan\MasterSignerImport,
+                $request->file('file')
+            );
+            return back()->with('success', 'Data penandatangan berhasil diimpor!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Signer Import Error: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat impor data. Pastikan format file benar.');
+        }
+    }
+
+    public function downloadTemplate()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\FormPemeliharaan\MasterSignerTemplateExport,
+            'Template_Data_Penandatangan.xlsx'
+        );
+    }
 }

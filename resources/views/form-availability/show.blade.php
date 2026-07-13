@@ -600,35 +600,6 @@
         {{-- FOOTER DOKUMEN --}}
         <div class="document-footer">
 
-            {{-- PETUNJUK --}}
-            <div class="document-instructions">
-
-                <p>
-                    LAPORAN DIKIRIM SETIAP HARI JAM 10.00
-                </p>
-
-                <p>
-                    YANG DILAPORKAN KEJADIAN MULAI
-                    JAM 00.00 S/D 23.59
-                </p>
-
-                <p>
-                    KIRIM VIA EMAIL KE HELP DESK
-                    (it.helpdesk@kai.id)
-                </p>
-
-                <p>
-                    PERANGKAT TICKETING MENCAKUP
-                    PC, SCANNER, PRINTER, DLL
-                </p>
-
-                <p>
-                    TERMASUK PADA LOKET, CIC,
-                    BOARDING, OA, CS, OPERATOR
-                </p>
-
-            </div>
-
 
             {{-- TANDA TANGAN --}}
             <div class="document-signature">

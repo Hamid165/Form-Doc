@@ -28,3 +28,5 @@ Thumbs.db
 *.sql
 *.xlsx
 *.xls
+excel_dump.md
+read_excel.py

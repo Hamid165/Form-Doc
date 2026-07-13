@@ -39,9 +39,11 @@ class FormAvailabilityController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        $masterSigners = MasterSigner::orderBy('nama', 'asc')->paginate(5, ['*'], 'signer_page');
+
         return view(
             'form-availability.index',
-            compact('forms', 'search')
+            compact('forms', 'masterSigners', 'search')
         );
     }
 
