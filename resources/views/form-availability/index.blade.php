@@ -18,8 +18,10 @@
     if (
         request()->filled('signer_search')
         || request()->has('signer_page')
+        || request()->filled('ba_search')
+        || request()->has('ba_page')
     ) {
-        $forcedTab = 'signer';
+        $forcedTab = 'settings';
     }
 @endphp
 
@@ -65,7 +67,7 @@
 
             <p class="availability-index-description">
                 Kelola laporan availability perangkat ticketing dan
-                identitas penandatangan dalam satu halaman.
+                pengaturan sistem dalam satu halaman.
             </p>
         </div>
 
@@ -336,7 +338,7 @@
 
             if (
                 forcedTab === 'forms'
-                || forcedTab === 'signer'
+                || forcedTab === 'settings'
             ) {
                 tab = forcedTab;
                 localStorage.setItem(
@@ -345,7 +347,7 @@
                 );
             } else if (
                 savedTab === 'forms'
-                || savedTab === 'signer'
+                || savedTab === 'settings'
             ) {
                 tab = savedTab;
             }
@@ -367,12 +369,12 @@
 
             <button
                 type="button"
-                @click="setTab('signer')"
-                :class="tab === 'signer' ? 'is-active' : ''"
+                @click="setTab('settings')"
+                :class="tab === 'settings' ? 'is-active' : ''"
                 class="availability-index-tab"
             >
                 <span class="availability-index-tab-number">02</span>
-                Master Signer
+                Pengaturan
             </button>
 
         </div>
@@ -964,22 +966,25 @@
         </section>
 
         {{-- =====================================================
-             TAB MASTER SIGNER
+             TAB PENGATURAN (MASTER SIGNER & BUSINESS AREA)
         ====================================================== --}}
         <section
-            x-show="tab === 'signer'"
+            x-show="tab === 'settings'"
             x-cloak
             x-data="{
                 showAddModal: false,
                 showEditModal: false,
                 showImportModal: false,
-                editItem: null
+                editItem: null,
+                showBaAddModal: false,
+                showBaEditModal: false,
+                baEditItem: null
             }"
             @master-signer-edit.window="
                 editItem = $event.detail;
                 showEditModal = true;
             "
-            class="space-y-6"
+            class="space-y-10"
         >
             {{-- SEARCH + ACTION + TOTAL --}}
             <div class="availability-index-toolbar">
@@ -1873,6 +1878,489 @@
                         </div>
                     </form>
                 </div>
+            </div>
+
+            {{-- =========================================================
+                 SECTION BUSINESS AREA
+            ========================================================== --}}
+            <div class="border-t border-gray-200 pt-8 space-y-6">
+
+                <div class="availability-index-toolbar">
+                    <div class="availability-index-section-heading">
+                        <span class="availability-index-section-number">03</span>
+
+                        <div>
+                            <span class="availability-index-section-kicker">
+                                Data Wilayah & DAOP/DIVRE
+                            </span>
+
+                            <h2>Master Business Area</h2>
+
+                            <p>
+                                Kelola pemetaan kode Business Area dan DAOP/DIVRE untuk pengisian otomatis.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+
+                        <form
+                            id="masterBaSearchForm"
+                            action="{{ route('form-availability.index') }}"
+                            method="GET"
+                            class="flex w-full max-w-xl items-center gap-2"
+                        >
+                            <input
+                                type="hidden"
+                                name="ba_page"
+                                value="1"
+                            >
+
+                            <div class="relative flex-1">
+
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <svg
+                                        class="h-5 w-5 text-gray-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="m21 21-4.35-4.35m2.35-5.65a8 8 0 11-16 0 8 8 0 0116 0z"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <input
+                                    type="text"
+                                    id="masterBaSearchInput"
+                                    name="ba_search"
+                                    value="{{ request('ba_search') }}"
+                                    placeholder="Cari kode Business Area atau DAOP/DIVRE..."
+                                    autocomplete="off"
+                                    class="availability-index-search-input"
+                                >
+                            </div>
+
+                            <a
+                                href="{{ route('form-availability.index') }}"
+                                class="{{ request('ba_search') ? '' : 'hidden' }} availability-index-reset-button"
+                            >
+                                Reset
+                            </a>
+                        </form>
+
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between xl:justify-end">
+
+                            <div class="availability-index-total">
+                                Total
+
+                                <span
+                                    id="masterBaTotalData"
+                                    class="font-semibold text-gray-900"
+                                >
+                                    {{ $masterBusinessAreas->total() }}
+                                </span>
+
+                                area
+                            </div>
+
+                            <button
+                                type="button"
+                                @click="showBaAddModal = true"
+                                class="availability-index-add-button"
+                            >
+                                <svg
+                                    class="h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M12 4v16m8-8H4"
+                                    />
+                                </svg>
+
+                                Tambah Business Area
+                            </button>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                {{-- TABEL MASTER BUSINESS AREA --}}
+                <div id="masterBaTableResult">
+
+                    <div class="availability-index-table-card">
+
+                        <div class="availability-index-table-scroll">
+
+                            <table class="availability-index-table">
+
+                                <thead class="availability-index-table-head">
+                                    <tr>
+                                        <th class="w-16 px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                            No.
+                                        </th>
+
+                                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                            Kode Business Area
+                                        </th>
+
+                                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                            DAOP / DIVRE
+                                        </th>
+
+                                        <th class="w-28 px-4 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-600">
+
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody class="divide-y divide-gray-100 bg-white">
+
+                                    @forelse ($masterBusinessAreas as $idx => $ba)
+                                        <tr class="availability-index-table-row">
+
+                                            <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                                                {{ $masterBusinessAreas->firstItem() + $idx }}
+                                            </td>
+
+                                            <td class="whitespace-nowrap px-5 py-4 font-mono text-sm font-semibold text-gray-900">
+                                                {{ $ba->kode }}
+                                            </td>
+
+                                            <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-700">
+                                                {{ $ba->daop_divre }}
+                                            </td>
+
+                                            <td class="w-28 whitespace-nowrap px-4 py-3 text-right">
+
+                                                <div class="flex items-center justify-end gap-2">
+
+                                                    <button
+                                                        type="button"
+                                                        @click="
+                                                            baEditItem = {
+                                                                id: {{ $ba->id }},
+                                                                kode: @js($ba->kode),
+                                                                daop_divre: @js($ba->daop_divre)
+                                                            };
+                                                            showBaEditModal = true;
+                                                        "
+                                                        class="availability-index-icon-button availability-index-icon-edit"
+                                                        title="Edit"
+                                                        aria-label="Edit Business Area {{ $ba->kode }}"
+                                                    >
+                                                        <svg
+                                                            class="h-4 w-4"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                stroke-linecap="round"
+                                                                stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                            />
+                                                        </svg>
+                                                    </button>
+
+                                                    <form
+                                                        method="POST"
+                                                        action="{{ route('master-business-area.destroy', $ba) }}"
+                                                        data-availability-confirm
+                                                        data-confirm-type="delete"
+                                                        data-confirm-title="Hapus Business Area"
+                                                        data-confirm-message="Business Area {{ $ba->kode }} - {{ $ba->daop_divre }} akan dihapus secara permanen."
+                                                        class="m-0 inline-block"
+                                                    >
+                                                        @csrf
+                                                        @method('DELETE')
+
+                                                        <button
+                                                            type="submit"
+                                                            class="availability-index-icon-button availability-index-icon-delete"
+                                                            title="Hapus"
+                                                            aria-label="Hapus Business Area {{ $ba->kode }}"
+                                                        >
+                                                            <svg
+                                                                class="h-4 w-4"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    stroke-linecap="round"
+                                                                    stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    @empty
+                                        <tr>
+                                            <td
+                                                colspan="4"
+                                                class="availability-empty-cell"
+                                            >
+                                                <div class="availability-empty-state">
+                                                    <h3 class="availability-empty-title">
+                                                        Belum ada data Business Area
+                                                    </h3>
+
+                                                    <p class="availability-empty-description">
+                                                        Tambahkan kode Business Area dan DAOP/DIVRE agar otomatis terisi pada formulir.
+                                                    </p>
+
+                                                    <button
+                                                        type="button"
+                                                        @click="showBaAddModal = true"
+                                                        class="availability-empty-button"
+                                                    >
+                                                        Tambah Business Area
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                        @if ($masterBusinessAreas->hasPages())
+                            <div class="availability-index-pagination">
+                                {{ $masterBusinessAreas->withQueryString()->links() }}
+                            </div>
+                        @endif
+
+                    </div>
+
+                </div>
+
+                {{-- MODAL TAMBAH BUSINESS AREA --}}
+                <div
+                    x-show="showBaAddModal"
+                    x-transition.opacity
+                    x-cloak
+                    class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+                    @keydown.escape.window="showBaAddModal = false"
+                >
+                    <div
+                        @click.outside="showBaAddModal = false"
+                        class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+                    >
+                        <div class="mb-5 flex items-start justify-between gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">
+                                    Tambah Business Area
+                                </h3>
+
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Tambahkan kode Business Area dan DAOP/DIVRE.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                @click="showBaAddModal = false"
+                                class="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                                aria-label="Tutup modal"
+                            >
+                                <svg
+                                    class="h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <form
+                            method="POST"
+                            action="{{ route('master-business-area.store') }}"
+                            class="space-y-4"
+                        >
+                            @csrf
+
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">
+                                    Kode Business Area
+                                    <span class="text-red-500">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="kode"
+                                    required
+                                    placeholder="Contoh: B060"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                >
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">
+                                    DAOP / DIVRE
+                                    <span class="text-red-500">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="daop_divre"
+                                    required
+                                    placeholder="Contoh: Daop 6 Yogyakarta"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                >
+                            </div>
+
+                            <div class="flex justify-end gap-2 border-t border-gray-100 pt-4">
+                                <button
+                                    type="button"
+                                    @click="showBaAddModal = false"
+                                    class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                                >
+                                    Batal
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                                >
+                                    Simpan Business Area
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- MODAL EDIT BUSINESS AREA --}}
+                <div
+                    x-show="showBaEditModal"
+                    x-transition.opacity
+                    x-cloak
+                    class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+                    @keydown.escape.window="showBaEditModal = false"
+                >
+                    <div
+                        @click.outside="showBaEditModal = false"
+                        class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+                    >
+                        <div class="mb-5 flex items-start justify-between gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">
+                                    Edit Business Area
+                                </h3>
+
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Perbarui data Business Area dan DAOP/DIVRE.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                @click="showBaEditModal = false"
+                                class="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                                aria-label="Tutup modal"
+                            >
+                                <svg
+                                    class="h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <template x-if="baEditItem">
+                            <form
+                                method="POST"
+                                :action="`/master-business-area/${baEditItem.id}`"
+                                class="space-y-4"
+                            >
+                                @csrf
+                                @method('PUT')
+
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">
+                                        Kode Business Area
+                                        <span class="text-red-500">*</span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="kode"
+                                        x-model="baEditItem.kode"
+                                        required
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">
+                                        DAOP / DIVRE
+                                        <span class="text-red-500">*</span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="daop_divre"
+                                        x-model="baEditItem.daop_divre"
+                                        required
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    >
+                                </div>
+
+                                <div class="flex justify-end gap-2 border-t border-gray-100 pt-4">
+                                    <button
+                                        type="button"
+                                        @click="showBaEditModal = false"
+                                        class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                                    >
+                                        Batal
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                                    >
+                                        Simpan Perubahan
+                                    </button>
+                                </div>
+                            </form>
+                        </template>
+                    </div>
+                </div>
+
             </div>
         </section>
     </div>

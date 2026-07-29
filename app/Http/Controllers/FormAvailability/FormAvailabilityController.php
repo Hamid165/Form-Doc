@@ -5,6 +5,7 @@ namespace App\Http\Controllers\FormAvailability;
 use App\Exports\FormAvailability\FormAvailabilityExport;
 use App\Http\Controllers\Controller;
 use App\Models\FormAvailability\FormAvailability;
+use App\Models\FormAvailability\MasterBusinessArea;
 use App\Models\FormCctv\MasterSigner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,16 @@ class FormAvailabilityController extends Controller
         $signerSearch = trim(
             (string) $request->query(
                 'signer_search',
+                ''
+            )
+        );
+
+        /*
+         * Pencarian Master Business Area.
+         */
+        $baSearch = trim(
+            (string) $request->query(
+                'ba_search',
                 ''
             )
         );
@@ -105,13 +116,44 @@ class FormAvailabilityController extends Controller
             )
             ->withQueryString();
 
+        $masterBusinessAreas = MasterBusinessArea::query()
+            ->when(
+                $baSearch !== '',
+                function ($query) use ($baSearch) {
+                    $query->where(
+                        function ($subQuery) use ($baSearch) {
+                            $subQuery
+                                ->where(
+                                    'kode',
+                                    'like',
+                                    "%{$baSearch}%"
+                                )
+                                ->orWhere(
+                                    'daop_divre',
+                                    'like',
+                                    "%{$baSearch}%"
+                                );
+                        }
+                    );
+                }
+            )
+            ->orderBy('kode')
+            ->paginate(
+                10,
+                ['*'],
+                'ba_page'
+            )
+            ->withQueryString();
+
         return view(
             'form-availability.index',
             compact(
                 'forms',
                 'masterSigners',
+                'masterBusinessAreas',
                 'search',
-                'signerSearch'
+                'signerSearch',
+                'baSearch'
             )
         );
     }
@@ -119,10 +161,11 @@ class FormAvailabilityController extends Controller
     public function create()
     {
         $masterSigners = MasterSigner::orderBy('nama')->get();
+        $masterBusinessAreas = MasterBusinessArea::orderBy('kode')->get();
 
         return view(
             'form-availability.create',
-            compact('masterSigners')
+            compact('masterSigners', 'masterBusinessAreas')
         );
     }
 
@@ -159,37 +202,14 @@ class FormAvailabilityController extends Controller
                 'petugas_nipp' =>
                     $validated['petugas_nipp'] ?? null,
 
-                /*
-                 * Master signer hanya dipakai pada mode master.
-                 */
                 'mengetahui_id' =>
-                    $validated['mengetahui_nipp_mode'] === 'master'
-                        ? ($validated['mengetahui_id'] ?? null)
-                        : null,
+                    $validated['mengetahui_id'] ?? null,
 
-                'mengetahui_nipp_mode' =>
-                    $validated['mengetahui_nipp_mode'],
+                'mengetahui_nipp_mode' => 'master',
 
-                'mengetahui_nama_override' =>
-                    $validated['mengetahui_nipp_mode'] === 'custom'
-                        ? trim(
-                            $validated['mengetahui_nama_override']
-                        )
-                        : null,
+                'mengetahui_nama_override' => null,
 
-                'mengetahui_nipp_override' =>
-                    $validated['mengetahui_nipp_mode'] === 'custom'
-                        ? (
-                            filled(
-                                $validated['mengetahui_nipp_override']
-                                ?? null
-                            )
-                                ? trim(
-                                    $validated['mengetahui_nipp_override']
-                                )
-                                : null
-                        )
-                        : null,
+                'mengetahui_nipp_override' => null,
 
                 'status' => 'draft',
             ]);
@@ -252,12 +272,14 @@ class FormAvailabilityController extends Controller
         ]);
 
         $masterSigners = MasterSigner::orderBy('nama')->get();
+        $masterBusinessAreas = MasterBusinessArea::orderBy('kode')->get();
 
         return view(
             'form-availability.edit',
             compact(
                 'form_availability',
-                'masterSigners'
+                'masterSigners',
+                'masterBusinessAreas'
             )
         );
     }
@@ -300,37 +322,14 @@ class FormAvailabilityController extends Controller
                 'petugas_nipp' =>
                     $validated['petugas_nipp'] ?? null,
 
-                /*
-                 * Master signer hanya dipakai pada mode master.
-                 */
                 'mengetahui_id' =>
-                    $validated['mengetahui_nipp_mode'] === 'master'
-                        ? ($validated['mengetahui_id'] ?? null)
-                        : null,
+                    $validated['mengetahui_id'] ?? null,
 
-                'mengetahui_nipp_mode' =>
-                    $validated['mengetahui_nipp_mode'],
+                'mengetahui_nipp_mode' => 'master',
 
-                'mengetahui_nama_override' =>
-                    $validated['mengetahui_nipp_mode'] === 'custom'
-                        ? trim(
-                            $validated['mengetahui_nama_override']
-                        )
-                        : null,
+                'mengetahui_nama_override' => null,
 
-                'mengetahui_nipp_override' =>
-                    $validated['mengetahui_nipp_mode'] === 'custom'
-                        ? (
-                            filled(
-                                $validated['mengetahui_nipp_override']
-                                ?? null
-                            )
-                                ? trim(
-                                    $validated['mengetahui_nipp_override']
-                                )
-                                : null
-                        )
-                        : null,
+                'mengetahui_nipp_override' => null,
             ]);
 
             /*
@@ -513,32 +512,9 @@ class FormAvailabilityController extends Controller
             ],
 
             'mengetahui_id' => [
-                'nullable',
-                'required_if:mengetahui_nipp_mode,master',
+                'required',
                 'integer',
                 'exists:master_signers,id',
-            ],
-
-            'mengetahui_nipp_mode' => [
-                'required',
-                Rule::in([
-                    'master',
-                    'custom',
-                    'hidden',
-                ]),
-            ],
-
-            'mengetahui_nama_override' => [
-                'nullable',
-                'string',
-                'max:255',
-                'required_if:mengetahui_nipp_mode,custom',
-            ],
-
-            'mengetahui_nipp_override' => [
-                'nullable',
-                'string',
-                'max:50',
             ],
 
             'items' => [
@@ -602,7 +578,7 @@ class FormAvailabilityController extends Controller
             'jumlah_perangkat_ticketing.required' =>
                 'Jumlah total perangkat wajib diisi.',
 
-            'mengetahui_id.required_if' =>
+            'mengetahui_id.required' =>
                 'Master Sign wajib dipilih.',
 
             'mengetahui_id.exists' =>
@@ -628,21 +604,55 @@ class FormAvailabilityController extends Controller
 
             'items.*.lama_gangguan.required' =>
                 'Lama gangguan wajib diisi.',
-
-            'mengetahui_nipp_mode.required' =>
-                'Pengaturan NIPP penandatangan wajib dipilih.',
-
-            'mengetahui_nipp_mode.in' =>
-                'Pengaturan NIPP penandatangan tidak valid.',
-
-            'mengetahui_nipp_override.max' =>
-                'NIPP khusus maksimal 50 karakter.',
-
-            'mengetahui_nama_override.required_if' =>
-                'Jabatan dan nama manual wajib diisi.',
-
-            'mengetahui_nama_override.max' =>
-                'Jabatan dan nama manual maksimal 255 karakter.',
         ]);
+    }
+
+    public function storeBusinessArea(Request $request)
+    {
+        $validated = $request->validate([
+            'kode' => 'required|string|max:100',
+            'daop_divre' => 'required|string|max:255',
+        ], [
+            'kode.required' => 'Kode Business Area wajib diisi.',
+            'daop_divre.required' => 'DAOP/DIVRE wajib diisi.',
+        ]);
+
+        MasterBusinessArea::create($validated);
+
+        return redirect()
+            ->route('form-availability.index')
+            ->with('success', 'Master Business Area berhasil ditambahkan.');
+    }
+
+    public function updateBusinessArea(Request $request, MasterBusinessArea $masterBusinessArea)
+    {
+        $validated = $request->validate([
+            'kode' => 'required|string|max:100',
+            'daop_divre' => 'required|string|max:255',
+        ], [
+            'kode.required' => 'Kode Business Area wajib diisi.',
+            'daop_divre.required' => 'DAOP/DIVRE wajib diisi.',
+        ]);
+
+        $masterBusinessArea->update($validated);
+
+        return redirect()
+            ->route('form-availability.index')
+            ->with('success', 'Master Business Area berhasil diperbarui.');
+    }
+
+    public function destroyBusinessArea(MasterBusinessArea $masterBusinessArea)
+    {
+        $masterBusinessArea->delete();
+
+        return redirect()
+            ->route('form-availability.index')
+            ->with('success', 'Master Business Area berhasil dihapus.');
+    }
+
+    public function getBusinessAreas()
+    {
+        $data = MasterBusinessArea::orderBy('kode')->get();
+        return response()->json($data);
     }
 }

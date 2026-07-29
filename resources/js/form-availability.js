@@ -2285,6 +2285,37 @@ document.addEventListener('click', (event) => {
 
 /*
  * =========================================================
+ * AUTO FILL BUSINESS AREA & DAOP/DIVRE
+ * =========================================================
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    const baSelect = document.getElementById('business_area');
+    const daopInput = document.getElementById('daop_divre');
+
+    if (!baSelect || !daopInput) {
+        return;
+    }
+
+    const updateDaopField = () => {
+        const selectedOption = baSelect.options[baSelect.selectedIndex];
+        if (selectedOption && selectedOption.dataset.daop) {
+            daopInput.value = selectedOption.dataset.daop;
+        }
+    };
+
+    baSelect.addEventListener('change', updateDaopField);
+
+    /*
+     * Jalankan saat awal dimuat (misal pada halaman edit atau setelah validation error)
+     */
+    if (baSelect.value) {
+        updateDaopField();
+    }
+});
+
+/*
+ * =========================================================
  * PREVIEW PEJABAT DAN IDENTITAS TANDA TANGAN
  * =========================================================
  */
@@ -2298,41 +2329,11 @@ document.addEventListener('DOMContentLoaded', () => {
         '[data-signer-preview]'
     );
 
-    const modeInputs = Array.from(
-        document.querySelectorAll(
-            '[data-signer-nipp-mode]'
-        )
-    );
-
-    const masterWrapper = document.querySelector(
-        '[data-signer-master-wrapper]'
-    );
-
-    const customWrapper = document.querySelector(
-        '[data-signer-custom-wrapper]'
-    );
-
-    const emptyNote = document.querySelector(
-        '[data-signer-empty-note]'
-    );
-
-    const customNameInput = document.querySelector(
-        '[data-signer-name-custom]'
-    );
-
-    const customNippInput = document.querySelector(
-        '[data-signer-nipp-custom]'
-    );
-
     /*
      * Jangan lanjut kalau komponen form tanda tangan
      * tidak ditemukan pada halaman ini.
      */
-    if (
-        !signerSelect
-        || !signerPreview
-        || modeInputs.length === 0
-    ) {
+    if (!signerSelect || !signerPreview) {
         return;
     }
 
@@ -2348,137 +2349,18 @@ document.addEventListener('DOMContentLoaded', () => {
         '[data-signer-nipp]'
     );
 
-    const getSelectedMode = () => {
-        const selectedMode = modeInputs.find(
-            (input) => input.checked
-        );
-
-        return selectedMode?.value || 'master';
-    };
-
     const getSelectedOption = () => {
         return signerSelect.options[
             signerSelect.selectedIndex
         ];
     };
 
-    /*
-     * Atur field yang tampil, disabled, dan required
-     * berdasarkan mode yang dipilih.
-     */
-    const updateSignerFields = () => {
-        const mode = getSelectedMode();
-
-        const isMaster =
-            mode === 'master';
-
-        const isCustom =
-            mode === 'custom';
-
-        const isHidden =
-            mode === 'hidden';
-
-        /*
-         * MASTER SIGN
-         */
-        if (masterWrapper) {
-            masterWrapper.hidden = !isMaster;
-        }
-
-        signerSelect.disabled = !isMaster;
-        signerSelect.required = isMaster;
-
-        /*
-         * INPUT MANUAL
-         */
-        if (customWrapper) {
-            customWrapper.hidden = !isCustom;
-        }
-
-        if (customNameInput) {
-            customNameInput.disabled = !isCustom;
-            customNameInput.required = isCustom;
-        }
-
-        if (customNippInput) {
-            customNippInput.disabled = !isCustom;
-            customNippInput.required = false;
-        }
-
-        /*
-         * MODE KOSONG
-         */
-        if (emptyNote) {
-            emptyNote.hidden = !isHidden;
-        }
-    };
-
     const updateSignerPreview = () => {
-        const mode = getSelectedMode();
+        const selectedOption = getSelectedOption();
 
-        updateSignerFields();
+        const hasSelection = Boolean(selectedOption && selectedOption.value);
 
-        /*
-         * MODE KOSONG
-         */
-        if (mode === 'hidden') {
-            signerPreview.hidden = true;
-
-            return;
-        }
-
-        /*
-         * MODE MANUAL
-         */
-        if (mode === 'custom') {
-            const manualIdentity =
-                customNameInput?.value.trim()
-                || '';
-
-            const manualNipp =
-                customNippInput?.value.trim()
-                || '';
-
-            signerPreview.hidden = false;
-
-            if (nameElement) {
-                nameElement.textContent =
-                    manualIdentity
-                    || 'Jabatan dan nama belum diisi';
-
-                nameElement.style.whiteSpace =
-                    'pre-line';
-            }
-
-            if (positionElement) {
-                positionElement.hidden = true;
-                positionElement.textContent = '';
-            }
-
-            if (nippElement) {
-                nippElement.hidden =
-                    manualNipp === '';
-
-                nippElement.textContent =
-                    manualNipp
-                        ? `NIPP ${manualNipp}`
-                        : '';
-            }
-
-            return;
-        }
-
-        /*
-         * MODE MASTER
-         */
-        const selectedOption =
-            getSelectedOption();
-
-        const hasSelection =
-            Boolean(selectedOption?.value);
-
-        signerPreview.hidden =
-            !hasSelection;
+        signerPreview.hidden = !hasSelection;
 
         if (!hasSelection) {
             return;
@@ -2498,72 +2380,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (nameElement) {
             nameElement.style.whiteSpace = '';
-            nameElement.textContent =
-                masterName;
+            nameElement.textContent = masterName;
         }
 
         if (positionElement) {
             positionElement.hidden = false;
-            positionElement.textContent =
-                masterPosition;
+            positionElement.textContent = masterPosition;
         }
 
         if (nippElement) {
-            nippElement.hidden =
-                masterNipp === '';
-
-            nippElement.textContent =
-                masterNipp
-                    ? `NIPP ${masterNipp}`
-                    : '';
+            nippElement.hidden = masterNipp === '';
+            nippElement.textContent = masterNipp
+                ? `NIPP ${masterNipp}`
+                : '';
         }
     };
 
-    /*
-     * Ketika master signer berubah.
-     */
     signerSelect.addEventListener(
         'change',
         updateSignerPreview
     );
 
     /*
-     * Ketika pilihan mode berubah.
-     */
-    modeInputs.forEach((input) => {
-        input.addEventListener(
-            'change',
-            () => {
-                updateSignerPreview();
-
-                if (
-                    input.checked
-                    && input.value === 'custom'
-                ) {
-                    window.setTimeout(() => {
-                        customNameInput?.focus();
-                    }, 50);
-                }
-            }
-        );
-    });
-
-    /*
-     * Preview input manual.
-     */
-    customNameInput?.addEventListener(
-        'input',
-        updateSignerPreview
-    );
-
-    customNippInput?.addEventListener(
-        'input',
-        updateSignerPreview
-    );
-
-    /*
-     * Jalankan ketika halaman pertama dibuka,
-     * termasuk ketika halaman edit dibuka.
+     * Jalankan ketika halaman pertama dibuka
      */
     updateSignerPreview();
 });
+

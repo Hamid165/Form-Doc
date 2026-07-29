@@ -198,18 +198,52 @@
                         <span class="required-mark">*</span>
                     </label>
 
-                    <input
-                        id="business_area"
-                        type="text"
-                        name="business_area"
-                        value="{{ old(
-                            'business_area',
-                            $form?->business_area
-                        ) }}"
-                        class="availability-control"
-                        placeholder="Contoh: Sistem Informasi"
-                        required
-                    >
+                    @php
+                        $currentBa = old('business_area', $form?->business_area);
+                    @endphp
+
+                    <div class="availability-select-shell">
+                        <select
+                            id="business_area"
+                            name="business_area"
+                            class="availability-control availability-select-control"
+                            required
+                        >
+                            <option value="" disabled @selected(empty($currentBa))>
+                                Pilih Business Area
+                            </option>
+                            @foreach ($masterBusinessAreas ?? [] as $ba)
+                                @php
+                                    $baValue = "{$ba->kode} — {$ba->daop_divre}";
+                                @endphp
+                                <option
+                                    value="{{ $baValue }}"
+                                    data-daop="{{ $ba->daop_divre }}"
+                                    data-kode="{{ $ba->kode }}"
+                                    @selected($currentBa === $baValue || $currentBa === $ba->kode)
+                                >
+                                    {{ $baValue }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <svg
+                            class="availability-select-chevron"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="m6 9 6 6 6-6"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                    </div>
                 </div>
 
 
@@ -227,8 +261,9 @@
                             'daop_divre',
                             $form?->daop_divre
                         ) }}"
-                        class="availability-control"
-                        placeholder="Contoh: DAOP 8 Surabaya"
+                        class="availability-control bg-gray-50 cursor-not-allowed"
+                        placeholder="Otomatis mengikuti Business Area"
+                        readonly
                         required
                     >
                 </div>
@@ -679,257 +714,74 @@
 
 
                 <div class="availability-field availability-full-field">
-                    <label>
-                        Tanda Tangan yang Mengetahui
+                    <label for="mengetahui_id">
+                        Tanda Tangan yang Mengetahui (Master Sign)
                         <span class="required-mark">*</span>
                     </label>
 
-                    <div
-                        class="availability-nipp-setting"
-                        data-signer-nipp-setting
-                    >
-                        <div class="availability-nipp-setting-title">
-                            Pilih Sumber Identitas Tanda Tangan
-                        </div>
+                    <input type="hidden" name="mengetahui_nipp_mode" value="master">
 
-                        <div
-                            class="availability-choice-grid availability-choice-grid-nipp"
-                            role="radiogroup"
-                            aria-label="Pilihan identitas tanda tangan"
+                    @if ($masterSigners->isEmpty())
+                        <div class="availability-alert availability-alert-warning mb-3">
+                            Data pejabat belum tersedia pada tabel <strong>master_signers</strong>. Silakan tambahkan pada menu Pengaturan.
+                        </div>
+                    @endif
+
+                    <div class="availability-select-shell">
+                        <select
+                            id="mengetahui_id"
+                            name="mengetahui_id"
+                            class="availability-control availability-select-control"
+                            data-signer-select
+                            required
                         >
-                            {{-- IKUTI MASTER SIGN --}}
-                            <label class="availability-choice-card">
-                                <input
-                                    type="radio"
-                                    name="mengetahui_nipp_mode"
-                                    value="master"
-                                    class="availability-choice-input"
-                                    data-signer-nipp-mode
-                                    @checked($nippMode === 'master')
+                            <option
+                                value=""
+                                disabled
+                                data-name=""
+                                data-position=""
+                                data-nipp=""
+                                @selected(empty(old('mengetahui_id', $form?->mengetahui_id)))
+                            >
+                                Pilih pejabat penandatangan
+                            </option>
+
+                            @foreach ($masterSigners as $signer)
+                                <option
+                                    value="{{ $signer->id }}"
+                                    data-name="{{ $signer->nama }}"
+                                    data-position="{{ $signer->jabatan }}"
+                                    data-nipp="{{ $signer->nipp }}"
+                                    @selected((string) old('mengetahui_id', $form?->mengetahui_id) === (string) $signer->id)
                                 >
+                                    {{ $signer->nama }}
+                                    @if ($signer->jabatan)
+                                        — {{ $signer->jabatan }}
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
 
-                                <span class="availability-choice-dot"></span>
-
-                                <span class="availability-choice-copy">
-                                    <strong>Ikuti Master Sign</strong>
-
-                                    <small>
-                                        Nama, jabatan, dan NIPP dari master signer
-                                    </small>
-                                </span>
-                            </label>
-
-
-                            {{-- INPUT MANUAL --}}
-                            <label class="availability-choice-card">
-                                <input
-                                    type="radio"
-                                    name="mengetahui_nipp_mode"
-                                    value="custom"
-                                    class="availability-choice-input"
-                                    data-signer-nipp-mode
-                                    @checked($nippMode === 'custom')
-                                >
-
-                                <span class="availability-choice-dot"></span>
-
-                                <span class="availability-choice-copy">
-                                    <strong>Manual Input</strong>
-
-                                    <small>
-                                        Jabatan dan nama diisi manual
-                                    </small>
-                                </span>
-                            </label>
-
-
-                            {{-- KOSONG --}}
-                            <label class="availability-choice-card">
-                                <input
-                                    type="radio"
-                                    name="mengetahui_nipp_mode"
-                                    value="hidden"
-                                    class="availability-choice-input"
-                                    data-signer-nipp-mode
-                                    @checked($nippMode === 'hidden')
-                                >
-
-                                <span class="availability-choice-dot"></span>
-
-                                <span class="availability-choice-copy">
-                                    <strong>Kosong</strong>
-
-                                    <small>
-                                        Nama, jabatan, dan NIPP tidak dicetak
-                                    </small>
-                                </span>
-                            </label>
-                        </div>
-
-
-                        {{-- PILIH MASTER SIGN --}}
-                        <div
-                            data-signer-master-wrapper
-                            @if ($nippMode !== 'master') hidden @endif
+                        <svg
+                            class="availability-select-chevron"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            aria-hidden="true"
                         >
-                            <div class="availability-field">
-                                <label for="mengetahui_id">
-                                    Master Sign
-                                    <span class="required-mark">*</span>
-                                </label>
-
-                                @if ($masterSigners->isEmpty())
-                                    <div class="availability-alert availability-alert-warning">
-                                        Data pejabat belum tersedia pada tabel
-                                        <strong>master_signers</strong>.
-                                    </div>
-                                @endif
-
-                                <div class="availability-select-shell">
-                                    <select
-                                        id="mengetahui_id"
-                                        name="mengetahui_id"
-                                        class="availability-control availability-select-control"
-                                        data-signer-select
-                                        @if ($nippMode === 'master') required @else disabled @endif
-                                    >
-                                        <option
-                                            value=""
-                                            disabled
-                                            data-name=""
-                                            data-position=""
-                                            data-nipp=""
-                                            @selected(
-                                                empty(old(
-                                                    'mengetahui_id',
-                                                    $form?->mengetahui_id
-                                                ))
-                                            )
-                                        >
-                                            Pilih pejabat penandatangan
-                                        </option>
-
-                                        @foreach ($masterSigners as $signer)
-                                            <option
-                                                value="{{ $signer->id }}"
-                                                data-name="{{ $signer->nama }}"
-                                                data-position="{{ $signer->jabatan }}"
-                                                data-nipp="{{ $signer->nipp }}"
-                                                @selected(
-                                                    (string) old(
-                                                        'mengetahui_id',
-                                                        $form?->mengetahui_id
-                                                    ) === (string) $signer->id
-                                                )
-                                            >
-                                                {{ $signer->nama }}
-
-                                                @if ($signer->jabatan)
-                                                    — {{ $signer->jabatan }}
-                                                @endif
-                                            </option>
-                                        @endforeach
-                                    </select>
-
-                                    <svg
-                                        class="availability-select-chevron"
-                                        width="18"
-                                        height="18"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        aria-hidden="true"
-                                    >
-                                        <path
-                                            d="m6 9 6 6 6-6"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                        />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        {{-- INPUT MANUAL --}}
-                        <div
-                            class="availability-nipp-custom"
-                            data-signer-custom-wrapper
-                            @if ($nippMode !== 'custom') hidden @endif
-                        >
-                            <div class="availability-form-grid">
-
-                                <div class="availability-field">
-                                    <label for="mengetahui_nama_override">
-                                        Jabatan dan Nama Manual
-                                        <span class="required-mark">*</span>
-                                    </label>
-
-                                    <textarea
-                                        id="mengetahui_nama_override"
-                                        name="mengetahui_nama_override"
-                                        class="availability-control"
-                                        rows="3"
-                                        maxlength="255"
-                                        placeholder="Contoh:&#10;MANAGER IT&#10;Budi Santoso"
-                                        autocomplete="off"
-                                        data-signer-name-custom
-                                        @if ($nippMode === 'custom') required @else disabled @endif
-                                    >{{ $namaOverride }}</textarea>
-
-                                    <small class="availability-help">
-                                        Jabatan dan nama disimpan pada kolom nama yang sama.
-                                        Gunakan baris baru agar hasil tanda tangan rapi.
-                                    </small>
-                                </div>
-
-
-                                <div class="availability-field">
-                                    <label for="mengetahui_nipp_override">
-                                        NIPP Manual
-
-                                        <small>
-                                            Opsional
-                                        </small>
-                                    </label>
-
-                                    <input
-                                        id="mengetahui_nipp_override"
-                                        type="text"
-                                        name="mengetahui_nipp_override"
-                                        value="{{ $nippOverride }}"
-                                        class="availability-control"
-                                        placeholder="Boleh dikosongkan"
-                                        autocomplete="off"
-                                        data-signer-nipp-custom
-                                        @if ($nippMode !== 'custom') disabled @endif
-                                    >
-                                </div>
-
-                            </div>
-
-                            <small class="availability-help">
-                                Identitas ini hanya digunakan pada laporan ini
-                                dan tidak mengubah master signer.
-                            </small>
-                        </div>
-
-
-                        {{-- MODE KOSONG --}}
-                        <div
-                            class="availability-alert availability-alert-warning"
-                            data-signer-empty-note
-                            @if ($nippMode !== 'hidden') hidden @endif
-                        >
-                            Area tanda tangan tetap tersedia, tetapi nama,
-                            jabatan, dan NIPP penandatangan tidak dicetak.
-                        </div>
+                            <path
+                                d="m6 9 6 6 6-6"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
                     </div>
 
-
                     <div
-                        class="availability-signer-preview"
+                        class="availability-signer-preview mt-3"
                         data-signer-preview
                         hidden
                     >

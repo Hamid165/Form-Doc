@@ -172,6 +172,11 @@ Route::resource('master-perangkat', MasterPerangkatController::class)->only(['st
 // ROUTES FORMULIR AVAILABILITY SYSTEM TICKETING
 // ==============================================================
 
+Route::post('master-business-area', [FormAvailabilityController::class, 'storeBusinessArea'])->name('master-business-area.store');
+Route::put('master-business-area/{masterBusinessArea}', [FormAvailabilityController::class, 'updateBusinessArea'])->name('master-business-area.update');
+Route::delete('master-business-area/{masterBusinessArea}', [FormAvailabilityController::class, 'destroyBusinessArea'])->name('master-business-area.destroy');
+Route::get('api/business-areas', [FormAvailabilityController::class, 'getBusinessAreas'])->name('api.business-areas');
+
 Route::patch(
     'form-availability/{form_availability}/confirm',
     [FormAvailabilityController::class, 'confirm']
@@ -189,3 +194,4 @@ Route::resource(
     'form-availability',
     FormAvailabilityController::class
 );
+
