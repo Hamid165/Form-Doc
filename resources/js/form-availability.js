@@ -1690,6 +1690,374 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /*
  * =========================================================
+ * LIVE SEARCH MASTER BUSINESS AREA
+ * Mengubah hanya tabel Business Area tanpa reload halaman.
+ * =========================================================
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchForm = document.getElementById(
+        'masterBaSearchForm'
+    );
+
+    const searchInput = document.getElementById(
+        'masterBaSearchInput'
+    );
+
+    const resetButton = document.getElementById(
+        'masterBaResetSearch'
+    );
+
+    const loadingElement = document.getElementById(
+        'masterBaSearchLoading'
+    );
+
+    if (!searchForm || !searchInput) {
+        return;
+    }
+
+    let debounceTimer = null;
+    let activeController = null;
+    let requestSequence = 0;
+
+    const setLoading = (isLoading) => {
+        if (!loadingElement) {
+            return;
+        }
+
+        loadingElement.classList.toggle(
+            'hidden',
+            !isLoading
+        );
+
+        loadingElement.classList.toggle(
+            'flex',
+            isLoading
+        );
+    };
+
+    const updateResetButton = () => {
+        if (!resetButton) {
+            return;
+        }
+
+        const hasKeyword =
+            searchInput.value.trim() !== '';
+
+        resetButton.classList.toggle(
+            'hidden',
+            !hasKeyword
+        );
+    };
+
+    const buildSearchUrl = () => {
+        const url = new URL(
+            searchForm.action,
+            window.location.origin
+        );
+
+        const keyword =
+            searchInput.value.trim();
+
+        if (keyword !== '') {
+            url.searchParams.set(
+                'ba_search',
+                keyword
+            );
+        } else {
+            url.searchParams.delete(
+                'ba_search'
+            );
+        }
+
+        /*
+         * Menjaga tab Pengaturan tetap aktif dan
+         * memulai pencarian dari halaman pertama.
+         */
+        url.searchParams.set(
+            'ba_page',
+            '1'
+        );
+
+        return url;
+    };
+
+    const replaceSearchResult = (html) => {
+        const parser =
+            new DOMParser();
+
+        const responseDocument =
+            parser.parseFromString(
+                html,
+                'text/html'
+            );
+
+        const newResult =
+            responseDocument.getElementById(
+                'masterBaTableResult'
+            );
+
+        const currentResult =
+            document.getElementById(
+                'masterBaTableResult'
+            );
+
+        const newTotal =
+            responseDocument.getElementById(
+                'masterBaTotalData'
+            );
+
+        const currentTotal =
+            document.getElementById(
+                'masterBaTotalData'
+            );
+
+        if (!newResult || !currentResult) {
+            throw new Error(
+                'Bagian tabel Master Business Area tidak ditemukan.'
+            );
+        }
+
+        /*
+         * Bersihkan directive Alpine lama sebelum
+         * isi tabel diganti, jika Alpine tersedia.
+         */
+        if (
+            window.Alpine
+            && typeof window.Alpine.destroyTree
+                === 'function'
+        ) {
+            window.Alpine.destroyTree(
+                currentResult
+            );
+        }
+
+        currentResult.innerHTML =
+            newResult.innerHTML;
+
+        if (newTotal && currentTotal) {
+            currentTotal.textContent =
+                newTotal.textContent.trim();
+        }
+
+        /*
+         * Aktifkan kembali tombol edit dan tombol
+         * tambah pada empty state.
+         */
+        if (
+            window.Alpine
+            && typeof window.Alpine.initTree
+                === 'function'
+        ) {
+            window.Alpine.initTree(
+                currentResult
+            );
+        }
+    };
+
+    const loadSearchResult = async (
+        url,
+        updateBrowserUrl = true
+    ) => {
+        if (activeController) {
+            activeController.abort();
+        }
+
+        const controller =
+            new AbortController();
+
+        activeController = controller;
+
+        const currentSequence =
+            ++requestSequence;
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(
+                url.toString(),
+                {
+                    method: 'GET',
+
+                    headers: {
+                        Accept: 'text/html',
+
+                        'X-Requested-With':
+                            'XMLHttpRequest',
+                    },
+
+                    signal:
+                        controller.signal,
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `Pencarian Business Area gagal (${response.status}).`
+                );
+            }
+
+            const html =
+                await response.text();
+
+            if (
+                currentSequence
+                !== requestSequence
+            ) {
+                return;
+            }
+
+            replaceSearchResult(html);
+
+            if (updateBrowserUrl) {
+                window.history.replaceState(
+                    {
+                        masterBaSearch: true,
+                    },
+                    '',
+                    url.toString()
+                );
+            }
+
+            updateResetButton();
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error(
+                    'Master Business Area search error:',
+                    error
+                );
+            }
+        } finally {
+            if (
+                currentSequence
+                === requestSequence
+            ) {
+                setLoading(false);
+                activeController = null;
+            }
+        }
+    };
+
+    const executeSearch = () => {
+        loadSearchResult(
+            buildSearchUrl(),
+            true
+        );
+    };
+
+    /*
+     * Pencarian otomatis setelah pengguna
+     * berhenti mengetik selama 400 ms.
+     */
+    searchInput.addEventListener(
+        'input',
+        () => {
+            updateResetButton();
+
+            window.clearTimeout(
+                debounceTimer
+            );
+
+            debounceTimer =
+                window.setTimeout(
+                    executeSearch,
+                    400
+                );
+        }
+    );
+
+    /*
+     * Tombol Enter tidak me-reload seluruh halaman.
+     */
+    searchForm.addEventListener(
+        'submit',
+        (event) => {
+            event.preventDefault();
+
+            window.clearTimeout(
+                debounceTimer
+            );
+
+            executeSearch();
+        }
+    );
+
+    resetButton?.addEventListener(
+        'click',
+        () => {
+            searchInput.value = '';
+
+            updateResetButton();
+
+            window.clearTimeout(
+                debounceTimer
+            );
+
+            executeSearch();
+            searchInput.focus();
+        }
+    );
+
+    /*
+     * Pagination Business Area juga diproses
+     * tanpa reload halaman penuh.
+     */
+    document.addEventListener(
+        'click',
+        (event) => {
+            const paginationLink =
+                event.target.closest(
+                    '#masterBaTableResult nav a'
+                );
+
+            if (!paginationLink) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const url = new URL(
+                paginationLink.href,
+                window.location.origin
+            );
+
+            loadSearchResult(
+                url,
+                true
+            );
+        }
+    );
+
+    /*
+     * Reset dari tampilan kosong hasil pencarian.
+     */
+    document.addEventListener(
+        'click',
+        (event) => {
+            const emptyResetButton =
+                event.target.closest(
+                    '[data-master-ba-empty-reset]'
+                );
+
+            if (!emptyResetButton) {
+                return;
+            }
+
+            event.preventDefault();
+
+            searchInput.value = '';
+            updateResetButton();
+            executeSearch();
+            searchInput.focus();
+        }
+    );
+
+    updateResetButton();
+});
+
+
+/*
+ * =========================================================
  * DROPDOWN AKSI AVAILABILITY
  * Digunakan pada halaman index.blade.php
  * =========================================================

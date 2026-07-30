@@ -1943,14 +1943,41 @@
                                     autocomplete="off"
                                     class="availability-index-search-input"
                                 >
+
+                                <div
+                                    id="masterBaSearchLoading"
+                                    class="pointer-events-none absolute inset-y-0 right-0 hidden items-center pr-3"
+                                >
+                                    <svg
+                                        class="h-5 w-5 animate-spin text-gray-500"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                    >
+                                        <circle
+                                            class="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            stroke-width="4"
+                                        />
+
+                                        <path
+                                            class="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                        />
+                                    </svg>
+                                </div>
                             </div>
 
-                            <a
-                                href="{{ route('form-availability.index') }}"
+                            <button
+                                type="button"
+                                id="masterBaResetSearch"
                                 class="{{ request('ba_search') ? '' : 'hidden' }} availability-index-reset-button"
                             >
                                 Reset
-                            </a>
+                            </button>
                         </form>
 
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between xl:justify-end">
@@ -2119,21 +2146,208 @@
                                                 class="availability-empty-cell"
                                             >
                                                 <div class="availability-empty-state">
-                                                    <h3 class="availability-empty-title">
-                                                        Belum ada data Business Area
-                                                    </h3>
 
-                                                    <p class="availability-empty-description">
-                                                        Tambahkan kode Business Area dan DAOP/DIVRE agar otomatis terisi pada formulir.
-                                                    </p>
-
-                                                    <button
-                                                        type="button"
-                                                        @click="showBaAddModal = true"
-                                                        class="availability-empty-button"
+                                                    {{-- ILUSTRASI EMPTY STATE KERETA --}}
+                                                    <svg
+                                                        class="availability-empty-illustration"
+                                                        viewBox="0 0 320 220"
+                                                        fill="none"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        aria-hidden="true"
                                                     >
-                                                        Tambah Business Area
-                                                    </button>
+                                                        <path
+                                                            class="availability-empty-bg"
+                                                            d="M63 170C40 151 33 119 47 93C61 68 91 60 114 70C132 39 177 28 208 50C229 65 240 91 235 116C258 122 273 143 267 164C261 184 239 195 217 195H95C82 195 71 183 63 170Z"
+                                                        />
+
+                                                        <rect
+                                                            class="availability-empty-document"
+                                                            x="206"
+                                                            y="28"
+                                                            width="78"
+                                                            height="65"
+                                                            rx="10"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-blue-line"
+                                                            d="M224 48H265"
+                                                            stroke-linecap="round"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-gray-line"
+                                                            d="M224 62H257"
+                                                            stroke-width="4"
+                                                            stroke-linecap="round"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-orange-line"
+                                                            d="M224 77H246"
+                                                            stroke-width="4"
+                                                            stroke-linecap="round"
+                                                        />
+
+                                                        <circle
+                                                            class="availability-empty-plus-circle"
+                                                            cx="67"
+                                                            cy="61"
+                                                            r="23"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-plus-line"
+                                                            d="M67 50V72"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-plus-line"
+                                                            d="M56 61H78"
+                                                        />
+
+                                                        <rect
+                                                            class="availability-empty-train"
+                                                            x="83"
+                                                            y="85"
+                                                            width="152"
+                                                            height="87"
+                                                            rx="23"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-window"
+                                                            d="M104 103C104 96.3726 109.373 91 116 91H201C207.627 91 213 96.3726 213 103V124H104V103Z"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-dark-line"
+                                                            d="M158 92V123"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-blue-line"
+                                                            d="M85 133H233"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-orange-line"
+                                                            d="M85 144H233"
+                                                        />
+
+                                                        <circle
+                                                            class="availability-empty-train"
+                                                            cx="111"
+                                                            cy="158"
+                                                            r="8"
+                                                        />
+
+                                                        <circle
+                                                            class="availability-empty-train"
+                                                            cx="207"
+                                                            cy="158"
+                                                            r="8"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-orange-line"
+                                                            d="M63 173H257"
+                                                            stroke-linecap="round"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-gray-line"
+                                                            d="M80 190H241"
+                                                            stroke-linecap="round"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-gray-line"
+                                                            d="M100 180L91 200"
+                                                            stroke-linecap="round"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-gray-line"
+                                                            d="M139 180L130 200"
+                                                            stroke-linecap="round"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-gray-line"
+                                                            d="M178 180L169 200"
+                                                            stroke-linecap="round"
+                                                        />
+
+                                                        <path
+                                                            class="availability-empty-gray-line"
+                                                            d="M217 180L208 200"
+                                                            stroke-linecap="round"
+                                                        />
+                                                    </svg>
+
+                                                    @if (request('ba_search'))
+
+                                                        <h3 class="availability-empty-title">
+                                                            Business Area tidak ditemukan
+                                                        </h3>
+
+                                                        <p class="availability-empty-description">
+                                                            Tidak ada master Business Area yang cocok dengan pencarian
+
+                                                            <span class="availability-empty-keyword">
+                                                                “{{ request('ba_search') }}”
+                                                            </span>.
+
+                                                            Coba gunakan kata kunci lain atau reset pencarian.
+                                                        </p>
+
+                                                        <button
+                                                            type="button"
+                                                            data-master-ba-empty-reset
+                                                            class="availability-empty-button"
+                                                        >
+                                                            <svg
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    stroke-linecap="round"
+                                                                    stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M4 4v6h6M20 20v-6h-6M5.5 15a7 7 0 0011.9 2M18.5 9A7 7 0 006.6 7"
+                                                                />
+                                                            </svg>
+
+                                                            Reset Pencarian
+                                                        </button>
+
+                                                    @else
+
+                                                        <div class="availability-empty-accent">
+                                                            <span class="availability-empty-accent-blue"></span>
+                                                            <span class="availability-empty-accent-orange"></span>
+                                                        </div>
+
+                                                        <h3 class="availability-empty-title">
+                                                            Belum ada master Business Area
+                                                        </h3>
+
+                                                        <p class="availability-empty-description">
+                                                            Tambahkan kode Business Area dan DAOP/DIVRE agar otomatis terisi pada formulir.
+                                                        </p>
+
+                                                        <button
+                                                            type="button"
+                                                            @click="showBaAddModal = true"
+                                                            class="availability-empty-button"
+                                                        >
+                                                            Tambah Business Area
+                                                        </button>
+
+                                                    @endif
+
                                                 </div>
                                             </td>
                                         </tr>
