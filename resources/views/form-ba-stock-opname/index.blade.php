@@ -166,11 +166,15 @@
     <div class="space-y-3">
         @forelse ($masterSigners ?? [] as $signer)
         <div x-data="{ editing: false }" class="bg-white rounded-lg border border-slate-200 p-4 flex items-center justify-between">
-            <div x-show="!editing" class="flex-1 flex items-center gap-4">
-                <span class="text-[14px] font-bold text-slate-900 w-[250px]">{{ $signer->nama }}</span>
+
+            <!-- LIST ITEM DENGAN GRID SEJAJAR HEADER -->
+            <div x-show="!editing" class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 items-center pr-4">
+                <span class="text-[14px] font-bold text-slate-900">{{ $signer->nama }}</span>
                 <span class="text-[13px] text-slate-500">{{ $signer->jabatan ?: 'Tanpa Jabatan' }}</span>
-                <span class="text-[13px] text-slate-400 font-mono italic">NIPP: {{ $signer->nipp ?: '-' }}</span>
+                <span class="text-[13px] text-slate-500 font-mono">NIPP: {{ $signer->nipp ?: '-' }}</span>
             </div>
+
+            <!-- TOMBOL EDIT/HAPUS -->
             <div x-show="!editing" class="flex items-center gap-2">
                 <button type="button" @click="editing = true" class="text-amber-500 hover:text-amber-600 bg-amber-50 hover:bg-amber-100 h-8 w-8 flex items-center justify-center rounded-lg transition-colors" title="Edit">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -183,11 +187,12 @@
                 </form>
             </div>
 
+            <!-- FORM EDIT -->
             <form x-show="editing" style="display: none;" action="{{ route('master-bastock.update', $signer->id) }}" method="POST" class="w-full flex gap-3 items-center">
                 @csrf @method('PUT')
                 <input type="text" name="nama" value="{{ $signer->nama }}" class="flex-1 h-[36px] px-3 border border-slate-200 rounded-lg text-[13px]" required>
                 <input type="text" name="jabatan" value="{{ $signer->jabatan }}" class="flex-1 h-[36px] px-3 border border-slate-200 rounded-lg text-[13px]">
-                <input type="text" name="nipp" value="{{ $signer->nipp }}" class="w-[120px] h-[36px] px-3 border border-slate-200 rounded-lg text-[13px]" placeholder="NIPP">
+                <input type="text" name="nipp" value="{{ $signer->nipp }}" class="w-[150px] h-[36px] px-3 border border-slate-200 rounded-lg text-[13px]" placeholder="NIPP">
                 <button type="button" @click="editing = false" class="h-[36px] px-4 bg-slate-200 text-slate-700 rounded-lg text-[12px] font-semibold">Batal</button>
                 <button type="submit" class="h-[36px] px-4 bg-[#16a34a] text-white rounded-lg text-[12px] font-semibold">Simpan</button>
             </form>

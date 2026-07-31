@@ -13,12 +13,12 @@ class MasterBAStockController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'jabatan' => 'nullable|string|max:255',
+            'nipp' => 'nullable|string|max:255', // Tambahkan validasi untuk NIPP
         ]);
 
-        $data = $request->all();
-        $data['nipp'] = '-'; // Memanipulasi NIPP agar DB tidak error
+        // Langsung simpan data dari request (tidak perlu dimanipulasi lagi)
+        MasterBaStock::create($request->all());
 
-        MasterBaStock::create($data);
         return back()->with('success', 'Penandatangan berhasil ditambahkan.');
     }
 
