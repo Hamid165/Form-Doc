@@ -11,26 +11,19 @@ use App\Http\Controllers\FormPemeliharaan\FormPemeliharaanController;
 use App\Http\Controllers\FormPemeliharaan\MasterPerangkatController;
 use App\Http\Controllers\FormBaStockOpname\BaStockOpnameController;
 use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
-<<<<<<< HEAD
 use App\Http\Controllers\FormPemeliharaanAc\FormPemeliharaanAcController;
 use App\Http\Controllers\FormPemeliharaanAc\MasterAcController;
-=======
 use App\Http\Controllers\FormItBusinessRequest\FormItBusinessRequestController;
->>>>>>> 3f86bbb68908f7655fbf1f9bfc972d12fdc3d769
 
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
 Route::get('/', function () {
-    // Diperbarui menjadi 5 kategori formulir
+    // Diperbarui menjadi kategori formulir
     $totalKategori = 1;
-<<<<<<< HEAD
-    $totalJenisFormulir = 5; // CCTV, Hak Akses, Pemeliharaan Jaringan, BA Stock Opname, Pemeliharaan AC
-=======
-    $totalJenisFormulir = 5; // CCTV, Hak Akses, Pemeliharaan, BA Stock Opname, IT Business Request
->>>>>>> 3f86bbb68908f7655fbf1f9bfc972d12fdc3d769
+    $totalJenisFormulir = 6; // CCTV, Hak Akses, Pemeliharaan Jaringan, BA Stock Opname, Pemeliharaan AC, IT Business Request
 
-    // PERBAIKAN: Menambahkan perhitungan BA Stock Opname dan Pemeliharaan AC
+    // PERBAIKAN: Menambahkan perhitungan BA Stock Opname, Pemeliharaan AC, dan IT Business Request
     $totalFormulirBulanIni = \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
                                 ->count()
@@ -43,17 +36,16 @@ Route::get('/', function () {
                             + \App\Models\FormBaStockOpname\BaStockOpname::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
                                 ->count()
-<<<<<<< HEAD
                             + \App\Models\FormPemeliharaanAc\FormPemeliharaanAc::whereMonth('created_at', date('m'))
-=======
+                                ->whereYear('created_at', date('Y'))
+                                ->count()
                             + \App\Models\FormItBusinessRequest\FormItBusinessRequest::whereMonth('created_at', date('m'))
->>>>>>> 3f86bbb68908f7655fbf1f9bfc972d12fdc3d769
                                 ->whereYear('created_at', date('Y'))
                                 ->count();
 
     $totalPengguna = 2; // Dummy: Pitra, Hamid
 
-    // PERBAIKAN: Memasukkan data BA Stock Opname dan Pemeliharaan AC ke aktivitas terbaru
+    // PERBAIKAN: Memasukkan data BA Stock Opname, Pemeliharaan AC, dan IT Business Request ke aktivitas terbaru
     $recentForms = collect()
         ->concat(\App\Models\FormCctv\FormCctv::latest()->take(5)->get()->map(function($item) {
             $item->type = 'CCTV';
@@ -79,17 +71,16 @@ Route::get('/', function () {
             $item->title = "BA Stock Opname - {$item->no_ref}";
             return $item;
         }))
-<<<<<<< HEAD
         ->concat(\App\Models\FormPemeliharaanAc\FormPemeliharaanAc::latest()->take(5)->get()->map(function($item) {
             $item->type = 'Pemeliharaan AC';
             $item->route = route('form-pemeliharaan-ac.show', $item->id);
             $item->title = "Pemeliharaan AC - {$item->id_ac}";
-=======
+            return $item;
+        }))
         ->concat(\App\Models\FormItBusinessRequest\FormItBusinessRequest::latest()->take(5)->get()->map(function($item) {
             $item->type = 'IT Business Request';
             $item->route = route('form-it-business-request.show', $item->id);
             $item->title = "IT Business Request - {$item->no_ref}";
->>>>>>> 3f86bbb68908f7655fbf1f9bfc972d12fdc3d769
             return $item;
         }))
         ->sortByDesc('created_at')
@@ -124,14 +115,13 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
         elseif ($template->nama === 'Berita Acara Stock Opname' || str_contains($template->nama, 'Stock Opname')) {
             $total = \App\Models\FormBaStockOpname\BaStockOpname::count();
         }
-<<<<<<< HEAD
         // PERBAIKAN: Menambahkan perhitungan khusus untuk Checklist Pemeliharaan AC
         elseif ($template->nama === 'Checklist Pemeliharaan AC') {
             $total = \App\Models\FormPemeliharaanAc\FormPemeliharaanAc::count();
-=======
+        }
+        // PERBAIKAN: Menambahkan perhitungan khusus untuk IT Business Request
         elseif ($template->nama === 'Formulir IT Business Request' || str_contains($template->nama, 'Business Request')) {
             $total = \App\Models\FormItBusinessRequest\FormItBusinessRequest::count();
->>>>>>> 3f86bbb68908f7655fbf1f9bfc972d12fdc3d769
         }
 
         $formulirs->push([
@@ -218,7 +208,6 @@ Route::resource('master-bastock', MasterBAStockController::class)->only(['store'
 
 
 // ==============================================================
-<<<<<<< HEAD
 // ROUTES FORMULIR CHECKLIST PEMELIHARAAN AC
 // ==============================================================
 Route::post('form-pemeliharaan-ac/parse-excel', [FormPemeliharaanAcController::class, 'parseExcel'])->name('form-pemeliharaan-ac.parse-excel');
@@ -228,8 +217,8 @@ Route::resource('form-pemeliharaan-ac', FormPemeliharaanAcController::class);
 Route::post('master-ac/import', [MasterAcController::class, 'import'])->name('master-ac.import');
 Route::get('master-ac/template', [MasterAcController::class, 'downloadTemplate'])->name('master-ac.template');
 Route::resource('master-ac', MasterAcController::class)->only(['store', 'update', 'destroy']);
-=======
+
+// ==============================================================
 // ROUTES FORMULIR IT BUSINESS REQUEST
 // ==============================================================
 Route::resource('form-it-business-request', FormItBusinessRequestController::class);
->>>>>>> 3f86bbb68908f7655fbf1f9bfc972d12fdc3d769
