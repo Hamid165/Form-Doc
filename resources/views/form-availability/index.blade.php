@@ -614,114 +614,124 @@
 
                                         </td>
 
-                                        {{-- AKSI FORMULIR: DROPDOWN SEDERHANA --}}
-                                        <td
-                                            class="w-28 whitespace-nowrap px-4 py-3 text-right"
-                                        >
-                                            <div class="relative inline-flex">
-
-                                                <button
-                                                    type="button"
-                                                    data-availability-action-toggle
-                                                    aria-expanded="false"
-                                                    class="availability-index-more-button"
+                                        {{-- AKSI FORMULIR: IKON & KEBAB MENU --}}
+                                        <td class="w-36 whitespace-nowrap px-4 py-3 text-right">
+                                            <div class="flex items-center justify-end gap-1.5">
+                                                {{-- Lihat Detail --}}
+                                                <a
+                                                    href="{{ route('form-availability.show', $form) }}"
+                                                    class="flex h-[36px] w-[36px] items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-900"
+                                                    title="Lihat Detail"
                                                 >
-                                                    Lainnya
-
-                                                    <svg
-                                                        data-availability-action-chevron
-                                                        class="h-4 w-4 transition-transform duration-150"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="m19 9-7 7-7-7"
-                                                        />
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     </svg>
-                                                </button>
+                                                </a>
 
-                                                <template data-availability-action-template>
-                                                    <div
-                                                        data-availability-action-menu
-                                                        class="availability-index-action-menu fixed z-[9999] hidden w-48"
+                                                {{-- Edit Form --}}
+                                                @if ($form->status === 'draft')
+                                                    <a
+                                                        href="{{ route('form-availability.edit', $form) }}"
+                                                        class="flex h-[36px] w-[36px] items-center justify-center rounded-lg bg-amber-50 text-amber-500 transition-colors hover:bg-amber-100 hover:text-amber-700"
+                                                        title="Edit Form"
                                                     >
-                                                        <a
-                                                            href="{{ route('form-availability.show', $form) }}"
-                                                            class="availability-index-action-item"
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                    </a>
+                                                @endif
+
+                                                {{-- Hapus Laporan --}}
+                                                <form
+                                                    method="POST"
+                                                    action="{{ route('form-availability.destroy', $form) }}"
+                                                    data-availability-confirm
+                                                    data-confirm-type="delete"
+                                                    data-confirm-title="Hapus Laporan"
+                                                    data-confirm-message="Laporan {{ $form->no_ref ?: '#' . $form->id }} akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan."
+                                                    class="m-0 inline-block"
+                                                >
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button
+                                                        type="submit"
+                                                        class="flex h-[36px] w-[36px] items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-900"
+                                                        title="Hapus Laporan"
+                                                    >
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
+
+                                                {{-- Dropdown Kebab Menu (Lainnya) --}}
+                                                <div class="relative inline-flex">
+                                                    <button
+                                                        type="button"
+                                                        data-availability-action-toggle
+                                                        aria-expanded="false"
+                                                        class="flex h-[36px] w-[36px] items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
+                                                        title="Lainnya"
+                                                    >
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <template data-availability-action-template>
+                                                        <div
+                                                            data-availability-action-menu
+                                                            class="availability-index-action-menu fixed z-[9999] hidden w-52 rounded-xl border border-gray-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5"
                                                         >
-                                                            Lihat Detail
-                                                        </a>
-
-                                                        @if ($form->status === 'draft')
-                                                            <a
-                                                                href="{{ route('form-availability.edit', $form) }}"
-                                                                class="availability-index-action-item"
-                                                            >
-                                                                Edit Form
-                                                            </a>
-                                                        @endif
-
-                                                        <button
-                                                            type="button"
-                                                            data-availability-print-url="{{ route('form-availability.show', $form) }}"
-                                                            class="availability-index-action-item"
-                                                        >
-                                                            Cetak / Lihat PDF
-                                                        </button>
-
-                                                        <a
-                                                            href="{{ route('form-availability.excel', $form) }}"
-                                                            class="availability-index-action-item"
-                                                        >
-                                                            Unduh Excel
-                                                        </a>
-
-                                                        @if ($form->status === 'draft')
-                                                            <form
-                                                                method="POST"
-                                                                action="{{ route('form-availability.confirm', $form) }}"
-                                                                data-availability-confirm
-                                                                data-confirm-type="complete"
-                                                                data-confirm-title="Konfirmasi Selesai"
-                                                                data-confirm-message="Laporan {{ $form->no_ref ?: '#' . $form->id }} akan ditandai sebagai selesai. Lanjutkan?"
-                                                            >
-                                                                @csrf
-                                                                @method('PATCH')
-
-                                                                <button
-                                                                    type="submit"
-                                                                    class="availability-index-action-item"
-                                                                >
-                                                                    Konfirmasi Selesai
-                                                                </button>
-                                                            </form>
-                                                        @endif
-
-                                                        <form
-                                                            method="POST"
-                                                            action="{{ route('form-availability.destroy', $form) }}"
-                                                            data-availability-confirm
-                                                            data-confirm-type="delete"
-                                                            data-confirm-title="Hapus Laporan"
-                                                            data-confirm-message="Laporan {{ $form->no_ref ?: '#' . $form->id }} akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan."
-                                                        >
-                                                            @csrf
-                                                            @method('DELETE')
-
                                                             <button
-                                                                type="submit"
-                                                                class="availability-index-action-item availability-index-action-danger"
+                                                                type="button"
+                                                                data-availability-print-url="{{ route('form-availability.show', $form) }}"
+                                                                class="availability-index-action-item flex items-center gap-2.5"
                                                             >
-                                                                Hapus Laporan
+                                                                <svg class="h-4 w-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                                </svg>
+                                                                <span>Cetak / Lihat PDF</span>
                                                             </button>
-                                                        </form>
-                                                    </div>
-                                                </template>
 
+                                                            <a
+                                                                href="{{ route('form-availability.excel', $form) }}"
+                                                                class="availability-index-action-item flex items-center gap-2.5"
+                                                            >
+                                                                <svg class="h-4 w-4 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                                </svg>
+                                                                <span>Unduh Excel</span>
+                                                            </a>
+
+                                                            @if ($form->status === 'draft')
+                                                                <form
+                                                                    method="POST"
+                                                                    action="{{ route('form-availability.confirm', $form) }}"
+                                                                    data-availability-confirm
+                                                                    data-confirm-type="complete"
+                                                                    data-confirm-title="Konfirmasi Selesai"
+                                                                    data-confirm-message="Laporan {{ $form->no_ref ?: '#' . $form->id }} akan ditandai sebagai selesai. Lanjutkan?"
+                                                                    class="m-0"
+                                                                >
+                                                                    @csrf
+                                                                    @method('PATCH')
+
+                                                                    <button
+                                                                        type="submit"
+                                                                        class="availability-index-action-item flex items-center gap-2.5"
+                                                                    >
+                                                                        <svg class="h-4 w-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                        </svg>
+                                                                        <span>Konfirmasi Selesai</span>
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+                                                        </div>
+                                                    </template>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
