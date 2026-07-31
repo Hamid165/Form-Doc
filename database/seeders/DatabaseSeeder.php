@@ -46,6 +46,17 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        if (!\App\Models\FormTemplate::where('nama', 'Checklist Pemeliharaan AC')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Checklist Pemeliharaan AC',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-pemeliharaan-ac.index',
+                'no_dokumen' => 'FR.SM/TI/015.011/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
         if (!\App\Models\FormTemplate::where('nama', 'Checklist Pemeliharaan Perangkat Jaringan')->exists()) {
             \App\Models\FormTemplate::create([
                 'nama' => 'Checklist Pemeliharaan Perangkat Jaringan',

@@ -11,16 +11,18 @@ use App\Http\Controllers\FormPemeliharaan\FormPemeliharaanController;
 use App\Http\Controllers\FormPemeliharaan\MasterPerangkatController;
 use App\Http\Controllers\FormBaStockOpname\BaStockOpnameController;
 use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
+use App\Http\Controllers\FormPemeliharaanAc\FormPemeliharaanAcController;
+use App\Http\Controllers\FormPemeliharaanAc\MasterAcController;
 
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
 Route::get('/', function () {
-    // Diperbarui menjadi 4 kategori formulir
+    // Diperbarui menjadi 5 kategori formulir
     $totalKategori = 1;
-    $totalJenisFormulir = 4; // CCTV, Hak Akses, Pemeliharaan, BA Stock Opname
+    $totalJenisFormulir = 5; // CCTV, Hak Akses, Pemeliharaan Jaringan, BA Stock Opname, Pemeliharaan AC
 
-    // PERBAIKAN: Menambahkan perhitungan BA Stock Opname
+    // PERBAIKAN: Menambahkan perhitungan BA Stock Opname dan Pemeliharaan AC
     $totalFormulirBulanIni = \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
                                 ->count()
@@ -32,11 +34,14 @@ Route::get('/', function () {
                                 ->count()
                             + \App\Models\FormBaStockOpname\BaStockOpname::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
+                                ->count()
+                            + \App\Models\FormPemeliharaanAc\FormPemeliharaanAc::whereMonth('created_at', date('m'))
+                                ->whereYear('created_at', date('Y'))
                                 ->count();
 
     $totalPengguna = 2; // Dummy: Pitra, Hamid
 
-    // PERBAIKAN: Memasukkan data BA Stock Opname ke aktivitas terbaru
+    // PERBAIKAN: Memasukkan data BA Stock Opname dan Pemeliharaan AC ke aktivitas terbaru
     $recentForms = collect()
         ->concat(\App\Models\FormCctv\FormCctv::latest()->take(5)->get()->map(function($item) {
             $item->type = 'CCTV';
@@ -60,6 +65,12 @@ Route::get('/', function () {
             $item->type = 'Berita Acara Stock Opname';
             $item->route = route('form-ba-stock-opname.show', $item->id);
             $item->title = "BA Stock Opname - {$item->no_ref}";
+            return $item;
+        }))
+        ->concat(\App\Models\FormPemeliharaanAc\FormPemeliharaanAc::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Pemeliharaan AC';
+            $item->route = route('form-pemeliharaan-ac.show', $item->id);
+            $item->title = "Pemeliharaan AC - {$item->id_ac}";
             return $item;
         }))
         ->sortByDesc('created_at')
@@ -93,6 +104,10 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
         // PERBAIKAN: Menambahkan perhitungan khusus untuk Berita Acara Stock Opname
         elseif ($template->nama === 'Berita Acara Stock Opname' || str_contains($template->nama, 'Stock Opname')) {
             $total = \App\Models\FormBaStockOpname\BaStockOpname::count();
+        }
+        // PERBAIKAN: Menambahkan perhitungan khusus untuk Checklist Pemeliharaan AC
+        elseif ($template->nama === 'Checklist Pemeliharaan AC') {
+            $total = \App\Models\FormPemeliharaanAc\FormPemeliharaanAc::count();
         }
 
         $formulirs->push([
@@ -176,3 +191,15 @@ Route::get('form-ba-stock-opname/template', [BaStockOpnameController::class, 'do
 
 Route::resource('form-ba-stock-opname', BaStockOpnameController::class);
 Route::resource('master-bastock', MasterBAStockController::class)->only(['store', 'update', 'destroy']);
+
+
+// ==============================================================
+// ROUTES FORMULIR CHECKLIST PEMELIHARAAN AC
+// ==============================================================
+Route::post('form-pemeliharaan-ac/parse-excel', [FormPemeliharaanAcController::class, 'parseExcel'])->name('form-pemeliharaan-ac.parse-excel');
+Route::get('form-pemeliharaan-ac/template-items', [FormPemeliharaanAcController::class, 'downloadTemplateItems'])->name('form-pemeliharaan-ac.template-items');
+Route::resource('form-pemeliharaan-ac', FormPemeliharaanAcController::class);
+
+Route::post('master-ac/import', [MasterAcController::class, 'import'])->name('master-ac.import');
+Route::get('master-ac/template', [MasterAcController::class, 'downloadTemplate'])->name('master-ac.template');
+Route::resource('master-ac', MasterAcController::class)->only(['store', 'update', 'destroy']);

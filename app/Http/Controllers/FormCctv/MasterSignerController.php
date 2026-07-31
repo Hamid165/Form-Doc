@@ -40,7 +40,7 @@ class MasterSignerController extends Controller
             'mengetahui_jabatan' => $master_signer->jabatan,
         ]);
 
-        \App\Models\FormPencabutanHakAkses::where('mengetahui_nama', $oldNama)->update([
+        \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::where('mengetahui_nama', $oldNama)->update([
             'mengetahui_nama' => $request->nama,
             'jabatan_mengetahui' => $request->jabatan,
         ]);
