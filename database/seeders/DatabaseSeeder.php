@@ -38,9 +38,20 @@ class DatabaseSeeder extends Seeder
         if (!\App\Models\FormTemplate::where('nama', 'Permohonan Pencabutan Hak Akses')->exists()) {
             \App\Models\FormTemplate::create([
                 'nama' => 'Permohonan Pencabutan Hak Akses',
-                'kategori' => 'Public',
+                'kategori' => 'Lainnya',
                 'route_name' => 'form-pencabutan-hak-akses.index',
                 'no_dokumen' => 'FR.SM/TI/013.004/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Checklist Pemeliharaan AC')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Checklist Pemeliharaan AC',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-pemeliharaan-ac.index',
+                'no_dokumen' => 'FR.SM/TI/015.011/10-2020',
                 'tanggal_dokumen' => '12 Oktober 2020',
                 'versi_dokumen' => '002-2020',
             ]);
@@ -57,9 +68,32 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        if (!\App\Models\FormTemplate::where('nama', 'Formulir IT Business Request')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Formulir IT Business Request',
+                'kategori' => 'Lainnya',
+                'route_name' => 'form-it-business-request.index',
+                'no_dokumen' => 'FR.SM/TI/026.001/10-2020',
+                'tanggal_dokumen' => '15 Oktober 2020',
+                'versi_dokumen' => '001-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Berita Acara Stock Opname')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Berita Acara Stock Opname',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-ba-stock-opname.index',
+                'no_dokumen' => 'FR.SM/TI/011.010/04-2026',
+                'tanggal_dokumen' => '13 April 2026',
+                'versi_dokumen' => '001-2026',
+            ]);
+        }
+
         $this->call([
             MasterPerangkatSeeder::class,
             MasterSignerSeeder::class,
+            FormItBusinessRequestSeeder::class,
         ]);
     }
 }

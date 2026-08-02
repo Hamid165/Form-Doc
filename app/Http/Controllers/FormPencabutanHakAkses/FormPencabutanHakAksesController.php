@@ -20,20 +20,8 @@ class FormPencabutanHakAksesController extends Controller
     {
         $formTemplate = \App\Models\FormTemplate::where('nama', 'Permohonan Pencabutan Hak Akses')->first();
         $form = new FormPencabutanHakAkses();
-        
-        // Ambil kombinasi nama dan nip yang sudah dipakai
-        $usedPemohons = FormPencabutanHakAkses::select('nama_pemohon', 'nip_pemohon')
-            ->get()
-            ->map(function($f) { return $f->nama_pemohon . '||' . $f->nip_pemohon; })
-            ->toArray();
-
-        // Saring master pemohon yang belum dipakai
-        $masterPemohons = \App\Models\FormPencabutanHakAkses\MasterPemohon::orderBy('nama_pemohon', 'asc')
-            ->get()
-            ->reject(function($m) use ($usedPemohons) {
-                return in_array($m->nama_pemohon . '||' . $m->nip_pemohon, $usedPemohons);
-            });
-        
+        // Ambil master pemohon tanpa batasan agar bisa dipakai berulang kali
+        $masterPemohons = \App\Models\FormPencabutanHakAkses\MasterPemohon::orderBy('nama_pemohon', 'asc')->get();
         $bagianFungsiList = FormPencabutanHakAkses::whereNotNull('bagian_fungsi')->distinct()->pluck('bagian_fungsi');
         $kotaTanggalList = FormPencabutanHakAkses::whereNotNull('kota_tanggal_pemohon')->distinct()->pluck('kota_tanggal_pemohon');
         $jabatanMengetahuiList = FormPencabutanHakAkses::whereNotNull('jabatan_mengetahui')->distinct()->pluck('jabatan_mengetahui');
@@ -48,7 +36,7 @@ class FormPencabutanHakAksesController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'no_ref' => 'nullable|string|max:255',
+            'no_ref' => 'nullable|string|max:255|unique:form_revocations,no_ref',
             'tanggal' => 'nullable|string',
             'business_area' => 'nullable|string|max:255',
             'tanggal_permohonan' => 'nullable|string',
@@ -65,6 +53,8 @@ class FormPencabutanHakAksesController extends Controller
             'items.*.jenis_akun' => 'nullable|string|max:255',
             'items.*.unit_kerja' => 'nullable|string|max:255',
             'items.*.alasan' => 'nullable|string',
+        ], [
+            'no_ref.unique' => 'No. Ref ":input" sudah pernah digunakan pada formulir lain. Mohon gunakan No. Ref yang berbeda.'
         ]);
 
         $form = FormPencabutanHakAkses::create([
@@ -126,20 +116,8 @@ class FormPencabutanHakAksesController extends Controller
         }
         
         $formTemplate = \App\Models\FormTemplate::where('nama', 'Permohonan Pencabutan Hak Akses')->first();
-        
-        // Ambil kombinasi nama dan nip yang sudah dipakai oleh formulir LAIN
-        $usedPemohons = FormPencabutanHakAkses::where('id', '!=', $id)
-            ->select('nama_pemohon', 'nip_pemohon')
-            ->get()
-            ->map(function($f) { return $f->nama_pemohon . '||' . $f->nip_pemohon; })
-            ->toArray();
-
-        // Saring master pemohon
-        $masterPemohons = \App\Models\FormPencabutanHakAkses\MasterPemohon::orderBy('nama_pemohon', 'asc')
-            ->get()
-            ->reject(function($m) use ($usedPemohons) {
-                return in_array($m->nama_pemohon . '||' . $m->nip_pemohon, $usedPemohons);
-            });
+        // Ambil master pemohon tanpa batasan agar bisa dipakai berulang kali
+        $masterPemohons = \App\Models\FormPencabutanHakAkses\MasterPemohon::orderBy('nama_pemohon', 'asc')->get();
         
         $bagianFungsiList = FormPencabutanHakAkses::whereNotNull('bagian_fungsi')->distinct()->pluck('bagian_fungsi');
         $kotaTanggalList = FormPencabutanHakAkses::whereNotNull('kota_tanggal_pemohon')->distinct()->pluck('kota_tanggal_pemohon');
@@ -157,7 +135,7 @@ class FormPencabutanHakAksesController extends Controller
         $form = FormPencabutanHakAkses::findOrFail($id);
         
         $validatedData = $request->validate([
-            'no_ref' => 'nullable|string|max:255',
+            'no_ref' => 'nullable|string|max:255|unique:form_revocations,no_ref,' . $form->id,
             'tanggal' => 'nullable|string',
             'business_area' => 'nullable|string|max:255',
             'tanggal_permohonan' => 'nullable|string',
@@ -174,6 +152,8 @@ class FormPencabutanHakAksesController extends Controller
             'items.*.jenis_akun' => 'nullable|string|max:255',
             'items.*.unit_kerja' => 'nullable|string|max:255',
             'items.*.alasan' => 'nullable|string',
+        ], [
+            'no_ref.unique' => 'No. Ref ":input" sudah pernah digunakan pada formulir lain. Mohon gunakan No. Ref yang berbeda.'
         ]);
 
         $form->update([

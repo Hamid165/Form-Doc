@@ -43,8 +43,8 @@
     <div class="bg-gray-100 rounded-lg p-1.5 mb-8 flex space-x-1 w-full border border-gray-200 overflow-x-auto">
         <a href="{{ route('formulir.index', ['kategori' => 'All']) }}" class="flex-1 text-center py-2 px-4 rounded-md text-sm font-semibold transition-colors whitespace-nowrap {{ $activeTab === 'All' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-900' }}">All</a>
         <a href="{{ route('formulir.index', ['kategori' => 'Umum']) }}" class="flex-1 text-center py-2 px-4 rounded-md text-sm font-semibold transition-colors whitespace-nowrap {{ $activeTab === 'Umum' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-900' }}">Umum</a>
-        <a href="{{ route('formulir.index', ['kategori' => 'Public']) }}" class="flex-1 text-center py-2 px-4 rounded-md text-sm font-semibold transition-colors whitespace-nowrap {{ $activeTab === 'Public' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-900' }}">Public</a>
         <a href="{{ route('formulir.index', ['kategori' => 'Terbatas']) }}" class="flex-1 text-center py-2 px-4 rounded-md text-sm font-semibold transition-colors whitespace-nowrap {{ $activeTab === 'Terbatas' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-900' }}">Terbatas</a>
+        <a href="{{ route('formulir.index', ['kategori' => 'Lainnya']) }}" class="flex-1 text-center py-2 px-4 rounded-md text-sm font-semibold transition-colors whitespace-nowrap {{ $activeTab === 'Lainnya' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-900' }}">Lainnya</a>
     </div>
 
     <!-- List of Forms -->

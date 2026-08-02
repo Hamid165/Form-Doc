@@ -2774,4 +2774,3 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     updateSignerPreview();
 });
-

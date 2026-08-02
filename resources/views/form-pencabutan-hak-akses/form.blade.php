@@ -316,6 +316,25 @@
 
 <div class="a4-wrapper" style="flex-direction: column; align-items: center;">
     <div style="width: 273mm; margin-bottom: 20px;">
+        @if ($errors->has('no_ref'))
+            <div class="relative flex items-center p-4 mb-6 border border-red-200 rounded-xl bg-red-50" role="alert">
+                <div class="flex items-center justify-center w-10 h-10 bg-red-100 rounded-lg shrink-0">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-bold text-red-800">Gagal!</h3>
+                    <p class="text-sm text-red-600 mt-0.5">{{ $errors->first('no_ref') }}</p>
+                </div>
+                <button type="button" class="absolute top-4 right-4 ml-auto text-red-400 hover:text-red-600 transition-colors" onclick="this.parentElement.style.display='none'">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        @endif
+        
         <a href="{{ route('form-pencabutan-hak-akses.index') }}" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors mb-6">
             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             Kembali ke Daftar Formulir Pencabutan Hak Akses
@@ -370,7 +389,7 @@
                     </tr>
                     <tr>
                         <td class="ref-label">Tanggal</td>
-                        <td>: <input type="text" name="tanggal" value="{{ old('tanggal', $form->tanggal ? \Carbon\Carbon::parse($form->tanggal)->locale('id')->isoFormat('DD MMMM YYYY') : '') }}" class="form-input-inline custom-date-picker" data-format="id" style="width: 85%; cursor: pointer;" placeholder="Tanggal" autocomplete="off" required oninvalid="this.setCustomValidity('Bagian ini harus diisi')" oninput="this.setCustomValidity('')" {{ isset($method) && $method === 'PUT' ? 'readonly' : '' }}></td>
+                        <td>: <input type="text" name="tanggal" value="{{ old('tanggal', $form->tanggal ? \Carbon\Carbon::parse($form->tanggal)->locale('id')->isoFormat('DD MMMM YYYY') : '') }}" class="form-input-inline {{ isset($method) && $method === 'PUT' ? '' : 'custom-date-picker' }}" data-format="id" style="width: 85%; {{ isset($method) && $method === 'PUT' ? 'pointer-events:none;background:#f9f9f9;' : 'cursor: pointer;' }}" placeholder="Tanggal" autocomplete="off" required oninvalid="this.setCustomValidity('Bagian ini harus diisi')" oninput="this.setCustomValidity('')" {{ isset($method) && $method === 'PUT' ? 'readonly tabindex=-1' : '' }}></td>
                     </tr>
                     <tr>
                         <td class="ref-label">Business Area</td>
@@ -379,9 +398,11 @@
                                 <span>:</span>
                                 <div style="display: inline-flex; align-items: center; gap: 4px; width: 85%;">
                                     <input type="text" id="business_area_input" name="business_area" value="{{ old('business_area', $form->business_area ?: 'B060') }}" class="form-input-inline" style="pointer-events: none; background: #f9f9f9; flex: 1; border-bottom: none;" readonly required oninvalid="this.setCustomValidity('Bagian ini harus diisi')" oninput="this.setCustomValidity('')">
+                                    @if(!(isset($method) && $method === 'PUT'))
                                     <button type="button" onclick="unlockBusinessArea()" title="Edit Business Area" class="btn-edit-ba">
                                         <svg class="w-4 h-4" style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
+                                    @endif
                                 </div>
                             </div>
                         </td>
@@ -395,7 +416,7 @@
                         <div class="form-colon">:</div>
                         <div>
                             <div class="line-short">
-                                <input type="text" name="tanggal_permohonan" value="{{ old('tanggal_permohonan', $form->tanggal_permohonan ? \Carbon\Carbon::parse($form->tanggal_permohonan)->locale('id')->isoFormat('DD MMMM YYYY') : '') }}" class="form-input-inline custom-date-picker" data-format="id" style="width:100%; border:none; padding:0; background:transparent; cursor: pointer;" placeholder="Tanggal Permohonan" autocomplete="off" required>
+                                <input type="text" name="tanggal_permohonan" value="{{ old('tanggal_permohonan', $form->tanggal_permohonan ? \Carbon\Carbon::parse($form->tanggal_permohonan)->locale('id')->isoFormat('DD MMMM YYYY') : '') }}" class="form-input-inline {{ isset($method) && $method === 'PUT' ? '' : 'custom-date-picker' }}" data-format="id" style="width:100%; border:none; padding:0; {{ isset($method) && $method === 'PUT' ? 'pointer-events:none;background:#f9f9f9;' : 'background:transparent; cursor: pointer;' }}" placeholder="Tanggal Permohonan" autocomplete="off" required {{ isset($method) && $method === 'PUT' ? 'readonly tabindex=-1' : '' }}>
                             </div>
                         </div>
                     </div>
@@ -403,8 +424,8 @@
                         <div class="form-label">Nama Pemohon</div>
                         <div class="form-colon">:</div>
                         <div>
-                            <div style="width: 370px; display:flex; align-items: flex-end;">
-                                <div style="flex:1; position:relative;">
+                            <div style="width: 370px; display:flex; align-items: flex-end; {{ isset($method) && $method === 'PUT' ? 'pointer-events:none;' : '' }}">
+                                <div style="flex:1; position:relative; {{ isset($method) && $method === 'PUT' ? 'background:#f9f9f9;' : '' }}">
                                     <select id="nama_pemohon" name="nama_pemohon" class="form-input-inline custom-tomselect ts-align-left" data-placeholder="Nama Pemohon" required style="width:100%;">
                                         <option value=""></option>
                                         @foreach($masterPemohons ?? [] as $mp)
@@ -416,7 +437,7 @@
                                     </select>
                                 </div>
                                 <span style="margin: 0 6px 0 12px; white-space: nowrap;">NIP Pemohon :</span>
-                                <div style="width: 120px; position:relative;">
+                                <div style="width: 120px; position:relative; {{ isset($method) && $method === 'PUT' ? 'background:#f9f9f9;' : '' }}">
                                     <select id="nip_pemohon" name="nip_pemohon" class="form-input-inline custom-tomselect ts-align-left" data-placeholder="NIP Pemohon" style="width: 100%;">
                                         <option value=""></option>
                                         @foreach($masterPemohons ?? [] as $mp)
@@ -435,7 +456,7 @@
                         <div class="form-colon">:</div>
                         <div>
                             <div class="line-long" style="position:relative;">
-                                <input type="text" name="bagian_fungsi" value="{{ old('bagian_fungsi', $form->bagian_fungsi) }}" class="form-input-inline" style="width:100%; border:none; padding:0; background:transparent;" placeholder="Bagian / Fungsi" required autocomplete="off">
+                                <input type="text" name="bagian_fungsi" value="{{ old('bagian_fungsi', $form->bagian_fungsi) }}" class="form-input-inline" style="width:100%; border:none; padding:0; {{ isset($method) && $method === 'PUT' ? 'pointer-events:none;background:#f9f9f9;' : 'background:transparent;' }}" placeholder="Bagian / Fungsi" required autocomplete="off" {{ isset($method) && $method === 'PUT' ? 'readonly tabindex=-1' : '' }}>
                             </div>
                         </div>
                     </div>
@@ -467,18 +488,18 @@
                             @endphp
                             <tr class="item-row">
                                 <td>
-                                    <input type="text" name="items[{{$i}}][nama_pengguna]" value="{{ $item['nama_pengguna'] ?? '' }}" class="form-input">
+                                    <input type="text" name="items[{{$i}}][nama_pengguna]" value="{{ $item['nama_pengguna'] ?? '' }}" class="form-input" {{ isset($method) && $method === 'PUT' ? 'readonly style=pointer-events:none;background:#f9f9f9; tabindex=-1' : '' }}>
                                 </td>
                                 <td>
-                                    <input type="text" name="items[{{$i}}][jenis_akun]" value="{{ $item['jenis_akun'] ?? '' }}" class="form-input">
+                                    <input type="text" name="items[{{$i}}][jenis_akun]" value="{{ $item['jenis_akun'] ?? '' }}" class="form-input" {{ isset($method) && $method === 'PUT' ? 'readonly style=pointer-events:none;background:#f9f9f9; tabindex=-1' : '' }}>
                                 </td>
                                 <td>
-                                    <input type="text" name="items[{{$i}}][unit_kerja]" value="{{ $item['unit_kerja'] ?? '' }}" class="form-input">
+                                    <input type="text" name="items[{{$i}}][unit_kerja]" value="{{ $item['unit_kerja'] ?? '' }}" class="form-input" {{ isset($method) && $method === 'PUT' ? 'readonly style=pointer-events:none;background:#f9f9f9; tabindex=-1' : '' }}>
                                 </td>
                                 <td>
-                                    <input type="text" name="items[{{$i}}][alasan]" value="{{ $item['alasan'] ?? '' }}" class="form-input">
+                                    <input type="text" name="items[{{$i}}][alasan]" value="{{ $item['alasan'] ?? '' }}" class="form-input" {{ isset($method) && $method === 'PUT' ? 'readonly style=pointer-events:none;background:#f9f9f9; tabindex=-1' : '' }}>
                                     
-                                    @if($i >= 4)
+                                    @if($i >= 4 && !(isset($method) && $method === 'PUT'))
                                     <button type="button" class="btn-delete-row" onclick="removeRow(this)" title="Hapus Baris">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
@@ -489,18 +510,20 @@
                     </tbody>
                 </table>
                 
+                @if(!(isset($method) && $method === 'PUT'))
                 <div style="margin-right: 0; margin-bottom: 20px; text-align: right;" class="no-print">
                     <button type="button" class="btn-tambah-baris" onclick="addRow()">
                         Tambah Baris
                     </button>
                 </div>
+                @endif
 
                 <!-- Bagian Tanda Tangan -->
                 <div class="signature-section">
                     <div class="signature-box">
                         <div>
                             Bandung, 
-                            <input type="text" name="kota_tanggal_pemohon" value="{{ old('kota_tanggal_pemohon', $form->kota_tanggal_pemohon) }}" class="form-input-inline custom-date-picker" data-format="id-dash" style="width: 130px; cursor: pointer;" autocomplete="off" required>
+                            <input type="text" name="kota_tanggal_pemohon" value="{{ old('kota_tanggal_pemohon', $form->kota_tanggal_pemohon) }}" class="form-input-inline {{ isset($method) && $method === 'PUT' ? '' : 'custom-date-picker' }}" data-format="id-dash" style="width: 130px; {{ isset($method) && $method === 'PUT' ? 'pointer-events:none;background:#f9f9f9;' : 'cursor: pointer;' }}" autocomplete="off" required {{ isset($method) && $method === 'PUT' ? 'readonly tabindex=-1' : '' }}>
                         </div>
                         <div style="margin-top: 5px;">Pemohon</div>
                         <div style="margin-top: 80px;">
@@ -522,7 +545,7 @@
                         </div>
                         <div style="margin-top: 15px;">
                             Bandung, 
-                            <input type="text" name="kota_tanggal_setuju" value="{{ old('kota_tanggal_setuju', $form->kota_tanggal_setuju) }}" class="form-input-inline custom-date-picker" data-format="id-dash" style="width: 130px; cursor: pointer;" autocomplete="off" required>
+                            <input type="text" name="kota_tanggal_setuju" value="{{ old('kota_tanggal_setuju', $form->kota_tanggal_setuju) }}" class="form-input-inline {{ isset($method) && $method === 'PUT' ? '' : 'custom-date-picker' }}" data-format="id-dash" style="width: 130px; {{ isset($method) && $method === 'PUT' ? 'pointer-events:none;background:#f9f9f9;' : 'cursor: pointer;' }}" autocomplete="off" required {{ isset($method) && $method === 'PUT' ? 'readonly tabindex=-1' : '' }}>
                         </div>
                         <div style="margin-top: 5px; position: relative; display: inline-block; width: 250px;">
                             <select name="jabatan_mengetahui" class="form-input-inline ts-align-center custom-tomselect no-search" data-placeholder="Jabatan" style="width: 100%; text-align: center;">
