@@ -39,7 +39,6 @@
     </a>
 </div>
 
-<!-- Main Card Daftar Formulir -->
 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8" x-data="{
     search: '',
     get hasResults() {
@@ -103,12 +102,19 @@
             </div>
 
             <div class="flex items-center gap-2 ml-6">
+
+                <a href="{{ route('form-ba-stock-opname.show', $form->id) }}" class="text-blue-500 hover:text-blue-600 bg-blue-50 hover:bg-blue-100 h-[38px] w-[38px] flex items-center justify-center rounded-lg transition-colors" title="Lihat">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                </a>
+
                 <a href="{{ route('form-ba-stock-opname.edit', $form->id) }}" class="text-amber-500 hover:text-amber-600 bg-amber-50 hover:bg-amber-100 h-[38px] w-[38px] flex items-center justify-center rounded-lg transition-colors" title="Edit">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 </a>
-                <a href="{{ route('form-ba-stock-opname.show', $form->id) }}" class="text-emerald-500 hover:text-emerald-600 bg-emerald-50 hover:bg-emerald-100 h-[38px] w-[38px] flex items-center justify-center rounded-lg transition-colors" title="Cetak">
+
+                <a href="{{ route('form-ba-stock-opname.show', $form->id) }}?print=true" target="_blank" class="text-emerald-500 hover:text-emerald-600 bg-emerald-50 hover:bg-emerald-100 h-[38px] w-[38px] flex items-center justify-center rounded-lg transition-colors" title="Cetak">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                 </a>
+
                 <form action="{{ route('form-ba-stock-opname.destroy', $form->id) }}" method="POST" class="inline-block m-0">
                     @csrf @method('DELETE')
                     <button type="button" onclick="confirmDelete(this.form)" class="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 h-[38px] w-[38px] flex items-center justify-center rounded-lg transition-colors" title="Hapus">
@@ -133,7 +139,6 @@
     @endif
 </div>
 
-<!-- Data Penandatanganan Formulir -->
 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
     <div class="flex items-center gap-3 mb-6">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-blue-600 bg-blue-50">
@@ -167,14 +172,12 @@
         @forelse ($masterSigners ?? [] as $signer)
         <div x-data="{ editing: false }" class="bg-white rounded-lg border border-slate-200 p-4 flex items-center justify-between">
 
-            <!-- LIST ITEM DENGAN GRID SEJAJAR HEADER -->
             <div x-show="!editing" class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 items-center pr-4">
                 <span class="text-[14px] font-bold text-slate-900">{{ $signer->nama }}</span>
                 <span class="text-[13px] text-slate-500">{{ $signer->jabatan ?: 'Tanpa Jabatan' }}</span>
                 <span class="text-[13px] text-slate-500 font-mono">NIPP: {{ $signer->nipp ?: '-' }}</span>
             </div>
 
-            <!-- TOMBOL EDIT/HAPUS -->
             <div x-show="!editing" class="flex items-center gap-2">
                 <button type="button" @click="editing = true" class="text-amber-500 hover:text-amber-600 bg-amber-50 hover:bg-amber-100 h-8 w-8 flex items-center justify-center rounded-lg transition-colors" title="Edit">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -187,7 +190,6 @@
                 </form>
             </div>
 
-            <!-- FORM EDIT -->
             <form x-show="editing" style="display: none;" action="{{ route('master-bastock.update', $signer->id) }}" method="POST" class="w-full flex gap-3 items-center">
                 @csrf @method('PUT')
                 <input type="text" name="nama" value="{{ $signer->nama }}" class="flex-1 h-[36px] px-3 border border-slate-200 rounded-lg text-[13px]" required>

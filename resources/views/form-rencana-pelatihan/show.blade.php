@@ -170,12 +170,12 @@
 
         <div style="text-align: center; font-size: 11px; font-weight: bold; margin-top: 40px;">Pengesahan</div>
         <div class="pengesahan-box">
-            <div class="pengesahan-header">Disetujui Oleh :<br>Subdivision Head of IT Planning & Governance</div>
+            <div class="pengesahan-header">Disetujui Oleh :<br>{{ $form->disetujui_jabatan ?: '..........................................................' }}</div>
             <div class="pengesahan-body">
                 <div><span style="text-decoration: underline;">{{ $form->disetujui_nama ?: '..........................................................' }}</span></div>
                 <div>NIPP. {{ $form->disetujui_nipp ?: '...........................' }}</div>
             </div>
-            <div class="pengesahan-header" style="border-top: 1px solid #000;">Disahkan Oleh :<br>Division Head of Information System</div>
+            <div class="pengesahan-header" style="border-top: 1px solid #000;">Disahkan Oleh :<br>{{ $form->disahkan_jabatan ?: '..........................................................' }}</div>
             <div class="pengesahan-body">
                 <div><span style="text-decoration: underline;">{{ $form->disahkan_nama ?: '..........................................................' }}</span></div>
                 <div>NIPP. {{ $form->disahkan_nipp ?: '...........................' }}</div>
@@ -271,5 +271,17 @@
             <p style="margin-top: 0;">Dokumen ini harus ditinjau ulang secara berkala oleh Pengelola Dokumen paling sedikit 1 (satu) kali dalam 1 (satu) tahun untuk memastikan kesesuaiannya dengan kondisi organisasi.</p>
         </div>
     </div>
+
+    <!-- Script Autoprint saat tombol 'Cetak Langsung' diklik -->
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('print') === 'true') {
+            window.onload = function() {
+                setTimeout(function() {
+                    window.print();
+                }, 500); // Jeda 500ms agar CSS load sempurna sebelum buka dialog print
+            };
+        }
+    </script>
 </body>
 </html>

@@ -1,41 +1,50 @@
-<style>
-    .a4-wrapper { display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f3f4f6; }
-    .a4-container { width: 210mm; min-height: 297mm; background: white; padding: 15mm 20mm; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-family: Arial, sans-serif; font-size: 11px; color: #000; position: relative; margin-bottom: 20px; display: flex; flex-direction: column; }
-    .a4-container-landscape { width: 297mm; min-height: 210mm; background: white; padding: 15mm 20mm; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-family: Arial, sans-serif; font-size: 11px; color: #000; position: relative; margin-bottom: 20px; display: flex; flex-direction: column; }
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Rencana Pelatihan Personil</title>
+    <!-- Tambahkan Tailwind CDN agar styling Modal Import Excel berjalan sempurna -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .a4-wrapper { display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f3f4f6; }
+        .a4-container { width: 210mm; min-height: 297mm; background: white; padding: 15mm 20mm; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-family: Arial, sans-serif; font-size: 11px; color: #000; position: relative; margin-bottom: 20px; display: flex; flex-direction: column; }
+        .a4-container-landscape { width: 297mm; min-height: 210mm; background: white; padding: 15mm 20mm; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-family: Arial, sans-serif; font-size: 11px; color: #000; position: relative; margin-bottom: 20px; display: flex; flex-direction: column; }
 
-    .kop-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 25px; }
-    .kop-table td { border: 1px solid #000; padding: 5px 8px; vertical-align: middle; }
-    .terbatas-box { border: 2px solid #eab308; color: #eab308; font-weight: bold; font-size: 14px; padding: 4px 8px; display: inline-block; text-align: center; }
+        .kop-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 25px; }
+        .kop-table td { border: 1px solid #000; padding: 5px 8px; vertical-align: middle; }
+        .terbatas-box { border: 2px solid #eab308; color: #eab308; font-weight: bold; font-size: 14px; padding: 4px 8px; display: inline-block; text-align: center; }
 
-    .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10px; text-align: center; }
-    .data-table th, .data-table td { border: 1px solid #000; padding: 5px; position: relative; height: 25px; vertical-align: middle;}
-    .data-table th { font-weight: bold; background-color: #f9fafb; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10px; text-align: center; }
+        .data-table th, .data-table td { border: 1px solid #000; padding: 5px; position: relative; height: 25px; vertical-align: middle;}
+        .data-table th { font-weight: bold; background-color: #f9fafb; }
 
-    .form-input-line { width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: inherit; text-align: center; padding: 2px; }
-    .form-input-line:focus { background-color: #e0f2fe; }
-    .input-left { text-align: left !important; }
-    .red-placeholder::placeholder { color: red; font-style: italic; }
+        .form-input-line { width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: inherit; text-align: center; padding: 2px; }
+        .form-input-line:focus { background-color: #e0f2fe; }
+        .input-left { text-align: left !important; }
+        .red-placeholder::placeholder { color: red; font-style: italic; }
 
-    .btn-submit { background-color: #16a34a; color: white; padding: 6px 16px; height: 36px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: background 0.2s; }
-    .btn-cancel { background-color: #ef4444; color: white; padding: 6px 16px; height: 36px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 10px; text-decoration: none; }
-    .btn-tambah-baris { display: inline-flex; height: 28px; padding: 4px 12px; background-color: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; margin-top: 10px; }
-    .btn-import-data { display: inline-flex; height: 28px; padding: 4px 12px; background-color: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; margin-top: 10px; margin-right: 8px; }
-    .btn-delete-row { position: absolute; right: -28px; top: 50%; transform: translateY(-50%); background-color: #fef2f2; border: none; color: #dc2626; cursor: pointer; padding: 4px; border-radius: 4px; font-weight: bold; }
+        .btn-submit { background-color: #16a34a; color: white; padding: 6px 16px; height: 36px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: background 0.2s; }
+        .btn-cancel { background-color: #ef4444; color: white; padding: 6px 16px; height: 36px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 10px; text-decoration: none; }
+        .btn-tambah-baris { display: inline-flex; height: 28px; padding: 4px 12px; background-color: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; margin-top: 10px; }
+        .btn-import-data { display: inline-flex; height: 28px; padding: 4px 12px; background-color: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; margin-top: 10px; margin-right: 8px; }
+        .btn-delete-row { position: absolute; right: -28px; top: 50%; transform: translateY(-50%); background-color: #fef2f2; border: none; color: #dc2626; cursor: pointer; padding: 4px; border-radius: 4px; font-weight: bold; }
 
-    .cover-top { display: flex; align-items: center; margin-bottom: 120px; }
-    .cover-title { text-align: center; font-size: 22px; font-weight: bold; line-height: 1.5; margin-bottom: auto; }
-    .cover-meta { width: 100%; border-collapse: collapse; font-size: 12px; border-top: 4px solid #000; border-bottom: 4px solid #000; margin-top: auto; }
-    .cover-meta td { border: 1px solid #000; padding: 8px 10px; }
-    .cover-meta th { border: 1px solid #000; padding: 8px 10px; text-align: left; width: 35%; font-weight: normal; }
+        .cover-top { display: flex; align-items: center; margin-bottom: 120px; }
+        .cover-title { text-align: center; font-size: 22px; font-weight: bold; line-height: 1.5; margin-bottom: auto; }
+        .cover-meta { width: 100%; border-collapse: collapse; font-size: 12px; border-top: 4px solid #000; border-bottom: 4px solid #000; margin-top: auto; }
+        .cover-meta td { border: 1px solid #000; padding: 8px 10px; }
+        .cover-meta th { border: 1px solid #000; padding: 8px 10px; text-align: left; width: 35%; font-weight: normal; }
 
-    .pengesahan-box { width: 100%; border: 1px solid #000; text-align: center; font-size: 11px; margin-top: 10px; }
-    .pengesahan-header { padding: 8px; border-bottom: 1px solid #000; font-weight: bold; background-color: #f9fafb; }
-    .pengesahan-body { height: 90px; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 10px; font-weight: bold; }
+        .pengesahan-box { width: 100%; border: 1px solid #000; text-align: center; font-size: 11px; margin-top: 10px; }
+        .pengesahan-header { padding: 8px; border-bottom: 1px solid #000; font-weight: bold; background-color: #f9fafb; }
+        .pengesahan-body { height: 90px; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 10px; font-weight: bold; }
 
-    .daftar-isi-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; }
-    .daftar-isi-dots { flex-grow: 1; border-bottom: 1px dotted #000; margin: 0 10px; position: relative; top: -4px; }
-</style>
-
+        .daftar-isi-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; }
+        .daftar-isi-dots { flex-grow: 1; border-bottom: 1px dotted #000; margin: 0 10px; position: relative; top: -4px; }
+    </style>
+</head>
+<body>
 <div class="a4-wrapper">
     <form action="{{ $action }}" method="POST" id="mainForm" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
         @csrf
@@ -49,7 +58,7 @@
         </datalist>
         @endisset
 
-        <!-- HALAMAN 1: COVER -->
+        <!-- HALAMAN COVER -->
         <div class="a4-container">
             <div class="cover-top">
                 <img src="{{ asset('images/logo-kai.svg') }}" alt="Logo KAI" style="width: 100px; margin-right: 20px;">
@@ -96,7 +105,7 @@
                         <td><input type="text" name="penyusun[{{$i}}][nipp]" value="{{ $p['nipp'] }}" class="form-input-line"></td>
                         <td>
                             <input type="text" name="penyusun[{{$i}}][jabatan]" value="{{ $p['jabatan'] }}" class="form-input-line">
-                            @if($i >= 1)<button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-penyusun')">X</button>@endif
+                            @if($i >= 1)<button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-penyusun', 'penyusun')">X</button>@endif
                         </td>
                     </tr>
                     @endfor
@@ -109,12 +118,18 @@
 
             <div style="text-align: center; font-size: 11px; font-weight: bold; margin-top: 40px;">Pengesahan</div>
             <div class="pengesahan-box">
-                <div class="pengesahan-header">Disetujui Oleh :<br>Subdivision Head of IT Planning & Governance</div>
+                <div class="pengesahan-header">
+                    Disetujui Oleh :<br>
+                    <input type="text" name="disetujui_jabatan" value="{{ old('disetujui_jabatan', $form->disetujui_jabatan ?? '') }}" class="form-input-line" style="font-weight: bold; width: 100%; text-align: center;" placeholder="Jabatan">
+                </div>
                 <div class="pengesahan-body">
                     <div><input type="text" name="disetujui_nama" value="{{ old('disetujui_nama', $form->disetujui_nama) }}" class="form-input-line" style="width: 250px; text-decoration: underline;" placeholder="Nama Lengkap" list="signer-list" oninput="autofillDisetujui(this)"></div>
                     <div>NIPP. <input type="text" name="disetujui_nipp" value="{{ old('disetujui_nipp', $form->disetujui_nipp) }}" class="form-input-line" style="width: 150px;" placeholder="NIPP"></div>
                 </div>
-                <div class="pengesahan-header" style="border-top: 1px solid #000;">Disahkan Oleh :<br>Division Head of Information System</div>
+                <div class="pengesahan-header" style="border-top: 1px solid #000;">
+                    Disahkan Oleh :<br>
+                    <input type="text" name="disahkan_jabatan" value="{{ old('disahkan_jabatan', $form->disahkan_jabatan ?? '') }}" class="form-input-line" style="font-weight: bold; width: 100%; text-align: center;" placeholder="Jabatan">
+                </div>
                 <div class="pengesahan-body">
                     <div><input type="text" name="disahkan_nama" value="{{ old('disahkan_nama', $form->disahkan_nama) }}" class="form-input-line" style="width: 250px; text-decoration: underline;" placeholder="Nama Lengkap" list="signer-list" oninput="autofillDisahkan(this)"></div>
                     <div>NIPP. <input type="text" name="disahkan_nipp" value="{{ old('disahkan_nipp', $form->disahkan_nipp) }}" class="form-input-line" style="width: 150px;" placeholder="NIPP"></div>
@@ -153,7 +168,7 @@
                         <td><input type="text" name="riwayat_perubahan[{{$i}}][hal]" value="{{ $r['hal'] }}" class="form-input-line"></td>
                         <td>
                             <input type="text" name="riwayat_perubahan[{{$i}}][keterangan]" value="{{ $r['keterangan'] }}" class="form-input-line input-left">
-                            @if($i >= 1)<button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-riwayat')">X</button>@endif
+                            @if($i >= 1)<button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-riwayat', 'riwayat_perubahan')">X</button>@endif
                         </td>
                     </tr>
                     @endfor
@@ -193,7 +208,7 @@
             </div>
         </div>
 
-        <!-- HALAMAN 5 (LANDSCAPE): ANALISA KEBUTUHAN -->
+        <!-- HALAMAN 5: LANDSCAPE -->
         <div class="a4-container-landscape">
             <table class="kop-table">
                 <tr>
@@ -236,7 +251,7 @@
                         <td><input type="text" name="analisa_kebutuhan[{{$i}}][realisasi]" value="{{ $a['realisasi'] }}" class="form-input-line red-placeholder" {!! $i == 0 ? 'placeholder="(target waktu pelaksanaan peningkatan)"' : '' !!}></td>
                         <td>
                             <input type="text" name="analisa_kebutuhan[{{$i}}][keterangan]" value="{{ $a['keterangan'] }}" class="form-input-line red-placeholder" {!! $i == 0 ? 'placeholder="(berisi keterangan lebih lanjut jika ada)"' : '' !!}>
-                            @if($i >= 1)<button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-analisa')">X</button>@endif
+                            @if($i >= 1)<button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-analisa', 'analisa_kebutuhan')">X</button>@endif
                         </td>
                     </tr>
                     @endfor
@@ -255,13 +270,13 @@
 
             <div style="margin-top: auto; text-align: right; border-top: 1px solid #eaeaea; padding-top: 20px;">
                 <a href="{{ route('form-rencana-pelatihan.index') }}" class="btn-cancel">Batal</a>
-                <button type="submit" class="btn-submit">{{ $form->exists ? 'Perbarui Dokumen' : 'Simpan Dokumen' }}</button>
+                <button type="submit" class="btn-submit">{{ isset($form) && $form->exists ? 'Perbarui Dokumen' : 'Simpan Dokumen' }}</button>
             </div>
         </div>
     </form>
 </div>
 
-<!-- Modal Import Data -->
+<!-- MODAL IMPORT EXCEL -->
 <div id="importModal" class="fixed inset-0 bg-slate-900/50 hidden z-[100] items-center justify-center backdrop-blur-sm transition-all duration-300 opacity-0">
     <div class="bg-white rounded-xl w-[400px] p-6 shadow-xl relative transform transition-all scale-95" id="importModalContent">
         <button type="button" onclick="closeImportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
@@ -271,7 +286,6 @@
         <h3 id="importModalTitle" class="text-[17px] font-bold text-slate-800 mb-2">Import Data via Excel</h3>
         <p class="text-[13px] text-slate-500 mb-4 leading-relaxed">Silakan upload file Excel berformat .xlsx yang datanya berurutan dari kiri ke kanan sesuai kolom pada tabel yang dituju.</p>
 
-        <!-- Tombol Download Template Dinamis (Javascript) -->
         <button type="button" onclick="downloadTemplate()" class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-[13px] font-semibold mb-6 transition-colors bg-transparent border-none cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
             Download Template Excel (XLSX)
@@ -323,7 +337,6 @@
         }
     });
 
-    // ----- FITUR IMPORT EXCEL -----
     let currentImportTarget = '';
 
     function openImportModal(target) {
@@ -332,7 +345,6 @@
         const content = document.getElementById('importModalContent');
         const title = document.getElementById('importModalTitle');
 
-        // Ubah Judul Berdasarkan Target
         if(target === 'penyusun') title.innerText = 'Import Tabel Penyusun';
         else if(target === 'riwayat') title.innerText = 'Import Tabel Riwayat Perubahan';
         else if(target === 'analisa') title.innerText = 'Import Tabel Analisa Kebutuhan';
@@ -382,13 +394,86 @@
             filename = 'Template_Analisa_Kebutuhan.xlsx';
         }
 
-        // Buat file excel dari array headers
         const ws = XLSX.utils.aoa_to_sheet([headers]);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Template");
 
-        // Simpan dan unduh otomatis
         XLSX.writeFile(wb, filename);
+    }
+
+    /* FUNGSI REINDEXING UTAMA: Menjaga urutan array name="prefix[index][field]" tetap rapi */
+    function reindexTable(tableId, arrayPrefix) {
+        const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+        rows.forEach((row, index) => {
+            const numCell = row.querySelector('.row-number');
+            if(numCell) numCell.innerText = index + 1;
+
+            const inputs = row.querySelectorAll('input');
+            inputs.forEach(input => {
+                const name = input.getAttribute('name');
+                if (name) {
+                    const newName = name.replace(new RegExp(`${arrayPrefix}\\[\\d+\\]`), `${arrayPrefix}[${index}]`);
+                    input.setAttribute('name', newName);
+                }
+            });
+        });
+    }
+
+    function removeRow(btn, tableId, arrayPrefix) {
+        btn.closest('tr').remove();
+        reindexTable(tableId, arrayPrefix);
+    }
+
+    function addRowPenyusun() {
+        const tbody = document.querySelector('#table-penyusun tbody');
+        const index = tbody.children.length;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="row-number">${index + 1}</td>
+            <td><input type="text" name="penyusun[${index}][nama]" class="form-input-line" list="signer-list" oninput="autofillSigner(this)"></td>
+            <td><input type="text" name="penyusun[${index}][nipp]" class="form-input-line"></td>
+            <td>
+                <input type="text" name="penyusun[${index}][jabatan]" class="form-input-line">
+                <button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-penyusun', 'penyusun')">X</button>
+            </td>`;
+        tbody.appendChild(tr);
+        reindexTable('table-penyusun', 'penyusun');
+    }
+
+    function addRowRiwayat() {
+        const tbody = document.querySelector('#table-riwayat tbody');
+        const index = tbody.children.length;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" name="riwayat_perubahan[${index}][versi]" class="form-input-line"></td>
+            <td><input type="text" name="riwayat_perubahan[${index}][penyusun]" class="form-input-line"></td>
+            <td><input type="text" name="riwayat_perubahan[${index}][tanggal]" class="form-input-line"></td>
+            <td><input type="text" name="riwayat_perubahan[${index}][hal]" class="form-input-line"></td>
+            <td>
+                <input type="text" name="riwayat_perubahan[${index}][keterangan]" class="form-input-line input-left">
+                <button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-riwayat', 'riwayat_perubahan')">X</button>
+            </td>`;
+        tbody.appendChild(tr);
+        reindexTable('table-riwayat', 'riwayat_perubahan');
+    }
+
+    function addRowAnalisa() {
+        const tbody = document.querySelector('#table-analisa tbody');
+        const index = tbody.children.length;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="row-number">${index + 1}</td>
+            <td><input type="text" name="analisa_kebutuhan[${index}][nama]" class="form-input-line"></td>
+            <td><input type="text" name="analisa_kebutuhan[${index}][jabatan]" class="form-input-line"></td>
+            <td><input type="text" name="analisa_kebutuhan[${index}][kebutuhan]" class="form-input-line"></td>
+            <td><input type="text" name="analisa_kebutuhan[${index}][metode]" class="form-input-line"></td>
+            <td><input type="text" name="analisa_kebutuhan[${index}][realisasi]" class="form-input-line"></td>
+            <td>
+                <input type="text" name="analisa_kebutuhan[${index}][keterangan]" class="form-input-line">
+                <button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-analisa', 'analisa_kebutuhan')">X</button>
+            </td>`;
+        tbody.appendChild(tr);
+        reindexTable('table-analisa', 'analisa_kebutuhan');
     }
 
     function processExcelImport() {
@@ -420,16 +505,20 @@
 
                 let tbodyId = '';
                 let addRowFunc = null;
+                let arrayPrefix = '';
 
                 if (currentImportTarget === 'penyusun') {
                     tbodyId = '#table-penyusun tbody';
                     addRowFunc = addRowPenyusun;
+                    arrayPrefix = 'penyusun';
                 } else if (currentImportTarget === 'riwayat') {
                     tbodyId = '#table-riwayat tbody';
                     addRowFunc = addRowRiwayat;
+                    arrayPrefix = 'riwayat_perubahan';
                 } else if (currentImportTarget === 'analisa') {
                     tbodyId = '#table-analisa tbody';
                     addRowFunc = addRowAnalisa;
+                    arrayPrefix = 'analisa_kebutuhan';
                 }
 
                 const tbody = document.querySelector(tbodyId);
@@ -454,6 +543,8 @@
 
                 if(dataDitambahkan === 0) { addRowFunc(); }
 
+                reindexTable(tbodyId.replace(' tbody', '').replace('#', ''), arrayPrefix);
+
                 closeImportModal();
                 alert('Berhasil! ' + dataDitambahkan + ' baris data telah ditambahkan ke tabel.');
             };
@@ -465,7 +556,6 @@
         }
     }
 
-    // ----- FITUR AUTOFILL & TAMBAH/HAPUS BARIS -----
     function autofillSigner(inputElement) {
         const tr = inputElement.closest('tr');
         const list = document.getElementById('signer-list');
@@ -487,6 +577,7 @@
         for (let i = 0; i < list.options.length; i++) {
             if (list.options[i].value === input.value) {
                 document.querySelector('input[name="disetujui_nipp"]').value = list.options[i].getAttribute('data-nipp') || '';
+                document.querySelector('input[name="disetujui_jabatan"]').value = list.options[i].getAttribute('data-jabatan') || '';
                 break;
             }
         }
@@ -498,69 +589,11 @@
         for (let i = 0; i < list.options.length; i++) {
             if (list.options[i].value === input.value) {
                 document.querySelector('input[name="disahkan_nipp"]').value = list.options[i].getAttribute('data-nipp') || '';
+                document.querySelector('input[name="disahkan_jabatan"]').value = list.options[i].getAttribute('data-jabatan') || '';
                 break;
             }
         }
     }
-
-    function updateRowNumbers(tableId) {
-        document.querySelectorAll(`#${tableId} tbody tr`).forEach((row, index) => {
-            let numCell = row.querySelector('.row-number');
-            if(numCell) numCell.innerText = index + 1;
-        });
-    }
-
-    function removeRow(btn, tableId) {
-        btn.closest('tr').remove();
-        updateRowNumbers(tableId);
-    }
-
-    function addRowPenyusun() {
-        const tbody = document.querySelector('#table-penyusun tbody');
-        const rowCount = tbody.children.length;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td class="row-number">${rowCount + 1}</td>
-            <td><input type="text" name="penyusun[${rowCount}][nama]" class="form-input-line" list="signer-list" oninput="autofillSigner(this)"></td>
-            <td><input type="text" name="penyusun[${rowCount}][nipp]" class="form-input-line"></td>
-            <td>
-                <input type="text" name="penyusun[${rowCount}][jabatan]" class="form-input-line">
-                <button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-penyusun')">X</button>
-            </td>`;
-        tbody.appendChild(tr);
-    }
-
-    function addRowRiwayat() {
-        const tbody = document.querySelector('#table-riwayat tbody');
-        const rowCount = tbody.children.length;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><input type="text" name="riwayat_perubahan[${rowCount}][versi]" class="form-input-line"></td>
-            <td><input type="text" name="riwayat_perubahan[${rowCount}][penyusun]" class="form-input-line"></td>
-            <td><input type="text" name="riwayat_perubahan[${rowCount}][tanggal]" class="form-input-line"></td>
-            <td><input type="text" name="riwayat_perubahan[${rowCount}][hal]" class="form-input-line"></td>
-            <td>
-                <input type="text" name="riwayat_perubahan[${rowCount}][keterangan]" class="form-input-line input-left">
-                <button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-riwayat')">X</button>
-            </td>`;
-        tbody.appendChild(tr);
-    }
-
-    function addRowAnalisa() {
-        const tbody = document.querySelector('#table-analisa tbody');
-        const rowCount = tbody.children.length;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td class="row-number">${rowCount + 1}</td>
-            <td><input type="text" name="analisa_kebutuhan[${rowCount}][nama]" class="form-input-line"></td>
-            <td><input type="text" name="analisa_kebutuhan[${rowCount}][jabatan]" class="form-input-line"></td>
-            <td><input type="text" name="analisa_kebutuhan[${rowCount}][kebutuhan]" class="form-input-line"></td>
-            <td><input type="text" name="analisa_kebutuhan[${rowCount}][metode]" class="form-input-line"></td>
-            <td><input type="text" name="analisa_kebutuhan[${rowCount}][realisasi]" class="form-input-line"></td>
-            <td>
-                <input type="text" name="analisa_kebutuhan[${rowCount}][keterangan]" class="form-input-line">
-                <button type="button" class="btn-delete-row" onclick="removeRow(this, 'table-analisa')">X</button>
-            </td>`;
-        tbody.appendChild(tr);
-    }
 </script>
+</body>
+</html>

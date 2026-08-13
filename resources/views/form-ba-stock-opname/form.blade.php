@@ -9,6 +9,11 @@
     .form-input-line { width: 100%; border: none; border-bottom: 1px solid black; outline: none; background: transparent; font-family: inherit; font-size: inherit; padding: 2px 4px; box-sizing: border-box; }
     .form-input-line:focus { background-color: #f0f8ff; border-bottom: 1px solid #00a4e4; }
     .form-input-line::placeholder { color: #9ca3af; font-style: italic; }
+
+    .input-jabatan { width: 100%; text-align: center; border: none; border-bottom: 1px dashed #94a3b8; background-color: #f8fafc; padding: 4px; box-sizing: border-box; font-family: inherit; font-size: inherit; outline: none; transition: all 0.2s ease; border-radius: 4px 4px 0 0; resize: none; overflow: hidden; }
+    .input-jabatan:hover { background-color: #f1f5f9; border-bottom-color: #64748b; cursor: text; }
+    .input-jabatan:focus { background-color: #f0f8ff; border-bottom: 1px solid #00a4e4; }
+
     .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10px; text-align: center; }
     .data-table th, .data-table td { border: 1px solid #000; padding: 5px; position: relative; }
     .btn-submit { background-color: #16a34a; color: white; padding: 6px 16px; height: 36px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: background 0.2s; }
@@ -25,7 +30,7 @@
 
         <datalist id="signer-list">
             @foreach($masterSigners as $ms)
-                <option value="{{ $ms->nama }}" data-nipp="{{ $ms->nipp }}">{{ $ms->jabatan }}</option>
+                <option value="{{ $ms->nama }}" data-nipp="{{ $ms->nipp }}" data-jabatan="{{ $ms->jabatan }}">{{ $ms->jabatan }}</option>
             @endforeach
         </datalist>
 
@@ -139,24 +144,28 @@
 
                 <table style="width: 100%; font-size: 11px; text-align: center;">
                     <tr>
-                        <td style="width: 50%; vertical-align: top;">Pimpinan Unit Kerja</td>
-                        <td style="width: 50%; vertical-align: top;">Pimpinan IT Kantor Pusat/Daerah<br>(Pengelola Aset TI)</td>
+                        <td style="width: 50%; vertical-align: top; padding: 5px;">
+                            <textarea name="jabatan_pimpinan_unit_kerja" id="jabatan_pimpinan_unit_kerja" class="input-jabatan" rows="2" placeholder="Jabatan Pimpinan Unit Kerja...">{{ old('jabatan_pimpinan_unit_kerja', $form->jabatan_pimpinan_unit_kerja) }}</textarea>
+                        </td>
+                        <td style="width: 50%; vertical-align: top; padding: 5px;">
+                            <textarea name="jabatan_pimpinan_it" id="jabatan_pimpinan_it" class="input-jabatan" rows="2" placeholder="Jabatan Pimpinan IT Kantor Pusat/Daerah...">{{ old('jabatan_pimpinan_it', $form->jabatan_pimpinan_it) }}</textarea>
+                        </td>
                     </tr>
                     <tr>
                         <td style="height: 80px; vertical-align: bottom;">
                         <div style="margin-bottom: 3px;">
-                            ( <input type="text" name="pimpinan_unit_kerja" id="pimpinan_unit_kerja" list="signer-list" value="{{ old('pimpinan_unit_kerja', $form->pimpinan_unit_kerja) }}" class="form-input-line" style="width: 200px; text-align: center;" required> )
+                            ( <input type="text" name="pimpinan_unit_kerja" id="pimpinan_unit_kerja" list="signer-list" value="{{ old('pimpinan_unit_kerja', $form->pimpinan_unit_kerja) }}" class="form-input-line" style="width: 200px; text-align: center;" required autocomplete="off"> )
                         </div>
                         <div>
-                            NIPP. <input type="text" name="nipp_pimpinan_unit_kerja" id="nipp_pimpinan_unit_kerja" value="{{ old('nipp_pimpinan_unit_kerja', $form->nipp_pimpinan_unit_kerja) }}" class="form-input-line" style="width: 160px; text-align: center;" required>
+                            NIPP. <input type="text" name="nipp_pimpinan_unit_kerja" id="nipp_pimpinan_unit_kerja" value="{{ old('nipp_pimpinan_unit_kerja', $form->nipp_pimpinan_unit_kerja) }}" class="form-input-line" style="width: 160px; text-align: center;" required autocomplete="off">
                         </div>
                         </td>
                         <td style="height: 80px; vertical-align: bottom;">
                             <div style="margin-bottom: 3px;">
-                                ( <input type="text" name="pimpinan_it" id="pimpinan_it" list="signer-list" value="{{ old('pimpinan_it', $form->pimpinan_it) }}" class="form-input-line" style="width: 200px; text-align: center;" required> )
+                                ( <input type="text" name="pimpinan_it" id="pimpinan_it" list="signer-list" value="{{ old('pimpinan_it', $form->pimpinan_it) }}" class="form-input-line" style="width: 200px; text-align: center;" required autocomplete="off"> )
                             </div>
                             <div>
-                                NIPP. <input type="text" name="nipp_pimpinan_it" id="nipp_pimpinan_it" value="{{ old('nipp_pimpinan_it', $form->nipp_pimpinan_it ?? '') }}" class="form-input-line" style="width: 160px; text-align: center;" required>
+                                NIPP. <input type="text" name="nipp_pimpinan_it" id="nipp_pimpinan_it" value="{{ old('nipp_pimpinan_it', $form->nipp_pimpinan_it ?? '') }}" class="form-input-line" style="width: 160px; text-align: center;" required autocomplete="off">
                             </div>
                         </td>
                     </tr>
@@ -227,7 +236,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @php $oldItems = old('items', $items ?? []); $rowCount = max(4, count($oldItems)); @endphp
+                        @php $oldItems = old('items', $items ?? []); $rowCount = max(1, count($oldItems)); @endphp
                         @for ($i = 0; $i < $rowCount; $i++)
                             @php $item = $oldItems[$i] ?? null; @endphp
                             <tr class="item-row">
@@ -239,7 +248,7 @@
                                 <td><input type="text" name="items[{{$i}}][sumber_data]" value="{{ $item['sumber_data'] ?? '' }}" class="form-input-line" style="text-align: center; border-bottom: none;"></td>
                                 <td>
                                     <input type="text" name="items[{{$i}}][keterangan]" value="{{ $item['keterangan'] ?? '' }}" class="form-input-line" style="text-align: center; border-bottom: none;">
-                                    @if($i >= 4)
+                                    @if($i > 0)
                                     <button type="button" class="btn-delete-row" onclick="removeRow(this)">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
@@ -258,15 +267,17 @@
                 <div style="display: flex; justify-content: flex-end; margin-top: 50px;">
                     <table style="width: 250px; border-collapse: collapse; font-size: 11px; text-align: center;">
                         <tr>
-                            <td style="border: 1px solid black; padding: 4px;">Petugas IT Stock Opname</td>
+                            <td style="border: 1px solid black; padding: 2px;">
+                                <input type="text" name="jabatan_petugas_it" id="jabatan_petugas_it" value="{{ old('jabatan_petugas_it', $form->jabatan_petugas_it) }}" class="input-jabatan" placeholder="Jabatan Petugas IT Stock Opname..." autocomplete="off">
+                            </td>
                         </tr>
                         <tr>
                             <td style="border: 1px solid black; height: 80px; vertical-align: bottom; padding: 5px;">
                                 <div style="margin-bottom: 3px;">
-                                    ( <input type="text" name="petugas_it" id="petugas_it" list="signer-list" value="{{ old('petugas_it', $form->petugas_it) }}" class="form-input-line" style="text-align: center; font-weight: bold; width: 200px;" required> )
+                                    ( <input type="text" name="petugas_it" id="petugas_it" list="signer-list" value="{{ old('petugas_it', $form->petugas_it) }}" class="form-input-line" style="text-align: center; font-weight: bold; width: 200px;" required autocomplete="off"> )
                                 </div>
                                 <div style="font-weight: normal;">
-                                    NIPP. <input type="text" name="nipp_petugas_it" id="nipp_petugas_it" value="{{ old('nipp_petugas_it', $form->nipp_petugas_it ?? '') }}" class="form-input-line" style="text-align: center; width: 160px;" required>
+                                    NIPP. <input type="text" name="nipp_petugas_it" id="nipp_petugas_it" value="{{ old('nipp_petugas_it', $form->nipp_petugas_it ?? '') }}" class="form-input-line" style="text-align: center; width: 160px;" required autocomplete="off">
                                 </div>
                             </td>
                         </tr>
@@ -339,24 +350,29 @@
             });
         }
 
-    function setupAutofill(nameId, nippId) {
-        const nameInput = document.getElementById(nameId);
-        const nippInput = document.getElementById(nippId);
-        if (!nameInput || !nippInput) return;
+        function setupAutofill(nameId, nippId, jabatanId) {
+            const nameInput = document.getElementById(nameId);
+            const nippInput = document.getElementById(nippId);
+            const jabatanInput = document.getElementById(jabatanId);
+            if (!nameInput || !nippInput) return;
 
-        nameInput.addEventListener('input', function() {
-            const options = document.getElementById('signer-list').options;
-            for (let i = 0; i < options.length; i++) {
-                if (options[i].value === nameInput.value) {
-                    nippInput.value = options[i].getAttribute('data-nipp') || '';
-                    break;
+            nameInput.addEventListener('input', function() {
+                const options = document.getElementById('signer-list').options;
+                for (let i = 0; i < options.length; i++) {
+                    if (options[i].value === nameInput.value) {
+                        nippInput.value = options[i].getAttribute('data-nipp') || '';
+                        if(jabatanInput) {
+                            jabatanInput.value = options[i].getAttribute('data-jabatan') || '';
+                        }
+                        break;
+                    }
                 }
-            }
-        });
-    }
-    setupAutofill('pimpinan_unit_kerja', 'nipp_pimpinan_unit_kerja');
-    setupAutofill('pimpinan_it', 'nipp_pimpinan_it');
-    setupAutofill('petugas_it', 'nipp_petugas_it');
+            });
+        }
+
+        setupAutofill('pimpinan_unit_kerja', 'nipp_pimpinan_unit_kerja', 'jabatan_pimpinan_unit_kerja');
+        setupAutofill('pimpinan_it', 'nipp_pimpinan_it', 'jabatan_pimpinan_it');
+        setupAutofill('petugas_it', 'nipp_petugas_it', 'jabatan_petugas_it');
     });
 
     function openImportModal() {
@@ -441,7 +457,7 @@
                     dataDitambahkan++;
                 }
 
-                while(rowIndex < 4) {
+                while(rowIndex < 1) {
                     addRow();
                 }
 
