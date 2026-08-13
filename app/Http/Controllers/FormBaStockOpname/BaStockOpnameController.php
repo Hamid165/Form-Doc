@@ -48,6 +48,10 @@ class BaStockOpnameController extends Controller
             $form->analisa              = $request->input('analisa');
             $form->tindak_lanjut        = $request->input('tindak_lanjut');
 
+            $form->jabatan_pimpinan_unit_kerja = $request->input('jabatan_pimpinan_unit_kerja');
+            $form->jabatan_pimpinan_it         = $request->input('jabatan_pimpinan_it');
+            $form->jabatan_petugas_it          = $request->input('jabatan_petugas_it');
+
             $form->pimpinan_unit_kerja  = $request->input('pimpinan_unit_kerja');
             $form->nipp_pimpinan_unit_kerja = $request->input('nipp_pimpinan_unit_kerja');
             $form->tempat_ttd           = $request->input('tempat_ttd');
@@ -95,6 +99,10 @@ class BaStockOpnameController extends Controller
             $form->tempat_kedudukan     = $request->input('tempat_kedudukan');
             $form->analisa              = $request->input('analisa');
             $form->tindak_lanjut        = $request->input('tindak_lanjut');
+
+            $form->jabatan_pimpinan_unit_kerja = $request->input('jabatan_pimpinan_unit_kerja');
+            $form->jabatan_pimpinan_it         = $request->input('jabatan_pimpinan_it');
+            $form->jabatan_petugas_it          = $request->input('jabatan_petugas_it');
 
             $form->pimpinan_unit_kerja  = $request->input('pimpinan_unit_kerja');
             $form->nipp_pimpinan_unit_kerja = $request->input('nipp_pimpinan_unit_kerja');
