@@ -68,6 +68,17 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        if (!\App\Models\FormTemplate::where('nama', 'Rencana Pelatihan Pegawai')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Rencana Pelatihan Pegawai',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-rencana-pelatihan.index',
+                'no_dokumen' => 'DK.SM/TI/003.002/08-2022',
+                'tanggal_dokumen' => '29 Agustus 2022',
+                'versi_dokumen' => '002-2022',
+            ]);
+        }
+
         $this->call([
             MasterPerangkatSeeder::class,
         ]);

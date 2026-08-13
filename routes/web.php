@@ -176,3 +176,9 @@ Route::get('form-ba-stock-opname/template', [BaStockOpnameController::class, 'do
 
 Route::resource('form-ba-stock-opname', BaStockOpnameController::class);
 Route::resource('master-bastock', MasterBAStockController::class)->only(['store', 'update', 'destroy']);
+
+// ==============================================================
+// ROUTES FORMULIR RENCANA PELATIHAN PEGAWAI
+// ==============================================================
+Route::resource('form-rencana-pelatihan', \App\Http\Controllers\FormRencanaPelatihan\RencanaPelatihanController::class);
+Route::resource('master-penandatangan-rencana', \App\Http\Controllers\FormRencanaPelatihan\MasterPenandatanganRencanaController::class);
