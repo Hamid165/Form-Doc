@@ -15,6 +15,11 @@ use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
 use App\Http\Controllers\FormPemeliharaanAc\FormPemeliharaanAcController;
 use App\Http\Controllers\FormPemeliharaanAc\MasterAcController;
 use App\Http\Controllers\FormItBusinessRequest\FormItBusinessRequestController;
+use App\Http\Controllers\FormApar\FormAparController;
+use App\Http\Controllers\FormApar\MasterAparController;
+use App\Http\Controllers\FormApar\MasterVendorController;
+use App\Http\Controllers\FormApar\AparHistoryController;
+use App\Http\Controllers\FormApar\MasterSignerController as MasterSignerAparController;
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
@@ -142,7 +147,12 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
 
         } elseif ($template->nama === 'Availability System Ticketing') {
             $total = \App\Models\FormAvailability\FormAvailability::count();
+
+        } elseif ($template->nama === 'Formulir Checklist Pemantauan APAR') {
+            $total = \App\Models\FormApar\FormApar::count();
         }
+
+        
 
         $formulirs->push([
             'id' => $template->id,
@@ -298,3 +308,48 @@ Route::resource(
     'form-availability',
     FormAvailabilityController::class
 );
+
+
+// =============================================================
+// ROUTES FORMULIR CHECKLIST PEMANTAUAN APAR
+// =============================================================
+
+Route::patch('form-apar/{form_apar}/confirm', [FormAparController::class, 'confirm'])
+    ->name('form-apar.confirm');
+
+Route::resource('form-apar', FormAparController::class);
+
+
+// Master Data APAR
+Route::post('master-apar/import', [MasterAparController::class, 'import'])
+    ->name('master-apar.import');
+
+Route::get('master-apar/template', [MasterAparController::class, 'downloadTemplate'])
+    ->name('master-apar.template');
+
+Route::get('master-apar/{master_apar}/info', [MasterAparController::class, 'getInfo'])
+    ->name('master-apar.info');
+
+Route::post('master-apar/{master_apar}/ganti-tabung', [MasterAparController::class, 'replaceCylinder'])
+    ->name('master-apar.ganti-tabung');
+
+Route::resource('master-apar', MasterAparController::class)
+    ->only(['store', 'update', 'destroy']);
+
+Route::post('master-apar/{master_apar}/aktifkan', [MasterAparController::class, 'reactivate'])
+    ->name('master-apar.aktifkan');
+
+
+// Master Vendor APAR
+Route::resource('master-vendor', MasterVendorController::class)
+    ->only(['store', 'update', 'destroy']);
+
+
+// History APAR
+Route::resource('apar-history', AparHistoryController::class)
+    ->only(['store', 'update', 'destroy']);
+
+
+// Master Signer
+Route::resource('master-signer', MasterSignerAparController::class)
+    ->only(['store', 'update', 'destroy']);
