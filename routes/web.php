@@ -148,6 +148,9 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
         } elseif ($template->nama === 'Availability System Ticketing') {
             $total = \App\Models\FormAvailability\FormAvailability::count();
 
+        } elseif ($template->nama === 'Keluar/Masuk Barang DC/DRC') {
+            $total = \App\Models\FormKeluarMasukBarangDcDrc\FormKeluarMasukBarangDcDrc::count();
+
         } elseif ($template->nama === 'Formulir Checklist Pemantauan APAR') {
             $total = \App\Models\FormApar\FormApar::count();
         }
@@ -353,3 +356,31 @@ Route::resource('apar-history', AparHistoryController::class)
 // Master Signer
 Route::resource('master-signer', MasterSignerAparController::class)
     ->only(['store', 'update', 'destroy']);
+
+
+// ==============================================================
+// ROUTES FORMULIR KELUAR MASUK BARANG DC DRC
+// ==============================================================
+use App\Http\Controllers\FormKeluarMasukBarangDcDrc\FormKeluarMasukBarangDcDrcController;
+use App\Http\Controllers\FormKeluarMasukBarangDcDrc\MasterSignerFormKeluarMasukBarangDcDrcController;
+
+Route::post('form-keluar-masuk-barang-dc-drc/parse-excel', [FormKeluarMasukBarangDcDrcController::class, 'parseExcel'])
+    ->name('form-keluar-masuk-barang-dc-drc.parse-excel');
+
+Route::get('form-keluar-masuk-barang-dc-drc/template-items', [FormKeluarMasukBarangDcDrcController::class, 'downloadTemplateItems'])
+    ->name('form-keluar-masuk-barang-dc-drc.template-items');
+
+Route::get('form-keluar-masuk-barang-dc-drc/download-template', [FormKeluarMasukBarangDcDrcController::class, 'downloadTemplateItems'])
+    ->name('form-keluar-masuk-barang-dc-drc.download-template');
+
+Route::resource('form-keluar-masuk-barang-dc-drc', FormKeluarMasukBarangDcDrcController::class);
+
+// Master Signer untuk Form Keluar Masuk Barang DC DRC
+Route::post('form-keluar-masuk-barang-dc-drc/master-signer', [MasterSignerFormKeluarMasukBarangDcDrcController::class, 'store'])
+    ->name('form-keluar-masuk-barang-dc-drc.master-signer.store');
+
+Route::put('form-keluar-masuk-barang-dc-drc/master-signer/{id}', [MasterSignerFormKeluarMasukBarangDcDrcController::class, 'update'])
+    ->name('form-keluar-masuk-barang-dc-drc.master-signer.update');
+
+Route::delete('form-keluar-masuk-barang-dc-drc/master-signer/{id}', [MasterSignerFormKeluarMasukBarangDcDrcController::class, 'destroy'])
+    ->name('form-keluar-masuk-barang-dc-drc.master-signer.destroy');
