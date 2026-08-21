@@ -101,6 +101,17 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        if (!\App\Models\FormTemplate::where('nama', 'Keluar Masuk Barang DC DRC')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Keluar Masuk Barang DC DRC',
+                'kategori' => 'Umum',
+                'route_name' => 'form-keluar-masuk-barang-dc-drc.index',
+                'no_dokumen' => 'FR.SM/TI/014.003/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => ': 002-2020',
+            ]);
+        }
+
         $this->call([
             MasterPerangkatSeeder::class,
             MasterSignerSeeder::class,
