@@ -187,7 +187,7 @@
         <!-- Form Tambah -->
         <div class="bg-gray-50 rounded-xl p-6 mb-6 border border-gray-200">
             <h3 class="text-sm font-bold text-gray-700 mb-4">Tambah Petugas Baru</h3>
-            <form action="{{ route('form-keluar-masuk-barang-dc-drc.master-signers.store') }}" method="POST">
+            <form action="{{ route('form-keluar-masuk-barang-dc-drc.master-signer.store') }}" method="POST">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
@@ -245,7 +245,7 @@
                                 <button @click="editing = true" class="p-2 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 </button>
-                                <form action="{{ route('form-keluar-masuk-barang-dc-drc.master-signers.destroy', $signer->id) }}" method="POST" class="inline" x-data
+                                <form action="{{ route('form-keluar-masuk-barang-dc-drc.master-signer.destroy', $signer->id) }}" method="POST" class="inline" x-data
                                     @submit.prevent="Swal.fire({title: 'Hapus data?', text: '{{ $signer->nama }} - {{ $signer->jabatan }}', icon: 'warning', showCancelButton: true, confirmButtonColor: '#EF4444', cancelButtonColor: '#6B7280', confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal'}).then((r) => { if(r.isConfirmed) $el.closest('form').submit() })">
                                     @csrf
                                     @method('DELETE')
@@ -258,7 +258,7 @@
 
                         {{-- Edit Mode --}}
                         <td colspan="5" class="p-4 bg-blue-50 border-b border-blue-100" x-show="editing" x-cloak>
-                            <form action="{{ route('form-keluar-masuk-barang-dc-drc.master-signers.update', $signer->id) }}" method="POST" class="flex items-end gap-3">
+                            <form action="{{ route('form-keluar-masuk-barang-dc-drc.master-signer.update', $signer->id) }}" method="POST" class="flex items-end gap-3">
                                 @csrf
                                 @method('PUT')
                                 <div class="flex-1">
