@@ -422,9 +422,21 @@ return back()->with(
         }
     }
 
-    public function destroy(MasterApar $master_apar)
+   public function destroy(MasterApar $master_apar)
     {
         $kode = $master_apar->kode_aset;
+
+        \App\Models\FormApar\AparHistory::create([
+            'master_apar_id'     => null,
+            'jenis_perubahan'   => 'Apar Terhapus',
+            'data_lama'         => $kode,
+            'data_baru'         => null,
+            'kode_aset_lama'    => $kode,
+            'kode_aset_baru'    => null,
+            'tanggal_perubahan' => now(),
+            'keterangan'        => "Aset APAR {$kode} berhasil dihapus dari sistem.",
+        ]);
+
         $master_apar->delete();
 
         return back()->with('success', "Aset APAR {$kode} berhasil dihapus.");
