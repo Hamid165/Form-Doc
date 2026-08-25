@@ -135,6 +135,8 @@ return back()->with(
         $oldIsiUlang = $master_apar->tanggal_isi_ulang ? $master_apar->tanggal_isi_ulang->format('d/m/Y') : '-';
         $oldKadaluarsa = $master_apar->tanggal_kadaluarsa ? $master_apar->tanggal_kadaluarsa->format('d/m/Y') : '-';
 
+        $kodeAset = $master_apar->kode_aset;
+
         $master_apar->update($request->only([
             'lokasi', 'sub_lokasi', 'tanggal_isi_ulang', 'tanggal_kadaluarsa', 'vendor_id'
         ]));
@@ -150,6 +152,8 @@ return back()->with(
         if ($oldLokasi !== $newLokasi) {
             AparHistory::create([
                 'master_apar_id'    => $master_apar->id,
+                'kode_aset_lama'    => $kodeAset,
+                'kode_aset_baru'    => $kodeAset,
                 'jenis_perubahan'   => 'Lokasi',
                 'data_lama'         => $oldLokasi,
                 'data_baru'         => $newLokasi,
@@ -161,6 +165,8 @@ return back()->with(
         if ($oldSubLokasi !== $newSubLokasi) {
             AparHistory::create([
                 'master_apar_id'    => $master_apar->id,
+                'kode_aset_lama' => $kodeAset,
+                'kode_aset_baru' => $kodeAset,
                 'jenis_perubahan'   => 'Sub Lokasi',
                 'data_lama'         => $oldSubLokasi,
                 'data_baru'         => $newSubLokasi,
@@ -172,6 +178,8 @@ return back()->with(
         if ($oldVendor !== $newVendor) {
             AparHistory::create([
                 'master_apar_id'    => $master_apar->id,
+                'kode_aset_lama' => $kodeAset,
+                'kode_aset_baru' => $kodeAset,
                 'jenis_perubahan'   => 'Vendor',
                 'data_lama'         => $oldVendor,
                 'data_baru'         => $newVendor,
@@ -183,6 +191,8 @@ return back()->with(
         if ($oldIsiUlang !== $newIsiUlang) {
             AparHistory::create([
                 'master_apar_id'    => $master_apar->id,
+                'kode_aset_lama' => $kodeAset,
+                'kode_aset_baru' => $kodeAset,
                 'jenis_perubahan'   => 'Tanggal Isi Ulang',
                 'data_lama'         => $oldIsiUlang,
                 'data_baru'         => $newIsiUlang,
@@ -194,6 +204,8 @@ return back()->with(
         if ($oldKadaluarsa !== $newKadaluarsa) {
             AparHistory::create([
                 'master_apar_id'    => $master_apar->id,
+                'kode_aset_lama' => $kodeAset,
+                'kode_aset_baru' => $kodeAset,
                 'jenis_perubahan'   => 'Tanggal Kedaluwarsa',
                 'data_lama'         => $oldKadaluarsa,
                 'data_baru'         => $newKadaluarsa,
@@ -226,6 +238,8 @@ return back()->with(
         ? $master_apar->tanggal_kadaluarsa->format('d/m/Y')
         : '-';
 
+    $kodeAset = $master_apar->kode_aset;
+
     // Aktifkan kembali APAR
     $master_apar->update([
         'status'             => 'Aktif',
@@ -253,6 +267,8 @@ return back()->with(
     if ($oldLokasi !== $newLokasi) {
         AparHistory::create([
             'master_apar_id'    => $master_apar->id,
+            'kode_aset_lama'    => $kodeAset,
+            'kode_aset_baru'    => $kodeAset,
             'jenis_perubahan'   => 'Lokasi',
             'data_lama'         => $oldLokasi,
             'data_baru'         => $newLokasi,
@@ -265,6 +281,8 @@ return back()->with(
     if ($oldSubLokasi !== $newSubLokasi) {
         AparHistory::create([
             'master_apar_id'    => $master_apar->id,
+            'kode_aset_lama' => $kodeAset,
+            'kode_aset_baru' => $kodeAset,
             'jenis_perubahan'   => 'Sub Lokasi',
             'data_lama'         => $oldSubLokasi,
             'data_baru'         => $newSubLokasi,
@@ -277,6 +295,8 @@ return back()->with(
     if ($oldVendor !== $newVendor) {
         AparHistory::create([
             'master_apar_id'    => $master_apar->id,
+            'kode_aset_lama' => $kodeAset,
+            'kode_aset_baru' => $kodeAset,
             'jenis_perubahan'   => 'Vendor',
             'data_lama'         => $oldVendor,
             'data_baru'         => $newVendor,
@@ -289,6 +309,8 @@ return back()->with(
     if ($oldIsiUlang !== $newIsiUlang) {
         AparHistory::create([
             'master_apar_id'    => $master_apar->id,
+            'kode_aset_lama' => $kodeAset,
+            'kode_aset_baru' => $kodeAset,
             'jenis_perubahan'   => 'Tanggal Isi Ulang',
             'data_lama'         => $oldIsiUlang,
             'data_baru'         => $newIsiUlang,
@@ -301,6 +323,8 @@ return back()->with(
     if ($oldKadaluarsa !== $newKadaluarsa) {
         AparHistory::create([
             'master_apar_id'    => $master_apar->id,
+            'kode_aset_lama' => $kodeAset,
+            'kode_aset_baru' => $kodeAset,
             'jenis_perubahan'   => 'Tanggal Kedaluwarsa',
             'data_lama'         => $oldKadaluarsa,
             'data_baru'         => $newKadaluarsa,
@@ -312,6 +336,8 @@ return back()->with(
     // Catat bahwa APAR diaktifkan kembali
     AparHistory::create([
         'master_apar_id'    => $master_apar->id,
+        'kode_aset_lama' => $kodeAset,
+        'kode_aset_baru' => $kodeAset,
         'jenis_perubahan'   => 'Aktivasi Kembali',
         'data_lama'         => 'Non Aktif',
         'data_baru'         => 'Aktif',
@@ -427,14 +453,14 @@ return back()->with(
         $kode = $master_apar->kode_aset;
 
         \App\Models\FormApar\AparHistory::create([
-            'master_apar_id'     => null,
-            'jenis_perubahan'   => 'Apar Terhapus',
-            'data_lama'         => $kode,
-            'data_baru'         => null,
-            'kode_aset_lama'    => $kode,
-            'kode_aset_baru'    => null,
-            'tanggal_perubahan' => now(),
-            'keterangan'        => "Aset APAR {$kode} berhasil dihapus dari sistem.",
+            'master_apar_id' => $master_apar->id,
+            'kode_aset_lama' => $kode,
+            'kode_aset_baru' => $kode,
+            'jenis_perubahan' => 'Apar Terhapus',
+            'data_lama' => $kode,
+            'data_baru' => '-',
+            'tanggal_perubahan' => now()->toDateString(),
+            'keterangan' => "Aset APAR {$kode} berhasil dihapus dari sistem.",
         ]);
 
         $master_apar->delete();
