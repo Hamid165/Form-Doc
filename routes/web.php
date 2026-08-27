@@ -20,12 +20,14 @@ use App\Http\Controllers\FormApar\MasterAparController;
 use App\Http\Controllers\FormApar\MasterVendorController;
 use App\Http\Controllers\FormApar\AparHistoryController;
 use App\Http\Controllers\FormApar\MasterSignerController as MasterSignerAparController;
+use App\Http\Controllers\FormPengujianInfrastruktur\FormPengujianInfrastrukturController;
+
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
 Route::get('/', function () {
     $totalKategori = 1; // Dummy untuk saat ini
-    $totalJenisFormulir = 7; // CCTV, Hak Akses, Pemeliharaan Jaringan, Stock Opname, AC, IT Business Request, Availability
+    $totalJenisFormulir = 8; // CCTV, Hak Akses, Pemeliharaan Jaringan, Stock Opname, AC, IT Business Request, Availability, Pengujian Infrastruktur
 
     $totalFormulirBulanIni =
             \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
@@ -48,7 +50,11 @@ Route::get('/', function () {
                 ->count()
             + \App\Models\FormAvailability\FormAvailability::whereMonth('created_at', date('m'))
                 ->whereYear('created_at', date('Y'))
+                ->count()
+            + \App\Models\FormPengujianInfrastruktur\FormPengujianInfrastruktur::whereMonth('created_at', date('m'))
+                ->whereYear('created_at', date('Y'))
                 ->count();
+
 
     $totalPengguna = 2; // Dummy: Pitra, Hamid (sebelum ada auth)
 
@@ -96,7 +102,12 @@ Route::get('/', function () {
             $item->title = "Availability Ticketing - {$item->no_ref}";
             return $item;
         }))
-
+        ->concat(\App\Models\FormPengujianInfrastruktur\FormPengujianInfrastruktur::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Pengujian Infrastruktur';
+            $item->route = route('form-pengujian-infrastruktur.show', $item->id);
+            $item->title = "Pengujian Infrastruktur - {$item->objek_pengujian}";
+            return $item;
+        }))
 
         ->sortByDesc('created_at')
         ->take(5);
@@ -153,6 +164,9 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
 
         } elseif ($template->nama === 'Formulir Checklist Pemantauan APAR') {
             $total = \App\Models\FormApar\FormApar::count();
+        }
+        elseif ($template->nama === 'Formulir Pengujian Infrastruktur' || str_contains($template->nama, 'Pengujian Infrastruktur')) {
+            $total = \App\Models\FormPengujianInfrastruktur\FormPengujianInfrastruktur::count();
         }
 
         
@@ -273,6 +287,7 @@ Route::resource('form-it-business-request', FormItBusinessRequestController::cla
 
 
 
+
 // ==============================================================
 // ROUTES FORMULIR AVAILABILITY SYSTEM TICKETING
 // ==============================================================
@@ -384,3 +399,10 @@ Route::put('form-keluar-masuk-barang-dc-drc/master-signer/{id}', [MasterSignerFo
 
 Route::delete('form-keluar-masuk-barang-dc-drc/master-signer/{id}', [MasterSignerFormKeluarMasukBarangDcDrcController::class, 'destroy'])
     ->name('form-keluar-masuk-barang-dc-drc.master-signer.destroy');
+
+
+// ==============================================================
+// ROUTES FORMULIR PENGUJIAN INFRASTRUKTUR
+// ==============================================================
+Route::resource('form-pengujian-infrastruktur', FormPengujianInfrastrukturController::class);
+
