@@ -12,6 +12,8 @@ use App\Http\Controllers\FormPemeliharaan\MasterPerangkatController;
 use App\Http\Controllers\FormAvailability\FormAvailabilityController;
 use App\Http\Controllers\FormBaStockOpname\BaStockOpnameController;
 use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
+use App\Http\Controllers\FormMonitoringGrounding\FormMonitoringGroundingController;
+use App\Http\Controllers\FormPcLaptopChecking\FormPcLaptopCheckingController;
 use App\Http\Controllers\FormPemeliharaanAc\FormPemeliharaanAcController;
 use App\Http\Controllers\FormPemeliharaanAc\MasterAcController;
 use App\Http\Controllers\FormItBusinessRequest\FormItBusinessRequestController;
@@ -37,7 +39,7 @@ use App\Http\Controllers\FormMonitoringCCTV\FormMonitoringCCTVController;
 // ==============================================================
 Route::get('/', function () {
     $totalKategori = 1; 
-    $totalJenisFormulir = 12; // CCTV, Hak Akses, Pemeliharaan Jaringan, Stock Opname, AC, IT Biz, Availability, Pengujian, Serah Terima User, UPS, Serah Terima Barang, Monitoring CCTV
+    $totalJenisFormulir = 14; // All modules
 
     $totalFormulirBulanIni =
         \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
@@ -51,7 +53,9 @@ Route::get('/', function () {
         + \App\Models\FormSerahTerimaUser\FormSerahTerimaUser::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
         + \App\Models\FormPemeliharaanUps\FormPemeliharaanUps::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
         + \App\Models\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarang::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
-        + \App\Models\FormMonitoringCCTV\FormMonitoringCCTV::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count();
+        + \App\Models\FormMonitoringCCTV\FormMonitoringCCTV::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormMonitoringGrounding\FormMonitoringGrounding::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormPcLaptopChecking\FormPcLaptopChecking::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count();
 
     $totalPengguna = 2; // Dummy: Pitra, Hamid (sebelum ada auth)
 
@@ -128,6 +132,18 @@ Route::get('/', function () {
             $item->title = "Monitoring CCTV - {$item->no_ref}";
             return $item;
         }))
+        ->concat(\App\Models\FormMonitoringGrounding\FormMonitoringGrounding::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Monitoring Grounding';
+            $item->route = route('form-monitoring-grounding.show', $item->id);
+            $item->title = "Monitoring Grounding - {$item->no_ref}";
+            return $item;
+        }))
+        ->concat(\App\Models\FormPcLaptopChecking\FormPcLaptopChecking::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'PC/Laptop Checking';
+            $item->route = route('form-pc-laptop-checking.show', $item->id);
+            $item->title = "PC/Laptop Checking - {$item->no_ref}";
+            return $item;
+        }))
         ->sortByDesc('created_at')
         ->take(5);
 
@@ -183,6 +199,12 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             $total = \App\Models\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarang::count();
         } elseif ($template->nama === 'Formulir Monitoring CCTV') {
             $total = \App\Models\FormMonitoringCCTV\FormMonitoringCCTV::count();
+        }
+        elseif ($template->nama === 'Monitoring Grounding' || str_contains($template->nama, 'Monitoring Grounding')) {
+            $total = \App\Models\FormMonitoringGrounding\FormMonitoringGrounding::count();
+        }
+        elseif ($template->nama === 'PC/Laptop Checking' || str_contains($template->nama, 'PC/Laptop Checking')) {
+            $total = \App\Models\FormPcLaptopChecking\FormPcLaptopChecking::count();
         }
 
         $formulirs->push([
@@ -393,3 +415,16 @@ Route::put('/form-monitoring-cctv/petugas/{id}', [FormMonitoringCCTVController::
 Route::delete('/form-monitoring-cctv/petugas/{id}', [FormMonitoringCCTVController::class, 'destroyPetugas'])->name('form-monitoring-cctv.destroy-petugas');
 Route::put('/form-monitoring-cctv/signer/{id}', [FormMonitoringCCTVController::class, 'updateSigner'])->name('form-monitoring-cctv.update-signer');
 Route::delete('/form-monitoring-cctv/signer/{id}', [FormMonitoringCCTVController::class, 'destroySigner'])->name('form-monitoring-cctv.destroy-signer');
+
+
+// ==============================================================
+// ROUTES FORMULIR MONITORING GROUNDING
+// ==============================================================
+Route::get('form-monitoring-grounding/{id}/export-excel', [FormMonitoringGroundingController::class, 'exportExcel'])->name('form-monitoring-grounding.export-excel');
+Route::resource('form-monitoring-grounding', FormMonitoringGroundingController::class);
+
+// ==============================================================
+// ROUTES FORMULIR PC/LAPTOP CHECKING
+// ==============================================================
+Route::get('form-pc-laptop-checking/{id}/export-excel', [FormPcLaptopCheckingController::class, 'exportExcel'])->name('form-pc-laptop-checking.export-excel');
+Route::resource('form-pc-laptop-checking', FormPcLaptopCheckingController::class);

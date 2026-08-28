@@ -156,6 +156,17 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        if (!\App\Models\FormTemplate::where('nama', 'Monitoring Grounding')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Monitoring Grounding',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-monitoring-grounding.index',
+                'no_dokumen' => 'FR.SM/TI/015.018/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
         $this->call([
             MasterPerangkatSeeder::class,
             MasterSignerSeeder::class,
