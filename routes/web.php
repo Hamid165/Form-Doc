@@ -428,3 +428,11 @@ Route::resource('form-monitoring-grounding', FormMonitoringGroundingController::
 // ==============================================================
 Route::get('form-pc-laptop-checking/{id}/export-excel', [FormPcLaptopCheckingController::class, 'exportExcel'])->name('form-pc-laptop-checking.export-excel');
 Route::resource('form-pc-laptop-checking', FormPcLaptopCheckingController::class);
+
+// ==============================================================
+// ROUTES FORMULIR LAPORAN BACKUP
+// ==============================================================
+Route::resource('form-backup', FormBackupController::class);
+Route::post('/form-backup/master', [App\Http\Controllers\FormBackup\FormBackupController::class, 'storeMaster'])->name('form-backup.master.store');
+Route::delete('/form-backup/master/{id}', [App\Http\Controllers\FormBackup\FormBackupController::class, 'destroyMaster'])->name('form-backup.master.destroy');
+Route::put('/form-backup/master/{id}', [App\Http\Controllers\FormBackup\FormBackupController::class, 'updateMaster'])->name('form-backup.master.update');

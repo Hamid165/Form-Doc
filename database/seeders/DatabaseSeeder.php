@@ -178,6 +178,17 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        if (!\App\Models\FormTemplate::where('nama', 'Formulir Laporan Backup')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Formulir Laporan Backup',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-backup.index',
+                'no_dokumen' => 'DK.SM/TI/012.002/02-2023',
+                'tanggal_dokumen' => '13 Februari 2023',
+                'versi_dokumen' => '001-2023',
+            ]);
+        }
+
         $this->call([
             MasterPerangkatSeeder::class,
             MasterSignerSeeder::class,
