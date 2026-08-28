@@ -1,124 +1,71 @@
-# Sistem Manajemen Formulir KAI
+# Modul Formulir Pengujian Infrastruktur
 
-Sistem Manajemen Formulir berbasis web yang dibangun menggunakan **Laravel 13**. Repository ini berisi berbagai macam modul formulir (seperti Formulir Pencabutan Hak Akses, Formulir Pemeliharaan CCTV, dll) beserta fitur export data, sinkronisasi otomatis, dan manajemen data.
+Modul baru untuk aplikasi Form-Doc, dibuat mengikuti pola modul yang sudah ada
+(`form-cctv`, `form-it-business-request`, dst) dan sesuai template pada
+`FR.SM/TI/025.002/10-2020 - FORMULIR PENGUJIAN INFRASTRUKTUR`.
 
-## Persyaratan Sistem
+## Cara Instalasi
 
-Sebelum memulai, pastikan komputer Anda telah terinstal perangkat lunak berikut:
+1. **Salin file** ke dalam folder project Laravel Anda, pertahankan struktur
+   folder berikut:
+   - `app/Models/FormPengujianInfrastruktur/` (2 file)
+   - `app/Http/Controllers/FormPengujianInfrastruktur/` (1 file)
+   - `database/migrations/` (2 file migrasi baru)
+   - `resources/views/form-pengujian-infrastruktur/` (5 file blade)
 
-- [PHP](https://www.php.net/downloads) (Minimal Versi **8.4**)
-- [Composer](https://getcomposer.org/download/)
-- [Node.js &amp; npm](https://nodejs.org/en/download/)
-- Git
+2. **Gabungkan (merge) manual** dua file berikut, karena isinya adalah versi
+   project Anda yang sudah ditambah kode untuk modul baru — jangan langsung
+   menimpa (overwrite) begitu saja jika Anda sudah mengubah kedua file ini
+   sejak upload terakhir:
+   - `routes/web.php` — ditambahkan: import controller, resource route
+     `form-pengujian-infrastruktur`, penghitungan dashboard & katalog formulir.
+   - `database/seeders/DatabaseSeeder.php` — ditambahkan entri `FormTemplate`
+     baru supaya formulir muncul di halaman Katalog Formulir.
 
----
+3. **Jalankan migrasi:**
+   ```bash
+   php artisan migrate
+   ```
 
-## Panduan Instalasi (Step-by-Step)
+4. **Jalankan seeder** supaya formulir muncul di Katalog Formulir:
+   ```bash
+   php artisan db:seed
+   ```
+   (atau jalankan ulang `php artisan db:seed --class=DatabaseSeeder` bila
+   seeder lain tidak perlu diulang)
 
-Ikuti langkah-langkah di bawah ini untuk menjalankan *project* ini di komputer lokal Anda:
+5. Buka `/formulir` — kartu **Formulir Pengujian Infrastruktur** akan
+   muncul di kategori **Terbatas** (silakan ubah ke `Umum`/`Lainnya` di
+   seeder atau lewat fitur edit metadata jika kategori yang dimaksud
+   berbeda).
 
-### 1. Clone Repository
+## Struktur Data
 
-Buka Terminal / Command Prompt / Git Bash, lalu jalankan perintah berikut untuk mengunduh kode dari GitHub:
+**Tabel `form_pengujian_infrastrukturs`** (header formulir):
+- `no_ref`, `tanggal`, `business_area`
+- `tanggal_pengujian`, `objek_pengujian`, `pelaksana_pengujian`
+- `deskripsi_pengujian` (bagian I)
+- `analisa_kesimpulan` (bagian "Analisa Hasil dan Kesimpulan")
+- `kota_tanggal`, `mengetahui_nama`, `mengetahui_jabatan` (blok tanda tangan)
 
-```bash
-git clone https://github.com/Hamid165/formulir-kai.git
-```
+**Tabel `form_pengujian_infrastruktur_items`** (baris tabel "Analisa & Tindak
+Lanjut", relasi `hasMany` ke header):
+- `no`, `rencana_pengujian`, `hasil` (`OK` / `Not OK`), `keterangan`
 
-### 2. Masuk ke Folder Project
+## Fitur
 
-Arahkan terminal ke dalam folder *project* yang baru saja diunduh:
+- CRUD lengkap (index, create, edit, show, delete) mengikuti pola & gaya
+  visual modul lain (kop surat KAI, kategori berwarna, tombol aksi, dsb).
+- Tabel "Rencana Pengujian" dengan baris dinamis (tambah/hapus baris via
+  tombol **+ Tambah Baris**), mengikuti pola yang dipakai pada modul CCTV.
+- Halaman *show* menggunakan ulang `form.blade.php` dalam mode baca-saja
+  (read-only), sama seperti modul IT Business Request.
 
-```bash
-cd formulir-kai
-```
+## Catatan / Asumsi
 
-### 3. Install Dependencies PHP (Composer)
-
-Jalankan perintah ini untuk menginstal semua *library* PHP yang dibutuhkan Laravel:
-
-```bash
-composer install
-```
-
-### 4. Install Dependencies Node.js (NPM)
-
-Jalankan perintah ini untuk menginstal semua *library* frontend (seperti TailwindCSS, AlpineJS, dll):
-
-```bash
-npm install
-```
-
-### 5. Setup File Environment (.env)
-
-*Project* Laravel membutuhkan file `.env` untuk menyimpan konfigurasi (seperti koneksi database). Salin file bawaan `.env.example` dan ubah namanya menjadi `.env`.
-
-Jika Anda menggunakan Windows (Command Prompt / PowerShell), jalankan:
-
-```bash
-copy .env.example .env
-```
-
-*(Untuk Mac/Linux, gunakan perintah `cp .env.example .env`)*
-
-### 6. Generate Application Key
-
-Jalankan perintah ini untuk menghasilkan kunci keamanan unik untuk aplikasi Anda:
-
-```bash
-php artisan key:generate
-```
-
-### 7. Konfigurasi Database (Opsional/Jika Diperlukan)
-
-Buka file `.env` yang baru dibuat di *code editor* (seperti VS Code).
-Secara default, Laravel menggunakan database `sqlite` atau `mysql`. Jika Anda menggunakan XAMPP/MySQL, pastikan pengaturan database Anda sudah benar:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=nama_database_anda
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-*(Jangan lupa buat database kosong dengan nama yang sesuai di phpMyAdmin sebelum lanjut ke langkah 8)*
-
-### 8. Jalankan Migrasi Database
-
-Jalankan perintah ini untuk membuat tabel-tabel yang dibutuhkan di dalam database:
-
-```bash
-php artisan migrate
-```
-
-*(Tambahkan `--seed` jika Anda memiliki data awalan/dummy: `php artisan migrate --seed`)*
-
----
-
-## Menjalankan Aplikasi
-
-Untuk menjalankan aplikasi ini secara lokal, Anda perlu **membuka 2 terminal yang berbeda** (karena backend PHP dan frontend aset berjalan secara bersamaan).
-
-**Terminal 1 (Menjalankan Server PHP):**
-Pastikan Anda berada di folder `formulir-kai`, lalu jalankan:
-
-```bash
-php artisan serve
-```
-
-*Aplikasi bisa diakses melalui browser di alamat: `http://127.0.0.1:8000`*
-
-**Terminal 2 (Menjalankan Vite/Frontend):**
-Buka tab terminal baru (pastikan juga berada di folder `formulir-kai`), lalu jalankan:
-
-```bash
-npm run dev
-```
-
-*Proses ini wajib dibiarkan berjalan agar CSS (Tailwind) dan JavaScript Anda ter-compile dengan baik setiap ada perubahan.*
-
----
-
-🎉 **Selesai!** Aplikasi sudah siap digunakan dan dikembangkan lebih lanjut.
+- Kategori formulir di-set ke **Terbatas** secara default (nomor dokumen,
+  tanggal, dan versi mengikuti data pada template gambar Anda:
+  `FR.SM/TI/025.002/10-2020`, 12 Oktober 2020, versi 002-2020). Silakan
+  sesuaikan bila kategori aslinya berbeda.
+- Field "Pelaksana Pengujian" digunakan baik pada bagian atas formulir
+  maupun pada blok tanda tangan bawah (nama yang sama).
