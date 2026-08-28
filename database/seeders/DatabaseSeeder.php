@@ -90,6 +90,18 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        // Seeder untuk Form Secure Operation Incident
+        if (!\App\Models\FormTemplate::where('nama', 'Secure Operation Incident')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Secure Operation Incident',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-secure-operation.index',
+                'no_dokumen' => 'FR.IK/TI/006.03/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
         $this->call([
             MasterPerangkatSeeder::class,
             MasterSignerSeeder::class,

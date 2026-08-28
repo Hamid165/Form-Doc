@@ -15,12 +15,15 @@ use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
 use App\Http\Controllers\FormPemeliharaanAc\FormPemeliharaanAcController;
 use App\Http\Controllers\FormPemeliharaanAc\MasterAcController;
 use App\Http\Controllers\FormItBusinessRequest\FormItBusinessRequestController;
+use App\Http\Controllers\FormSecureOperation\FormSecureOperationController;
+use App\Http\Controllers\FormSecureOperation\MasterSignerSecureController; 
+
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
 Route::get('/', function () {
     $totalKategori = 1; // Dummy untuk saat ini
-    $totalJenisFormulir = 7; // CCTV, Hak Akses, Pemeliharaan Jaringan, Stock Opname, AC, IT Business Request, Availability
+    $totalJenisFormulir = 9; // CCTV, Hak Akses, Pemeliharaan Jaringan, Stock Opname, AC, IT Business Request, Availability
 
     $totalFormulirBulanIni =
             \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
@@ -39,6 +42,9 @@ Route::get('/', function () {
                 ->whereYear('created_at', date('Y'))
                 ->count()
             + \App\Models\FormItBusinessRequest\FormItBusinessRequest::whereMonth('created_at', date('m'))
+                ->whereYear('created_at', date('Y'))
+                ->count()
+            + \App\Models\FormSecureOperation\SecureOperationIncident::whereMonth('created_at', date('m'))
                 ->whereYear('created_at', date('Y'))
                 ->count()
             + \App\Models\FormAvailability\FormAvailability::whereMonth('created_at', date('m'))
@@ -91,7 +97,12 @@ Route::get('/', function () {
             $item->title = "Availability Ticketing - {$item->no_ref}";
             return $item;
         }))
-
+        ->concat(\App\Models\FormSecureOperation\SecureOperationIncident::latest()->take(5)->get()->map(function ($item) {
+            $item->type = 'Secure Operation Incident';
+            $item->route = route('form-secure-operation.show', $item->id);
+            $item->title = "Secure Operation Incident - {$item->no_ref}";
+            return $item;
+        }))
 
         ->sortByDesc('created_at')
         ->take(5);
@@ -142,8 +153,11 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
 
         } elseif ($template->nama === 'Availability System Ticketing') {
             $total = \App\Models\FormAvailability\FormAvailability::count();
+        
+        } elseif ($template->nama === 'Secure Operation Incident') {
+            $total = \App\Models\FormSecureOperation\SecureOperationIncident::count();
         }
-
+        
         $formulirs->push([
             'id' => $template->id,
             'nama' => $template->nama,
@@ -298,3 +312,17 @@ Route::resource(
     'form-availability',
     FormAvailabilityController::class
 );
+
+// ==============================================================
+// ROUTES FORMULIR SECURE OPERATION INCIDENT
+// ==============================================================
+Route::resource('form-secure-operation', \App\Http\Controllers\FormSecureOperation\FormSecureOperationController::class);
+
+// ==============================================================
+// JALUR BYPASS UNTUK MASTER SIGNER (MURNI POST)
+// ==============================================================
+Route::post('/data-penandatangan/simpan', [App\Http\Controllers\FormSecureOperation\MasterSignerSecureController::class, 'store'])->name('signer.baru');
+
+Route::post('/data-penandatangan/ubah/{id}', [App\Http\Controllers\FormSecureOperation\MasterSignerSecureController::class, 'update'])->name('signer.ubah');
+
+Route::post('/data-penandatangan/buang/{id}', [App\Http\Controllers\FormSecureOperation\MasterSignerSecureController::class, 'destroy'])->name('signer.buang');
