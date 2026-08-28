@@ -93,6 +93,17 @@ class DatabaseSeeder extends Seeder
                 'versi_dokumen' => '001-2026',
             ]);
         }
+        
+        if (!\App\Models\FormTemplate::where('nama', 'Monitoring CCTV')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Monitoring CCTV',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-monitoring-cctv.index',
+                'no_dokumen' => 'FR.SM/TI/015.014/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
 
         if (!\App\Models\FormTemplate::where('nama', 'Formulir Checklist Pemantauan APAR')->exists()) {
             \App\Models\FormTemplate::create([
