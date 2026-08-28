@@ -68,6 +68,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+<<<<<<< Updated upstream
         if (!\App\Models\FormTemplate::where('nama', 'Formulir IT Business Request')->exists()) {
             \App\Models\FormTemplate::create([
                 'nama' => 'Formulir IT Business Request',
@@ -79,11 +80,14 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+=======
+>>>>>>> Stashed changes
         if (!\App\Models\FormTemplate::where('nama', 'Berita Acara Stock Opname')->exists()) {
             \App\Models\FormTemplate::create([
                 'nama' => 'Berita Acara Stock Opname',
                 'kategori' => 'Terbatas',
                 'route_name' => 'form-ba-stock-opname.index',
+<<<<<<< Updated upstream
                 'no_dokumen' => 'FR.SM/TI/011.010/04-2026',
                 'tanggal_dokumen' => '13 April 2026',
                 'versi_dokumen' => '001-2026',
@@ -120,6 +124,22 @@ class DatabaseSeeder extends Seeder
                 'no_dokumen' => 'FR.SM/TI/025.002/10-2020',
                 'tanggal_dokumen' => '12 Oktober 2020',
                 'versi_dokumen' => '002-2020',
+=======
+                'no_dokumen' => 'FR.SM/TI/011.010/04-2021',
+                'tanggal_dokumen' => '13 April 2021',
+                'versi_dokumen' => '001-2021',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Berita Acara Serah Terima Barang')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Berita Acara Serah Terima Barang',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-berita-acara-serah-terima-barang.index',
+                'no_dokumen' => 'FR.SM/TI/011.002/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '02-2020',
+>>>>>>> Stashed changes
             ]);
         }
 

@@ -12,6 +12,7 @@ use App\Http\Controllers\FormPemeliharaan\MasterPerangkatController;
 use App\Http\Controllers\FormAvailability\FormAvailabilityController;
 use App\Http\Controllers\FormBaStockOpname\BaStockOpnameController;
 use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
+<<<<<<< Updated upstream
 use App\Http\Controllers\FormPemeliharaanAc\FormPemeliharaanAcController;
 use App\Http\Controllers\FormPemeliharaanAc\MasterAcController;
 use App\Http\Controllers\FormItBusinessRequest\FormItBusinessRequestController;
@@ -28,11 +29,16 @@ use App\Http\Controllers\FormSerahTerimaUser\MasterSerahTerimaUserController;
 use App\Http\Controllers\FormPemeliharaanUps\FormPemeliharaanUpsController;
 use App\Http\Controllers\FormPemeliharaanUps\MasterUpsController;
 use App\Http\Controllers\FormTemplateController;
+=======
+use App\Http\Controllers\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarangController;
+use App\Http\Controllers\FormBeritaAcaraSerahTerimaBarang\MasterBeritaAcaraSerahTerimaBarangController;
+>>>>>>> Stashed changes
 
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
 Route::get('/', function () {
+<<<<<<< Updated upstream
     $totalKategori = 1; // Dummy untuk saat ini
     $totalJenisFormulir = 10; // CCTV, Hak Akses, Pemeliharaan Jaringan, Stock Opname, AC, IT Business Request, Availability, Pengujian Infrastruktur, Serah Terima User, UPS
 
@@ -67,6 +73,28 @@ Route::get('/', function () {
         + \App\Models\FormPemeliharaanUps\FormPemeliharaanUps::whereMonth('created_at', date('m'))
             ->whereYear('created_at', date('Y'))
             ->count();
+=======
+    // Diperbarui menjadi 4 kategori formulir
+    $totalKategori = 1;
+    $totalJenisFormulir = 5; // CCTV, Hak Akses, Pemeliharaan, BA Stock Opname, Berita Acara Serah Terima Barang
+
+    // PERBAIKAN: Menambahkan perhitungan BA Stock Opname + BAST Barang
+    $totalFormulirBulanIni = \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
+                                ->whereYear('created_at', date('Y'))
+                                ->count()
+                            + \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::whereMonth('created_at', date('m'))
+                                ->whereYear('created_at', date('Y'))
+                                ->count()
+                            + \App\Models\FormPemeliharaan\FormPemeliharaan::whereMonth('created_at', date('m'))
+                                ->whereYear('created_at', date('Y'))
+                                ->count()
+                            + \App\Models\FormBaStockOpname\BaStockOpname::whereMonth('created_at', date('m'))
+                                ->whereYear('created_at', date('Y'))
+                                ->count()
+                            + \App\Models\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarang::whereMonth('created_at', date('m'))
+                                ->whereYear('created_at', date('Y'))
+                                ->count();
+>>>>>>> Stashed changes
 
     $totalPengguna = 2; // Dummy: Pitra, Hamid (sebelum ada auth)
 
@@ -95,6 +123,7 @@ Route::get('/', function () {
             $item->title = "BA Stock Opname - {$item->no_ref}";
             return $item;
         }))
+<<<<<<< Updated upstream
         ->concat(\App\Models\FormPemeliharaanAc\FormPemeliharaanAc::latest()->take(5)->get()->map(function ($item) {
             $item->type = 'Pemeliharaan AC';
             $item->route = route('form-pemeliharaan-ac.show', $item->id);
@@ -129,6 +158,12 @@ Route::get('/', function () {
             $item->type = 'Checklist Pemeliharaan UPS';
             $item->route = route('form-pemeliharaan-ups.show', $item->id);
             $item->title = "Pemeliharaan UPS - {$item->nomor_inventaris}";
+=======
+        ->concat(\App\Models\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarang::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Berita Acara Serah Terima Barang';
+            $item->route = route('form-berita-acara-serah-terima-barang.show', $item->id);
+            $item->title = "Berita Acara Serah Terima Barang - {$item->no_ref}";
+>>>>>>> Stashed changes
             return $item;
         }))
         ->sortByDesc('created_at')
@@ -193,6 +228,9 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
 
         } elseif ($template->nama === 'Checklist Pemeliharaan UPS') {
             $total = \App\Models\FormPemeliharaanUps\FormPemeliharaanUps::count();
+        }
+        elseif ($template->nama === 'Berita Acara Serah Terima Barang' || str_contains($template->nama, 'Serah Terima')) {
+            $total = \App\Models\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarang::count();
         }
 
         $formulirs->push([
@@ -280,6 +318,7 @@ Route::resource('master-bastock', MasterBAStockController::class)->only(['store'
 
 
 // ==============================================================
+<<<<<<< Updated upstream
 // ROUTES FORMULIR CHECKLIST PEMELIHARAAN AC
 // ==============================================================
 Route::post('form-pemeliharaan-ac/parse-excel', [FormPemeliharaanAcController::class, 'parseExcel'])->name('form-pemeliharaan-ac.parse-excel');
@@ -369,3 +408,13 @@ Route::resource('form-pemeliharaan-ups', FormPemeliharaanUpsController::class);
 Route::post('master-ups/import', [MasterUpsController::class, 'import'])->name('master-ups.import');
 Route::get('master-ups/template', [MasterUpsController::class, 'downloadTemplate'])->name('master-ups.template');
 Route::resource('master-ups', MasterUpsController::class)->only(['store', 'update', 'destroy']);
+=======
+// ROUTES FORMULIR BERITA ACARA SERAH TERIMA BARANG
+// ==============================================================
+Route::resource('form-berita-acara-serah-terima-barang', BeritaAcaraSerahTerimaBarangController::class)->parameters([
+    'form-berita-acara-serah-terima-barang' => 'barang'
+]);
+Route::resource('master-berita-acara-serah-terima-barang', MasterBeritaAcaraSerahTerimaBarangController::class)->only(['store', 'update', 'destroy'])->parameters([
+    'master-berita-acara-serah-terima-barang' => 'master'
+]);
+>>>>>>> Stashed changes
