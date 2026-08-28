@@ -51,9 +51,9 @@
                             PT KERETA API INDONESIA (PERSERO)<br>SISTEM INFORMASI
                         </td>
                         <td style="width: 12%;">Nomor</td>
-                        <td style="width: 23%;">FR.SM/TI/011.010/04-2021</td>
+                        <td style="width: 23%;">{{ $template->no_dokumen ?? '' }}</td>
                     </tr>
-                    <tr><td>Tanggal</td><td>13 April 2021</td></tr>
+                    <tr><td>Tanggal</td><td>{{ $template->tanggal_dokumen ?? '' }}</td></tr>
                     <tr>
                         <td rowspan="2" style="text-align: center; padding: 10px;">
                             <div style="border: 2px solid #eadc04; color: #eadc04; font-weight: bold; font-size: 14px; padding: 6px 12px; display: inline-block;">TERBATAS</div>
@@ -61,7 +61,7 @@
                         <td rowspan="2" style="text-align: center; font-weight: bold; font-size: 12px;">
                             FORMULIR BERITA ACARA<br>STOCK OPNAME ASET TEKNOLOGI INFORMASI
                         </td>
-                        <td>Versi</td><td>001-2021</td>
+                        <td>Versi</td><td>{{ $template->versi_dokumen ?? '' }}</td>
                     </tr>
                     <tr><td>Halaman</td><td>1 dari 2</td></tr>
                 </table>
@@ -182,9 +182,9 @@
                             PT KERETA API INDONESIA (PERSERO)<br>SISTEM INFORMASI
                         </td>
                         <td style="width: 12%;">Nomor</td>
-                        <td style="width: 23%;">FR.SM/TI/011.010/04-2021</td>
+                        <td style="width: 23%;">{{ $template->no_dokumen ?? '' }}</td>
                     </tr>
-                    <tr><td>Tanggal</td><td>13 April 2021</td></tr>
+                    <tr><td>Tanggal</td><td>{{ $template->tanggal_dokumen ?? '' }}</td></tr>
                     <tr>
                         <td rowspan="2" style="text-align: center; padding: 10px;">
                             <div style="border: 2px solid #eadc04; color: #eadc04; font-weight: bold; font-size: 14px; padding: 6px 12px; display: inline-block;">TERBATAS</div>
@@ -192,7 +192,7 @@
                         <td rowspan="2" style="text-align: center; font-weight: bold; font-size: 12px;">
                             FORMULIR BERITA ACARA<br>STOCK OPNAME ASET TEKNOLOGI INFORMASI
                         </td>
-                        <td>Versi</td><td>001-2021</td>
+                        <td>Versi</td><td>{{ $template->versi_dokumen ?? '' }}</td>
                     </tr>
                     <tr><td>Halaman</td><td>2 dari 2</td></tr>
                 </table>

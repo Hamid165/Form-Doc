@@ -15,40 +15,46 @@ use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
 use App\Http\Controllers\FormPemeliharaanAc\FormPemeliharaanAcController;
 use App\Http\Controllers\FormPemeliharaanAc\MasterAcController;
 use App\Http\Controllers\FormItBusinessRequest\FormItBusinessRequestController;
+use App\Http\Controllers\FormApar\FormAparController;
+use App\Http\Controllers\FormApar\MasterAparController;
+use App\Http\Controllers\FormApar\MasterVendorController;
+use App\Http\Controllers\FormApar\AparHistoryController;
+use App\Http\Controllers\FormApar\MasterSignerController as MasterSignerAparController;
+use App\Http\Controllers\FormPengujianInfrastruktur\FormPengujianInfrastrukturController;
+use App\Http\Controllers\FormKeluarMasukBarangDcDrc\FormKeluarMasukBarangDcDrcController;
+use App\Http\Controllers\FormKeluarMasukBarangDcDrc\MasterSignerFormKeluarMasukBarangDcDrcController;
+use App\Http\Controllers\FormSerahTerimaUser\FormSerahTerimaUserController;
+use App\Http\Controllers\FormSerahTerimaUser\MasterSerahTerimaUserController;
+use App\Http\Controllers\FormPemeliharaanUps\FormPemeliharaanUpsController;
+use App\Http\Controllers\FormPemeliharaanUps\MasterUpsController;
+use App\Http\Controllers\FormTemplateController;
+use App\Http\Controllers\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarangController;
+use App\Http\Controllers\FormBeritaAcaraSerahTerimaBarang\MasterBeritaAcaraSerahTerimaBarangController;
+use App\Http\Controllers\FormMonitoringCCTV\FormMonitoringCCTVController;
 
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
 Route::get('/', function () {
-    $totalKategori = 1; // Dummy untuk saat ini
-    $totalJenisFormulir = 7; // CCTV, Hak Akses, Pemeliharaan Jaringan, Stock Opname, AC, IT Business Request, Availability
+    $totalKategori = 1; 
+    $totalJenisFormulir = 12; // CCTV, Hak Akses, Pemeliharaan Jaringan, Stock Opname, AC, IT Biz, Availability, Pengujian, Serah Terima User, UPS, Serah Terima Barang, Monitoring CCTV
 
     $totalFormulirBulanIni =
-            \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
-                ->whereYear('created_at', date('Y'))
-                ->count()
-            + \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::whereMonth('created_at', date('m'))
-                ->whereYear('created_at', date('Y'))
-                ->count()
-            + \App\Models\FormPemeliharaan\FormPemeliharaan::whereMonth('created_at', date('m'))
-                ->whereYear('created_at', date('Y'))
-                ->count()
-            + \App\Models\FormBaStockOpname\BaStockOpname::whereMonth('created_at', date('m'))
-                ->whereYear('created_at', date('Y'))
-                ->count()
-            + \App\Models\FormPemeliharaanAc\FormPemeliharaanAc::whereMonth('created_at', date('m'))
-                ->whereYear('created_at', date('Y'))
-                ->count()
-            + \App\Models\FormItBusinessRequest\FormItBusinessRequest::whereMonth('created_at', date('m'))
-                ->whereYear('created_at', date('Y'))
-                ->count()
-            + \App\Models\FormAvailability\FormAvailability::whereMonth('created_at', date('m'))
-                ->whereYear('created_at', date('Y'))
-                ->count();
+        \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormPemeliharaan\FormPemeliharaan::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormBaStockOpname\BaStockOpname::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormPemeliharaanAc\FormPemeliharaanAc::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormItBusinessRequest\FormItBusinessRequest::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormAvailability\FormAvailability::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormPengujianInfrastruktur\FormPengujianInfrastruktur::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormSerahTerimaUser\FormSerahTerimaUser::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormPemeliharaanUps\FormPemeliharaanUps::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarang::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormMonitoringCCTV\FormMonitoringCCTV::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count();
 
     $totalPengguna = 2; // Dummy: Pitra, Hamid (sebelum ada auth)
 
-    // PERBAIKAN: Memasukkan data BA Stock Opname, Pemeliharaan AC, dan IT Business Request ke aktivitas terbaru
     $recentForms = collect()
         ->concat(\App\Models\FormCctv\FormCctv::latest()->take(5)->get()->map(function($item) {
             $item->type = 'CCTV';
@@ -92,16 +98,42 @@ Route::get('/', function () {
             $item->title = "Availability Ticketing - {$item->no_ref}";
             return $item;
         }))
-
-
+        ->concat(\App\Models\FormPengujianInfrastruktur\FormPengujianInfrastruktur::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Pengujian Infrastruktur';
+            $item->route = route('form-pengujian-infrastruktur.show', $item->id);
+            $item->title = "Pengujian Infrastruktur - {$item->objek_pengujian}";
+            return $item;
+        }))
+        ->concat(\App\Models\FormSerahTerimaUser\FormSerahTerimaUser::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Serah Terima User Aplikasi';
+            $item->route = route('form-serah-terima-user.show', $item->id);
+            $item->title = "Serah Terima - {$item->nama_penerima}";
+            return $item;
+        }))
+        ->concat(\App\Models\FormPemeliharaanUps\FormPemeliharaanUps::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Checklist Pemeliharaan UPS';
+            $item->route = route('form-pemeliharaan-ups.show', $item->id);
+            $item->title = "Pemeliharaan UPS - {$item->nomor_inventaris}";
+            return $item;
+        }))
+        ->concat(\App\Models\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarang::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Berita Acara Serah Terima Barang';
+            $item->route = route('form-berita-acara-serah-terima-barang.show', $item->id);
+            $item->title = "Berita Acara Serah Terima Barang - {$item->no_ref}";
+            return $item;
+        }))
+        ->concat(\App\Models\FormMonitoringCCTV\FormMonitoringCCTV::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Monitoring CCTV';
+            $item->route = route('form-monitoring-cctv.show', $item->id);
+            $item->title = "Monitoring CCTV - {$item->no_ref}";
+            return $item;
+        }))
         ->sortByDesc('created_at')
         ->take(5);
 
     return view('dashboard', compact('totalKategori', 'totalJenisFormulir', 'totalFormulirBulanIni', 'totalPengguna', 'recentForms'));
 })->name('dashboard');
 
-
-use App\Http\Controllers\FormTemplateController;
 
 // ==============================================================
 // ROUTES KATALOG FORMULIR & TEMPLATE
@@ -119,30 +151,38 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
         $total = 0;
         if ($template->nama === 'Pemeliharaan CCTV') {
             $total = \App\Models\FormCctv\FormCctv::count();
-
         } elseif ($template->nama === 'Permohonan Pencabutan Hak Akses') {
             $total = \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::count();
-
         } elseif ($template->nama === 'Checklist Pemeliharaan Perangkat Jaringan') {
             $total = \App\Models\FormPemeliharaan\FormPemeliharaan::count();
-
         } elseif (
             $template->nama === 'Berita Acara Stock Opname'
             || str_contains($template->nama, 'Stock Opname')
         ) {
             $total = \App\Models\FormBaStockOpname\BaStockOpname::count();
-
         } elseif ($template->nama === 'Checklist Pemeliharaan AC') {
             $total = \App\Models\FormPemeliharaanAc\FormPemeliharaanAc::count();
-
         } elseif (
             $template->nama === 'Formulir IT Business Request'
             || str_contains($template->nama, 'Business Request')
         ) {
             $total = \App\Models\FormItBusinessRequest\FormItBusinessRequest::count();
-
         } elseif ($template->nama === 'Availability System Ticketing') {
             $total = \App\Models\FormAvailability\FormAvailability::count();
+        } elseif ($template->nama === 'Keluar/Masuk Barang DC/DRC') {
+            $total = \App\Models\FormKeluarMasukBarangDcDrc\FormKeluarMasukBarangDcDrc::count();
+        } elseif ($template->nama === 'Formulir Checklist Pemantauan APAR') {
+            $total = \App\Models\FormApar\FormApar::count();
+        } elseif ($template->nama === 'Formulir Pengujian Infrastruktur' || str_contains($template->nama, 'Pengujian Infrastruktur')) {
+            $total = \App\Models\FormPengujianInfrastruktur\FormPengujianInfrastruktur::count();
+        } elseif ($template->nama === 'Berita Acara Serah Terima User Aplikasi' || str_contains($template->nama, 'Serah Terima User')) {
+            $total = \App\Models\FormSerahTerimaUser\FormSerahTerimaUser::count();
+        } elseif ($template->nama === 'Checklist Pemeliharaan UPS') {
+            $total = \App\Models\FormPemeliharaanUps\FormPemeliharaanUps::count();
+        } elseif ($template->nama === 'Berita Acara Serah Terima Barang' || str_contains($template->nama, 'Serah Terima')) {
+            $total = \App\Models\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarang::count();
+        } elseif ($template->nama === 'Formulir Monitoring CCTV') {
+            $total = \App\Models\FormMonitoringCCTV\FormMonitoringCCTV::count();
         }
 
         $formulirs->push([
@@ -194,20 +234,9 @@ Route::get('master-cctv/template', [MasterCctvController::class, 'downloadTempla
 Route::resource('master-cctv', MasterCctvController::class)->only(['store', 'update', 'destroy']);
 
 // Master Data Penandatangan (Signer) CCTV
-Route::post(
-    'master-signer/import',
-    [MasterSignerController::class, 'import']
-)->name('master-signer.import');
-
-Route::get(
-    'master-signer/template',
-    [MasterSignerController::class, 'downloadTemplate']
-)->name('master-signer.template');
-
-Route::resource(
-    'master-signer',
-    MasterSignerController::class
-)->only(['store', 'update', 'destroy']);
+Route::post('master-signer/import', [MasterSignerController::class, 'import'])->name('master-signer.import');
+Route::get('master-signer/template', [MasterSignerController::class, 'downloadTemplate'])->name('master-signer.template');
+Route::resource('master-signer', MasterSignerController::class)->only(['store', 'update', 'destroy']);
 
 
 // ==============================================================
@@ -235,18 +264,17 @@ Route::resource('master-perangkat', MasterPerangkatController::class)->only(['st
 // ==============================================================
 // ROUTES FORMULIR BERITA ACARA STOCK OPNAME
 // ==============================================================
-
-// PERBAIKAN: Memindahkan Route Template ke ATAS Route Resource agar tidak terjadi 404
 Route::get('form-ba-stock-opname/template', [BaStockOpnameController::class, 'downloadTemplate'])->name('form-ba-stock-opname.template');
-
 Route::resource('form-ba-stock-opname', BaStockOpnameController::class);
 Route::resource('master-bastock', MasterBAStockController::class)->only(['store', 'update', 'destroy']);
+
 
 // ==============================================================
 // ROUTES FORMULIR RENCANA PELATIHAN PEGAWAI
 // ==============================================================
 Route::resource('form-rencana-pelatihan', \App\Http\Controllers\FormRencanaPelatihan\RencanaPelatihanController::class);
 Route::resource('master-penandatangan-rencana', \App\Http\Controllers\FormRencanaPelatihan\MasterPenandatanganRencanaController::class);
+
 
 // ==============================================================
 // ROUTES FORMULIR CHECKLIST PEMELIHARAAN AC
@@ -259,6 +287,7 @@ Route::post('master-ac/import', [MasterAcController::class, 'import'])->name('ma
 Route::get('master-ac/template', [MasterAcController::class, 'downloadTemplate'])->name('master-ac.template');
 Route::resource('master-ac', MasterAcController::class)->only(['store', 'update', 'destroy']);
 
+
 // ==============================================================
 // ROUTES FORMULIR IT BUSINESS REQUEST
 // ==============================================================
@@ -268,38 +297,99 @@ Route::resource('form-it-business-request', FormItBusinessRequestController::cla
 // ==============================================================
 // ROUTES FORMULIR AVAILABILITY SYSTEM TICKETING
 // ==============================================================
+Route::post('master-business-area', [FormAvailabilityController::class, 'storeBusinessArea'])->name('master-business-area.store');
+Route::put('master-business-area/{masterBusinessArea}', [FormAvailabilityController::class, 'updateBusinessArea'])->name('master-business-area.update');
+Route::delete('master-business-area/{masterBusinessArea}', [FormAvailabilityController::class, 'destroyBusinessArea'])->name('master-business-area.destroy');
+Route::get('api/business-areas', [FormAvailabilityController::class, 'getBusinessAreas'])->name('api.business-areas');
+Route::patch('form-availability/{form_availability}/confirm', [FormAvailabilityController::class, 'confirm'])->name('form-availability.confirm');
+Route::get('form-availability/{form_availability}/excel', [FormAvailabilityController::class, 'exportExcel'])->name('form-availability.excel');
+Route::resource('form-availability', FormAvailabilityController::class);
 
-Route::post(
-    'master-business-area',
-    [FormAvailabilityController::class, 'storeBusinessArea']
-)->name('master-business-area.store');
 
-Route::put(
-    'master-business-area/{masterBusinessArea}',
-    [FormAvailabilityController::class, 'updateBusinessArea']
-)->name('master-business-area.update');
+// =============================================================
+// ROUTES FORMULIR CHECKLIST PEMANTAUAN APAR
+// =============================================================
+Route::patch('form-apar/{form_apar}/confirm', [FormAparController::class, 'confirm'])->name('form-apar.confirm');
+Route::resource('form-apar', FormAparController::class);
 
-Route::delete(
-    'master-business-area/{masterBusinessArea}',
-    [FormAvailabilityController::class, 'destroyBusinessArea']
-)->name('master-business-area.destroy');
+// Master Data APAR
+Route::post('master-apar/import', [MasterAparController::class, 'import'])->name('master-apar.import');
+Route::get('master-apar/template', [MasterAparController::class, 'downloadTemplate'])->name('master-apar.template');
+Route::get('master-apar/{master_apar}/info', [MasterAparController::class, 'getInfo'])->name('master-apar.info');
+Route::post('master-apar/{master_apar}/ganti-tabung', [MasterAparController::class, 'replaceCylinder'])->name('master-apar.ganti-tabung');
+Route::resource('master-apar', MasterAparController::class)->only(['store', 'update', 'destroy']);
+Route::post('master-apar/{master_apar}/aktifkan', [MasterAparController::class, 'reactivate'])->name('master-apar.aktifkan');
 
-Route::get(
-    'api/business-areas',
-    [FormAvailabilityController::class, 'getBusinessAreas']
-)->name('api.business-areas');
+// Master Vendor & History APAR
+Route::resource('master-vendor', MasterVendorController::class)->only(['store', 'update', 'destroy']);
+Route::resource('apar-history', AparHistoryController::class)->only(['store', 'update', 'destroy']);
+Route::resource('master-signer', MasterSignerAparController::class)->only(['store', 'update', 'destroy']);
 
-Route::patch(
-    'form-availability/{form_availability}/confirm',
-    [FormAvailabilityController::class, 'confirm']
-)->name('form-availability.confirm');
 
-Route::get(
-    'form-availability/{form_availability}/excel',
-    [FormAvailabilityController::class, 'exportExcel']
-)->name('form-availability.excel');
+// ==============================================================
+// ROUTES FORMULIR KELUAR MASUK BARANG DC DRC
+// ==============================================================
+Route::post('form-keluar-masuk-barang-dc-drc/parse-excel', [FormKeluarMasukBarangDcDrcController::class, 'parseExcel'])->name('form-keluar-masuk-barang-dc-drc.parse-excel');
+Route::get('form-keluar-masuk-barang-dc-drc/template-items', [FormKeluarMasukBarangDcDrcController::class, 'downloadTemplateItems'])->name('form-keluar-masuk-barang-dc-drc.template-items');
+Route::get('form-keluar-masuk-barang-dc-drc/download-template', [FormKeluarMasukBarangDcDrcController::class, 'downloadTemplateItems'])->name('form-keluar-masuk-barang-dc-drc.download-template');
+Route::resource('form-keluar-masuk-barang-dc-drc', FormKeluarMasukBarangDcDrcController::class);
 
-Route::resource(
-    'form-availability',
-    FormAvailabilityController::class
-);
+// Master Signer untuk Form Keluar Masuk Barang DC DRC
+Route::post('form-keluar-masuk-barang-dc-drc/master-signer', [MasterSignerFormKeluarMasukBarangDcDrcController::class, 'store'])->name('form-keluar-masuk-barang-dc-drc.master-signer.store');
+Route::put('form-keluar-masuk-barang-dc-drc/master-signer/{id}', [MasterSignerFormKeluarMasukBarangDcDrcController::class, 'update'])->name('form-keluar-masuk-barang-dc-drc.master-signer.update');
+Route::delete('form-keluar-masuk-barang-dc-drc/master-signer/{id}', [MasterSignerFormKeluarMasukBarangDcDrcController::class, 'destroy'])->name('form-keluar-masuk-barang-dc-drc.master-signer.destroy');
+
+
+// ==============================================================
+// ROUTES FORMULIR PENGUJIAN INFRASTRUKTUR
+// ==============================================================
+Route::resource('form-pengujian-infrastruktur', FormPengujianInfrastrukturController::class);
+
+
+// ==============================================================
+// ROUTES FORMULIR BERITA ACARA SERAH TERIMA USER APLIKASI
+// ==============================================================
+Route::get('form-serah-terima-user/{form_serah_terima_user}/preview', [FormSerahTerimaUserController::class, 'preview'])->name('form-serah-terima-user.preview');
+Route::resource('form-serah-terima-user', FormSerahTerimaUserController::class);
+Route::resource('master-serah-terima-user', MasterSerahTerimaUserController::class)->only(['store', 'update', 'destroy']);
+
+
+// ==============================================================
+// ROUTES FORMULIR CHECKLIST PEMELIHARAAN UPS
+// ==============================================================
+Route::post('form-pemeliharaan-ups/parse-excel', [FormPemeliharaanUpsController::class, 'parseExcel'])
+    ->name('form-pemeliharaan-ups.parse-excel');
+Route::get('form-pemeliharaan-ups/template-items', [FormPemeliharaanUpsController::class, 'downloadTemplateItems'])
+    ->name('form-pemeliharaan-ups.template-items');
+Route::resource('form-pemeliharaan-ups', FormPemeliharaanUpsController::class);
+
+Route::post('master-ups/import', [MasterUpsController::class, 'import'])->name('master-ups.import');
+Route::get('master-ups/template', [MasterUpsController::class, 'downloadTemplate'])->name('master-ups.template');
+Route::resource('master-ups', MasterUpsController::class)->only(['store', 'update', 'destroy']);
+
+
+// ==============================================================
+// ROUTES FORMULIR BERITA ACARA SERAH TERIMA BARANG
+// ==============================================================
+Route::resource('form-berita-acara-serah-terima-barang', BeritaAcaraSerahTerimaBarangController::class)->parameters([
+    'form-berita-acara-serah-terima-barang' => 'barang'
+]);
+Route::resource('master-berita-acara-serah-terima-barang', MasterBeritaAcaraSerahTerimaBarangController::class)->only(['store', 'update', 'destroy'])->parameters([
+    'master-berita-acara-serah-terima-barang' => 'master'
+]);
+
+
+// ==============================================================
+// ROUTES FORMULIR MONITORING CCTV 
+// ==============================================================
+Route::resource('form-monitoring-cctv', FormMonitoringCCTVController::class);
+Route::get('/form-monitoring-cctv/{id}/print', [FormMonitoringCCTVController::class, 'print'])->name('form-monitoring-cctv.print');
+Route::post('/form-monitoring-cctv/petugas', [FormMonitoringCCTVController::class, 'storePetugas'])->name('form-monitoring-cctv.store-petugas');
+Route::post('/form-monitoring-cctv/cctv', [FormMonitoringCCTVController::class, 'storeCctv'])->name('form-monitoring-cctv.store-cctv');
+Route::put('/form-monitoring-cctv/cctv/{id}', [FormMonitoringCCTVController::class, 'updateCctv'])->name('form-monitoring-cctv.update-cctv');
+Route::delete('/form-monitoring-cctv/cctv/{id}', [FormMonitoringCCTVController::class, 'destroyCctv'])->name('form-monitoring-cctv.destroy-cctv');
+Route::post('/form-monitoring-cctv/penandatangan', [FormMonitoringCCTVController::class, 'storeSigner'])->name('form-monitoring-cctv.store-signer');
+Route::put('/form-monitoring-cctv/petugas/{id}', [FormMonitoringCCTVController::class, 'updatePetugas'])->name('form-monitoring-cctv.update-petugas');
+Route::delete('/form-monitoring-cctv/petugas/{id}', [FormMonitoringCCTVController::class, 'destroyPetugas'])->name('form-monitoring-cctv.destroy-petugas');
+Route::put('/form-monitoring-cctv/signer/{id}', [FormMonitoringCCTVController::class, 'updateSigner'])->name('form-monitoring-cctv.update-signer');
+Route::delete('/form-monitoring-cctv/signer/{id}', [FormMonitoringCCTVController::class, 'destroySigner'])->name('form-monitoring-cctv.destroy-signer');
