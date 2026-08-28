@@ -6,5 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class MasterCctv extends Model
 {
-    protected $fillable = ['id_cctv', 'lokasi'];
+    protected $fillable = [
+        'id_cctv',
+        'lokasi'
+    ];
 }
