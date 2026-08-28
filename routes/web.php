@@ -11,6 +11,8 @@ use App\Http\Controllers\FormPemeliharaan\FormPemeliharaanController;
 use App\Http\Controllers\FormPemeliharaan\MasterPerangkatController;
 use App\Http\Controllers\FormBaStockOpname\BaStockOpnameController;
 use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
+use App\Http\Controllers\FormMonitoringGrounding\FormMonitoringGroundingController;
+use App\Http\Controllers\FormPcLaptopChecking\FormPcLaptopCheckingController;
 
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
@@ -18,7 +20,7 @@ use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
 Route::get('/', function () {
     // Diperbarui menjadi 4 kategori formulir
     $totalKategori = 1;
-    $totalJenisFormulir = 4; // CCTV, Hak Akses, Pemeliharaan, BA Stock Opname
+    $totalJenisFormulir = 6; // CCTV, Hak Akses, Pemeliharaan, BA Stock Opname, Monitoring Grounding, PC/Laptop Checking
 
     // PERBAIKAN: Menambahkan perhitungan BA Stock Opname
     $totalFormulirBulanIni = \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
@@ -31,6 +33,12 @@ Route::get('/', function () {
                                 ->whereYear('created_at', date('Y'))
                                 ->count()
                             + \App\Models\FormBaStockOpname\BaStockOpname::whereMonth('created_at', date('m'))
+                                ->whereYear('created_at', date('Y'))
+                                ->count()
+                            + \App\Models\FormMonitoringGrounding\FormMonitoringGrounding::whereMonth('created_at', date('m'))
+                                ->whereYear('created_at', date('Y'))
+                                ->count()
+                            + \App\Models\FormPcLaptopChecking\FormPcLaptopChecking::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
                                 ->count();
 
@@ -60,6 +68,18 @@ Route::get('/', function () {
             $item->type = 'Berita Acara Stock Opname';
             $item->route = route('form-ba-stock-opname.show', $item->id);
             $item->title = "BA Stock Opname - {$item->no_ref}";
+            return $item;
+        }))
+        ->concat(\App\Models\FormMonitoringGrounding\FormMonitoringGrounding::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Monitoring Grounding';
+            $item->route = route('form-monitoring-grounding.show', $item->id);
+            $item->title = "Monitoring Grounding - {$item->no_ref}";
+            return $item;
+        }))
+        ->concat(\App\Models\FormPcLaptopChecking\FormPcLaptopChecking::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'PC/Laptop Checking';
+            $item->route = route('form-pc-laptop-checking.show', $item->id);
+            $item->title = "PC/Laptop Checking - {$item->no_ref}";
             return $item;
         }))
         ->sortByDesc('created_at')
@@ -93,6 +113,12 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
         // PERBAIKAN: Menambahkan perhitungan khusus untuk Berita Acara Stock Opname
         elseif ($template->nama === 'Berita Acara Stock Opname' || str_contains($template->nama, 'Stock Opname')) {
             $total = \App\Models\FormBaStockOpname\BaStockOpname::count();
+        }
+        elseif ($template->nama === 'Monitoring Grounding' || str_contains($template->nama, 'Monitoring Grounding')) {
+            $total = \App\Models\FormMonitoringGrounding\FormMonitoringGrounding::count();
+        }
+        elseif ($template->nama === 'PC/Laptop Checking' || str_contains($template->nama, 'PC/Laptop Checking')) {
+            $total = \App\Models\FormPcLaptopChecking\FormPcLaptopChecking::count();
         }
 
         $formulirs->push([
@@ -176,3 +202,16 @@ Route::get('form-ba-stock-opname/template', [BaStockOpnameController::class, 'do
 
 Route::resource('form-ba-stock-opname', BaStockOpnameController::class);
 Route::resource('master-bastock', MasterBAStockController::class)->only(['store', 'update', 'destroy']);
+
+
+// ==============================================================
+// ROUTES FORMULIR MONITORING GROUNDING
+// ==============================================================
+Route::get('form-monitoring-grounding/{id}/export-excel', [FormMonitoringGroundingController::class, 'exportExcel'])->name('form-monitoring-grounding.export-excel');
+Route::resource('form-monitoring-grounding', FormMonitoringGroundingController::class);
+
+// ==============================================================
+// ROUTES FORMULIR PC/LAPTOP CHECKING
+// ==============================================================
+Route::get('form-pc-laptop-checking/{id}/export-excel', [FormPcLaptopCheckingController::class, 'exportExcel'])->name('form-pc-laptop-checking.export-excel');
+Route::resource('form-pc-laptop-checking', FormPcLaptopCheckingController::class);
