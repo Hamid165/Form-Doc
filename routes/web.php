@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\FormCctv\FormCctvController;
 use App\Http\Controllers\FormPencabutanHakAkses\FormPencabutanHakAksesController;
 use App\Http\Controllers\FormCctv\MasterCctvController;
@@ -17,6 +16,8 @@ use App\Http\Controllers\FormPcLaptopChecking\FormPcLaptopCheckingController;
 use App\Http\Controllers\FormPemeliharaanAc\FormPemeliharaanAcController;
 use App\Http\Controllers\FormPemeliharaanAc\MasterAcController;
 use App\Http\Controllers\FormItBusinessRequest\FormItBusinessRequestController;
+use App\Http\Controllers\FormSecureOperation\FormSecureOperationController;
+use App\Http\Controllers\FormSecureOperation\MasterSignerSecureController; 
 use App\Http\Controllers\FormApar\FormAparController;
 use App\Http\Controllers\FormApar\MasterAparController;
 use App\Http\Controllers\FormApar\MasterVendorController;
@@ -39,7 +40,7 @@ use App\Http\Controllers\FormMonitoringCCTV\FormMonitoringCCTVController;
 // ==============================================================
 Route::get('/', function () {
     $totalKategori = 1; 
-    $totalJenisFormulir = 14; // All modules
+    $totalJenisFormulir = 15; // All modules + Secure Operation
 
     $totalFormulirBulanIni =
         \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
@@ -49,6 +50,7 @@ Route::get('/', function () {
         + \App\Models\FormPemeliharaanAc\FormPemeliharaanAc::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
         + \App\Models\FormItBusinessRequest\FormItBusinessRequest::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
         + \App\Models\FormAvailability\FormAvailability::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormSecureOperation\SecureOperationIncident::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
         + \App\Models\FormPengujianInfrastruktur\FormPengujianInfrastruktur::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
         + \App\Models\FormSerahTerimaUser\FormSerahTerimaUser::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
         + \App\Models\FormPemeliharaanUps\FormPemeliharaanUps::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
@@ -100,6 +102,12 @@ Route::get('/', function () {
             $item->type = 'Availability System Ticketing';
             $item->route = route('form-availability.show', $item->id);
             $item->title = "Availability Ticketing - {$item->no_ref}";
+            return $item;
+        }))
+        ->concat(\App\Models\FormSecureOperation\SecureOperationIncident::latest()->take(5)->get()->map(function ($item) {
+            $item->type = 'Secure Operation Incident';
+            $item->route = route('form-secure-operation.show', $item->id);
+            $item->title = "Secure Operation Incident - {$item->no_ref}";
             return $item;
         }))
         ->concat(\App\Models\FormPengujianInfrastruktur\FormPengujianInfrastruktur::latest()->take(5)->get()->map(function($item) {
@@ -185,6 +193,8 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             $total = \App\Models\FormItBusinessRequest\FormItBusinessRequest::count();
         } elseif ($template->nama === 'Availability System Ticketing') {
             $total = \App\Models\FormAvailability\FormAvailability::count();
+        } elseif ($template->nama === 'Secure Operation Incident') {
+            $total = \App\Models\FormSecureOperation\SecureOperationIncident::count();
         } elseif ($template->nama === 'Keluar/Masuk Barang DC/DRC') {
             $total = \App\Models\FormKeluarMasukBarangDcDrc\FormKeluarMasukBarangDcDrc::count();
         } elseif ($template->nama === 'Formulir Checklist Pemantauan APAR') {
@@ -199,14 +209,12 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             $total = \App\Models\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarang::count();
         } elseif ($template->nama === 'Formulir Monitoring CCTV') {
             $total = \App\Models\FormMonitoringCCTV\FormMonitoringCCTV::count();
-        }
-        elseif ($template->nama === 'Monitoring Grounding' || str_contains($template->nama, 'Monitoring Grounding')) {
+        } elseif ($template->nama === 'Monitoring Grounding' || str_contains($template->nama, 'Monitoring Grounding')) {
             $total = \App\Models\FormMonitoringGrounding\FormMonitoringGrounding::count();
-        }
-        elseif ($template->nama === 'PC/Laptop Checking' || str_contains($template->nama, 'PC/Laptop Checking')) {
+        } elseif ($template->nama === 'PC/Laptop Checking' || str_contains($template->nama, 'PC/Laptop Checking')) {
             $total = \App\Models\FormPcLaptopChecking\FormPcLaptopChecking::count();
         }
-
+        
         $formulirs->push([
             'id' => $template->id,
             'nama' => $template->nama,
@@ -363,6 +371,19 @@ Route::delete('form-keluar-masuk-barang-dc-drc/master-signer/{id}', [MasterSigne
 
 
 // ==============================================================
+// ROUTES FORMULIR SECURE OPERATION INCIDENT
+// ==============================================================
+Route::resource('form-secure-operation', \App\Http\Controllers\FormSecureOperation\FormSecureOperationController::class);
+
+// ==============================================================
+// JALUR BYPASS UNTUK MASTER SIGNER (MURNI POST)
+// ==============================================================
+Route::post('/data-penandatangan/simpan', [App\Http\Controllers\FormSecureOperation\MasterSignerSecureController::class, 'store'])->name('signer.baru');
+Route::post('/data-penandatangan/ubah/{id}', [App\Http\Controllers\FormSecureOperation\MasterSignerSecureController::class, 'update'])->name('signer.ubah');
+Route::post('/data-penandatangan/buang/{id}', [App\Http\Controllers\FormSecureOperation\MasterSignerSecureController::class, 'destroy'])->name('signer.buang');
+
+
+// ==============================================================
 // ROUTES FORMULIR PENGUJIAN INFRASTRUKTUR
 // ==============================================================
 Route::resource('form-pengujian-infrastruktur', FormPengujianInfrastrukturController::class);
@@ -427,6 +448,7 @@ Route::resource('form-monitoring-grounding', FormMonitoringGroundingController::
 // ROUTES FORMULIR PC/LAPTOP CHECKING
 // ==============================================================
 Route::get('form-pc-laptop-checking/{id}/export-excel', [FormPcLaptopCheckingController::class, 'exportExcel'])->name('form-pc-laptop-checking.export-excel');
+<<<<<<< HEAD
 Route::resource('form-pc-laptop-checking', FormPcLaptopCheckingController::class);
 
 // ==============================================================
@@ -436,3 +458,6 @@ Route::resource('form-backup', FormBackupController::class);
 Route::post('/form-backup/master', [App\Http\Controllers\FormBackup\FormBackupController::class, 'storeMaster'])->name('form-backup.master.store');
 Route::delete('/form-backup/master/{id}', [App\Http\Controllers\FormBackup\FormBackupController::class, 'destroyMaster'])->name('form-backup.master.destroy');
 Route::put('/form-backup/master/{id}', [App\Http\Controllers\FormBackup\FormBackupController::class, 'updateMaster'])->name('form-backup.master.update');
+=======
+Route::resource('form-pc-laptop-checking', FormPcLaptopCheckingController::class);
+>>>>>>> fa4ce655d0eb80e06d8707d592d368f271a9de65
