@@ -34,7 +34,7 @@ use App\Http\Controllers\FormTemplateController;
 use App\Http\Controllers\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarangController;
 use App\Http\Controllers\FormBeritaAcaraSerahTerimaBarang\MasterBeritaAcaraSerahTerimaBarangController;
 use App\Http\Controllers\FormMonitoringCCTV\FormMonitoringCCTVController;
-
+use App\Http\Controllers\FormChecklistPc\FormChecklistPcController;
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
@@ -57,7 +57,8 @@ Route::get('/', function () {
         + \App\Models\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerimaBarang::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
         + \App\Models\FormMonitoringCCTV\FormMonitoringCCTV::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
         + \App\Models\FormMonitoringGrounding\FormMonitoringGrounding::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
-        + \App\Models\FormPcLaptopChecking\FormPcLaptopChecking::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count();
+        + \App\Models\FormPcLaptopChecking\FormPcLaptopChecking::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormChecklistPc\FormChecklistPc::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count();;
 
     $totalPengguna = 2; // Dummy: Pitra, Hamid (sebelum ada auth)
 
@@ -152,6 +153,13 @@ Route::get('/', function () {
             $item->title = "PC/Laptop Checking - {$item->no_ref}";
             return $item;
         }))
+        ->concat(\App\Models\FormChecklistPc\FormChecklistPc::latest()->take(5)->get()->map(function($item) {
+            $item->type = 'Checklist PC-Notebook-Printer';
+            $item->route = route('form-checklist-pc.show', $item->id);
+            $item->title = "Checklist PC-Notebook-Printer - {$item->no_ref}";
+            return $item;
+        }))
+
         ->sortByDesc('created_at')
         ->take(5);
 
@@ -213,6 +221,8 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             $total = \App\Models\FormMonitoringGrounding\FormMonitoringGrounding::count();
         } elseif ($template->nama === 'PC/Laptop Checking' || str_contains($template->nama, 'PC/Laptop Checking')) {
             $total = \App\Models\FormPcLaptopChecking\FormPcLaptopChecking::count();
+        }elseif ($template->nama === 'Checklist Pemeliharaan PC-Notebook-Printer' || str_contains($template->nama, 'PC-Notebook-Printer')) {
+            $total = \App\Models\FormChecklistPc\FormChecklistPc::count();
         }
         
         $formulirs->push([
@@ -444,20 +454,23 @@ Route::delete('/form-monitoring-cctv/signer/{id}', [FormMonitoringCCTVController
 Route::get('form-monitoring-grounding/{id}/export-excel', [FormMonitoringGroundingController::class, 'exportExcel'])->name('form-monitoring-grounding.export-excel');
 Route::resource('form-monitoring-grounding', FormMonitoringGroundingController::class);
 
-// ==============================================================
+/// ==============================================================
 // ROUTES FORMULIR PC/LAPTOP CHECKING
 // ==============================================================
 Route::get('form-pc-laptop-checking/{id}/export-excel', [FormPcLaptopCheckingController::class, 'exportExcel'])->name('form-pc-laptop-checking.export-excel');
-<<<<<<< HEAD
 Route::resource('form-pc-laptop-checking', FormPcLaptopCheckingController::class);
+
+// ==============================================================
+// ROUTES FORMULIR CHECKLIST PEMELIHARAAN PC-NOTEBOOK-PRINTER
+// ==============================================================
+Route::patch('form-checklist-pc/{form_checklist_pc}/confirm', [FormChecklistPcController::class, 'confirm'])->name('form-checklist-pc.confirm');
+Route::get('form-checklist-pc/{form_checklist_pc}/pdf', [FormChecklistPcController::class, 'pdf'])->name('form-checklist-pc.pdf');
+Route::resource('form-checklist-pc', FormChecklistPcController::class);
 
 // ==============================================================
 // ROUTES FORMULIR LAPORAN BACKUP
 // ==============================================================
-Route::resource('form-backup', FormBackupController::class);
+Route::resource('form-backup', \App\Http\Controllers\FormBackup\FormBackupController::class);
 Route::post('/form-backup/master', [App\Http\Controllers\FormBackup\FormBackupController::class, 'storeMaster'])->name('form-backup.master.store');
 Route::delete('/form-backup/master/{id}', [App\Http\Controllers\FormBackup\FormBackupController::class, 'destroyMaster'])->name('form-backup.master.destroy');
 Route::put('/form-backup/master/{id}', [App\Http\Controllers\FormBackup\FormBackupController::class, 'updateMaster'])->name('form-backup.master.update');
-=======
-Route::resource('form-pc-laptop-checking', FormPcLaptopCheckingController::class);
->>>>>>> fa4ce655d0eb80e06d8707d592d368f271a9de65
