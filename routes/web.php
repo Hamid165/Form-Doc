@@ -474,3 +474,13 @@ Route::resource('form-backup', \App\Http\Controllers\FormBackup\FormBackupContro
 Route::post('/form-backup/master', [App\Http\Controllers\FormBackup\FormBackupController::class, 'storeMaster'])->name('form-backup.master.store');
 Route::delete('/form-backup/master/{id}', [App\Http\Controllers\FormBackup\FormBackupController::class, 'destroyMaster'])->name('form-backup.master.destroy');
 Route::put('/form-backup/master/{id}', [App\Http\Controllers\FormBackup\FormBackupController::class, 'updateMaster'])->name('form-backup.master.update');
+use App\Http\Controllers\FormPemusnahan\FormPemusnahanController;
+use App\Http\Controllers\FormPemusnahan\DataAsetController;
+use App\Http\Controllers\FormPemusnahan\DataPemohonController;
+
+Route::resource('form-pemusnahan', FormPemusnahanController::class);
+Route::post('data-aset/import', [DataAsetController::class, 'import'])->name('data-aset.import');
+Route::get('data-aset/template', [DataAsetController::class, 'downloadTemplate'])->name('data-aset.template');
+Route::get('data-aset/{data_aset}/info', [DataAsetController::class, 'getInfo'])->name('data-aset.info');
+Route::resource('data-aset', DataAsetController::class)->only(['store', 'update', 'destroy']);
+Route::resource('data-pemohon', DataPemohonController::class)->only(['store', 'update', 'destroy']);
