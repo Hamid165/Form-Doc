@@ -212,10 +212,22 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        if (!\App\Models\FormTemplate::where('route_name', 'form-monitoring-isi-rak-dc-drc.index')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Form Monitoring Isi Rak DC / DRC',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-monitoring-isi-rak-dc-drc.index',
+                'no_dokumen' => 'FR.SM/TI/015.012/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
         $this->call([
             MasterPerangkatSeeder::class,
             MasterSignerSeeder::class,
             FormItBusinessRequestSeeder::class,
+            FormMonitoringIsiRakDcDrcSeeder::class,
         ]);
     }
 }

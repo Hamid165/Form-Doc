@@ -16,6 +16,7 @@ use App\Http\Controllers\FormPcLaptopChecking\FormPcLaptopCheckingController;
 use App\Http\Controllers\FormPemeliharaanAc\FormPemeliharaanAcController;
 use App\Http\Controllers\FormPemeliharaanAc\MasterAcController;
 use App\Http\Controllers\FormItBusinessRequest\FormItBusinessRequestController;
+use App\Http\Controllers\FormMonitoringIsiRakDcDrc\FormMonitoringIsiRakDcDrcController;
 use App\Http\Controllers\FormSecureOperation\FormSecureOperationController;
 use App\Http\Controllers\FormSecureOperation\MasterSignerSecureController; 
 use App\Http\Controllers\FormApar\FormAparController;
@@ -484,3 +485,9 @@ Route::get('data-aset/template', [DataAsetController::class, 'downloadTemplate']
 Route::get('data-aset/{data_aset}/info', [DataAsetController::class, 'getInfo'])->name('data-aset.info');
 Route::resource('data-aset', DataAsetController::class)->only(['store', 'update', 'destroy']);
 Route::resource('data-pemohon', DataPemohonController::class)->only(['store', 'update', 'destroy']);
+
+// ==============================================================
+// ROUTES FORMULIR MONITORING ISI RAK DC / DRC
+// ==============================================================
+Route::resource('form-monitoring-isi-rak-dc-drc', FormMonitoringIsiRakDcDrcController::class);
+
