@@ -223,24 +223,24 @@
         text-align: justify;
     }
 
-   table.detail-table {
+    table.detail-table {
         width: 100%;
         border-collapse: collapse;
         margin: 6px 0 12px;
         font-size: 10.5pt;
-        border-left: 1px solid #000;
-        border-right: 1px solid #000;
     }
-
     table.detail-table td {
-        border-top: 1px solid #000;
-        border-bottom: 1px solid #000;
+        border: 1px solid #000;
         padding: 6px 8px;
         vertical-align: top;
     }
     table.detail-table td.label {
-        width: 26%;
+        width: 32%;
         white-space: nowrap;
+    }
+    table.detail-table td.colon {
+        width: 14px;
+        text-align: center;
     }
 
     .checkbox-line-static {
