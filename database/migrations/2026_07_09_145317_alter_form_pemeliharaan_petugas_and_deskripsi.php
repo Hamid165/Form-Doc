@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('master_perangkats', function (Blueprint $table) {
-            $table->dropColumn('deskripsi');
+           // $table->dropColumn('deskripsi');
         });
 
         Schema::table('form_pemeliharaans', function (Blueprint $table) {
