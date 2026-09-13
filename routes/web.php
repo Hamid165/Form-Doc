@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FormCctv\FormCctvController;
@@ -8,6 +8,8 @@ use App\Http\Controllers\FormCctv\MasterSignerController;
 use App\Http\Controllers\FormPencabutanHakAkses\MasterPemohonController;
 use App\Http\Controllers\FormPemeliharaan\FormPemeliharaanController;
 use App\Http\Controllers\FormPemeliharaan\MasterPerangkatController;
+use App\Http\Controllers\FormPemeliharaan\MasterPetugasController;
+use App\Http\Controllers\FormPemeliharaan\MasterSignerController as MasterSignerPemeliharaanController;
 use App\Http\Controllers\FormAvailability\FormAvailabilityController;
 use App\Http\Controllers\FormBaStockOpname\BaStockOpnameController;
 use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
@@ -294,12 +296,14 @@ Route::delete('master-pemohon/{id}', [MasterPemohonController::class, 'destroy']
 // ==============================================================
 // ROUTES FORMULIR CHECKLIST PEMELIHARAAN PERANGKAT JARINGAN
 // ==============================================================
+Route::patch('form-pemeliharaan/{form_pemeliharaan}/mark-dicetak', [FormPemeliharaanController::class, 'markDicetak'])->name('form-pemeliharaan.mark-dicetak');
 Route::patch('form-pemeliharaan/{form_pemeliharaan}/confirm', [FormPemeliharaanController::class, 'confirm'])->name('form-pemeliharaan.confirm');
 Route::resource('form-pemeliharaan', FormPemeliharaanController::class);
 Route::post('master-perangkat/import', [MasterPerangkatController::class, 'import'])->name('master-perangkat.import');
 Route::get('master-perangkat/template', [MasterPerangkatController::class, 'downloadTemplate'])->name('master-perangkat.template');
 Route::get('master-perangkat/{master_perangkat}/info', [MasterPerangkatController::class, 'getInfo'])->name('master-perangkat.info');
 Route::resource('master-perangkat', MasterPerangkatController::class)->only(['store', 'update', 'destroy']);
+Route::resource('master-petugas', MasterPetugasController::class)->only(['store', 'update', 'destroy']);
 
 
 // ==============================================================
@@ -490,4 +494,9 @@ Route::resource('data-pemohon', DataPemohonController::class)->only(['store', 'u
 // ROUTES FORMULIR MONITORING ISI RAK DC / DRC
 // ==============================================================
 Route::resource('form-monitoring-isi-rak-dc-drc', FormMonitoringIsiRakDcDrcController::class);
+
+
+
+// Master Data Penandatangan Pemeliharaan
+Route::resource('form-pemeliharaan-signer', MasterSignerPemeliharaanController::class)->only(['store', 'update', 'destroy']);
 
