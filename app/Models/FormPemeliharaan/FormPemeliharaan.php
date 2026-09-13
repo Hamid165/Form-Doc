@@ -3,7 +3,7 @@
 namespace App\Models\FormPemeliharaan;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\FormCctv\MasterSigner;
+use App\Models\FormPemeliharaan\MasterSigner;
 
 class FormPemeliharaan extends Model
 {
@@ -15,8 +15,7 @@ class FormPemeliharaan extends Model
         'jenis_pemeliharaan',
         'bulan_pemeliharaan',
         'catatan',
-        'petugas_name',
-        'petugas_nipp',
+        'petugas_id',
         'mengetahui_id',
         'status',
     ];
@@ -28,6 +27,11 @@ class FormPemeliharaan extends Model
     public function items()
     {
         return $this->hasMany(FormPemeliharaanItem::class);
+    }
+
+    public function petugas()
+    {
+        return $this->belongsTo(\App\Models\FormPemeliharaan\MasterPetugas::class, 'petugas_id');
     }
 
     public function mengetahui()

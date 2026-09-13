@@ -1,11 +1,6 @@
-<?php
+﻿<?php
 
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
-use Illuminate\Support\Facades\Schema;
-
-=======
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
 use App\Http\Controllers\FormCctv\FormCctvController;
 use App\Http\Controllers\FormPencabutanHakAkses\FormPencabutanHakAksesController;
 use App\Http\Controllers\FormCctv\MasterCctvController;
@@ -13,12 +8,8 @@ use App\Http\Controllers\FormCctv\MasterSignerController;
 use App\Http\Controllers\FormPencabutanHakAkses\MasterPemohonController;
 use App\Http\Controllers\FormPemeliharaan\FormPemeliharaanController;
 use App\Http\Controllers\FormPemeliharaan\MasterPerangkatController;
-<<<<<<< HEAD
-use App\Http\Controllers\FormBaStockOpname\BaStockOpnameController;
-use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
-use App\Http\Controllers\FormSerahTerimaSourceCode\FormSerahTerimaSourceCodeController;
-
-=======
+use App\Http\Controllers\FormPemeliharaan\MasterPetugasController;
+use App\Http\Controllers\FormPemeliharaan\MasterSignerController as MasterSignerPemeliharaanController;
 use App\Http\Controllers\FormAvailability\FormAvailabilityController;
 use App\Http\Controllers\FormBaStockOpname\BaStockOpnameController;
 use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
@@ -47,53 +38,10 @@ use App\Http\Controllers\FormBeritaAcaraSerahTerimaBarang\BeritaAcaraSerahTerima
 use App\Http\Controllers\FormBeritaAcaraSerahTerimaBarang\MasterBeritaAcaraSerahTerimaBarangController;
 use App\Http\Controllers\FormMonitoringCCTV\FormMonitoringCCTVController;
 use App\Http\Controllers\FormChecklistPc\FormChecklistPcController;
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
 Route::get('/', function () {
-<<<<<<< HEAD
-    $totalKategori = 1;
-    $totalJenisFormulir = 4;
-
-    $hasCctvTable = Schema::hasTable('form_cctvs');
-    $hasHakAksesTable = Schema::hasTable('form_pencabutan_hak_akses');
-    $hasPemeliharaanTable = Schema::hasTable('form_pemeliharaans');
-    $hasStockOpnameTable = Schema::hasTable('ba_stock_opnames');
-
-    $totalFormulirBulanIni = 0;
-
-    if ($hasCctvTable) {
-        $totalFormulirBulanIni += \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
-            ->whereYear('created_at', date('Y'))
-            ->count();
-    }
-
-    if ($hasHakAksesTable) {
-        $totalFormulirBulanIni += \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::whereMonth('created_at', date('m'))
-            ->whereYear('created_at', date('Y'))
-            ->count();
-    }
-
-    if ($hasPemeliharaanTable) {
-        $totalFormulirBulanIni += \App\Models\FormPemeliharaan\FormPemeliharaan::whereMonth('created_at', date('m'))
-            ->whereYear('created_at', date('Y'))
-            ->count();
-    }
-
-    if ($hasStockOpnameTable) {
-        $totalFormulirBulanIni += \App\Models\FormBaStockOpname\BaStockOpname::whereMonth('created_at', date('m'))
-            ->whereYear('created_at', date('Y'))
-            ->count();
-    }
-
-    $totalPengguna = 2;
-
-    $recentForms = collect();
-
-    if ($hasCctvTable) {
-        $recentForms = $recentForms->concat(\App\Models\FormCctv\FormCctv::latest()->take(5)->get()->map(function ($item) {
-=======
     $totalKategori = 1; 
     $totalJenisFormulir = 15; // All modules + Secure Operation
 
@@ -119,59 +67,28 @@ Route::get('/', function () {
 
     $recentForms = collect()
         ->concat(\App\Models\FormCctv\FormCctv::latest()->take(5)->get()->map(function($item) {
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
             $item->type = 'CCTV';
             $item->route = route('form-cctv.show', $item->id);
             $item->title = "Pemeliharaan CCTV - {$item->id_cctv}";
             return $item;
-<<<<<<< HEAD
-        }));
-    }
-
-    if ($hasHakAksesTable) {
-        $recentForms = $recentForms->concat(\App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::latest()->take(5)->get()->map(function ($item) {
-=======
         }))
         ->concat(\App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::latest()->take(5)->get()->map(function($item) {
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
             $item->type = 'Pencabutan Hak Akses';
             $item->route = route('form-pencabutan-hak-akses.show', $item->id);
             $item->title = "Pencabutan Hak Akses - {$item->nama_pemohon}";
             return $item;
-<<<<<<< HEAD
-        }));
-    }
-
-    if ($hasPemeliharaanTable) {
-        $recentForms = $recentForms->concat(\App\Models\FormPemeliharaan\FormPemeliharaan::latest()->take(5)->get()->map(function ($item) {
-=======
         }))
         ->concat(\App\Models\FormPemeliharaan\FormPemeliharaan::latest()->take(5)->get()->map(function($item) {
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
             $item->type = 'Pemeliharaan Perangkat';
             $item->route = route('form-pemeliharaan.show', $item->id);
             $item->title = "Pemeliharaan Perangkat - {$item->no_ref}";
             return $item;
-<<<<<<< HEAD
-        }));
-    }
-
-    if ($hasStockOpnameTable) {
-        $recentForms = $recentForms->concat(\App\Models\FormBaStockOpname\BaStockOpname::latest()->take(5)->get()->map(function ($item) {
-=======
         }))
         ->concat(\App\Models\FormBaStockOpname\BaStockOpname::latest()->take(5)->get()->map(function ($item) {
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
             $item->type = 'Berita Acara Stock Opname';
             $item->route = route('form-ba-stock-opname.show', $item->id);
             $item->title = "BA Stock Opname - {$item->no_ref}";
             return $item;
-<<<<<<< HEAD
-        }));
-    }
-
-    $recentForms = $recentForms->sortByDesc('created_at')->take(5);
-=======
         }))
         ->concat(\App\Models\FormPemeliharaanAc\FormPemeliharaanAc::latest()->take(5)->get()->map(function ($item) {
             $item->type = 'Pemeliharaan AC';
@@ -248,17 +165,11 @@ Route::get('/', function () {
 
         ->sortByDesc('created_at')
         ->take(5);
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
 
     return view('dashboard', compact('totalKategori', 'totalJenisFormulir', 'totalFormulirBulanIni', 'totalPengguna', 'recentForms'));
 })->name('dashboard');
 
 
-<<<<<<< HEAD
-use App\Http\Controllers\FormTemplateController;
-
-=======
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
 // ==============================================================
 // ROUTES KATALOG FORMULIR & TEMPLATE
 // ==============================================================
@@ -266,13 +177,9 @@ Route::put('/formulir/template/{id}', [FormTemplateController::class, 'update'])
 
 Route::get('/formulir', function (\Illuminate\Http\Request $request) {
     $kategori = $request->query('kategori', 'All');
-<<<<<<< HEAD
-    $templates = \App\Models\FormTemplate::all();
-=======
 
     $templates = \App\Models\FormTemplate::all();
 
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
     $formulirs = collect();
 
     foreach ($templates as $template) {
@@ -283,14 +190,6 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             $total = \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::count();
         } elseif ($template->nama === 'Checklist Pemeliharaan Perangkat Jaringan') {
             $total = \App\Models\FormPemeliharaan\FormPemeliharaan::count();
-<<<<<<< HEAD
-        }
-        // PERBAIKAN: Menambahkan perhitungan khusus untuk Berita Acara Stock Opname
-        elseif ($template->nama === 'Berita Acara Stock Opname' || str_contains($template->nama, 'Stock Opname')) {
-            $total = \App\Models\FormBaStockOpname\BaStockOpname::count();
-        }
-
-=======
         } elseif (
             $template->nama === 'Berita Acara Stock Opname'
             || str_contains($template->nama, 'Stock Opname')
@@ -329,7 +228,6 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             $total = \App\Models\FormChecklistPc\FormChecklistPc::count();
         }
         
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
         $formulirs->push([
             'id' => $template->id,
             'nama' => $template->nama,
@@ -377,13 +275,10 @@ Route::resource('form-cctv', FormCctvController::class);
 Route::post('master-cctv/import', [MasterCctvController::class, 'import'])->name('master-cctv.import');
 Route::get('master-cctv/template', [MasterCctvController::class, 'downloadTemplate'])->name('master-cctv.template');
 Route::resource('master-cctv', MasterCctvController::class)->only(['store', 'update', 'destroy']);
-<<<<<<< HEAD
-=======
 
 // Master Data Penandatangan (Signer) CCTV
 Route::post('master-signer/import', [MasterSignerController::class, 'import'])->name('master-signer.import');
 Route::get('master-signer/template', [MasterSignerController::class, 'downloadTemplate'])->name('master-signer.template');
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
 Route::resource('master-signer', MasterSignerController::class)->only(['store', 'update', 'destroy']);
 
 
@@ -401,32 +296,19 @@ Route::delete('master-pemohon/{id}', [MasterPemohonController::class, 'destroy']
 // ==============================================================
 // ROUTES FORMULIR CHECKLIST PEMELIHARAAN PERANGKAT JARINGAN
 // ==============================================================
+Route::patch('form-pemeliharaan/{form_pemeliharaan}/mark-dicetak', [FormPemeliharaanController::class, 'markDicetak'])->name('form-pemeliharaan.mark-dicetak');
 Route::patch('form-pemeliharaan/{form_pemeliharaan}/confirm', [FormPemeliharaanController::class, 'confirm'])->name('form-pemeliharaan.confirm');
 Route::resource('form-pemeliharaan', FormPemeliharaanController::class);
 Route::post('master-perangkat/import', [MasterPerangkatController::class, 'import'])->name('master-perangkat.import');
 Route::get('master-perangkat/template', [MasterPerangkatController::class, 'downloadTemplate'])->name('master-perangkat.template');
 Route::get('master-perangkat/{master_perangkat}/info', [MasterPerangkatController::class, 'getInfo'])->name('master-perangkat.info');
 Route::resource('master-perangkat', MasterPerangkatController::class)->only(['store', 'update', 'destroy']);
+Route::resource('master-petugas', MasterPetugasController::class)->only(['store', 'update', 'destroy']);
 
 
 // ==============================================================
 // ROUTES FORMULIR BERITA ACARA STOCK OPNAME
 // ==============================================================
-<<<<<<< HEAD
-
-// PERBAIKAN: Memindahkan Route Template ke ATAS Route Resource agar tidak terjadi 404
-Route::get('form-ba-stock-opname/template', [BaStockOpnameController::class, 'downloadTemplate'])->name('form-ba-stock-opname.template');
-
-Route::resource('form-ba-stock-opname', BaStockOpnameController::class);
-Route::resource('master-bastock', MasterBAStockController::class)->only(['store', 'update', 'destroy']);
-
-// ==============================================================
-// ROUTES FORMULIR SERAH TERIMA SOURCE CODE
-// ==============================================================
-Route::get('form-serah-terima-source-code/{form_serah_terima_source_code}/print', [FormSerahTerimaSourceCodeController::class, 'print'])->name('form-serah-terima-source-code.print');
-Route::get('form-serah-terima-source-code/{form_serah_terima_source_code}/export-docx', [FormSerahTerimaSourceCodeController::class, 'exportDocx'])->name('form-serah-terima-source-code.export-docx');
-Route::resource('form-serah-terima-source-code', FormSerahTerimaSourceCodeController::class);
-=======
 Route::get('form-ba-stock-opname/template', [BaStockOpnameController::class, 'downloadTemplate'])->name('form-ba-stock-opname.template');
 Route::resource('form-ba-stock-opname', BaStockOpnameController::class);
 Route::resource('master-bastock', MasterBAStockController::class)->only(['store', 'update', 'destroy']);
@@ -613,4 +495,8 @@ Route::resource('data-pemohon', DataPemohonController::class)->only(['store', 'u
 // ==============================================================
 Route::resource('form-monitoring-isi-rak-dc-drc', FormMonitoringIsiRakDcDrcController::class);
 
->>>>>>> 83c7bf73e9b4920e6dd51074a88e0cbf9e0707c2
+
+
+// Master Data Penandatangan Pemeliharaan
+Route::resource('form-pemeliharaan-signer', MasterSignerPemeliharaanController::class)->only(['store', 'update', 'destroy']);
+
