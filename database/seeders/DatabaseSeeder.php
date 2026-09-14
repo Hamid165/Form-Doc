@@ -89,6 +89,139 @@ class DatabaseSeeder extends Seeder
                 'versi_dokumen' => '001-2026',
             ]);
         }
+        
+        if (!\App\Models\FormTemplate::where('nama', 'Monitoring CCTV')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Monitoring CCTV',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-monitoring-cctv.index',
+                'no_dokumen' => 'FR.SM/TI/015.014/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Formulir Checklist Pemantauan APAR')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Formulir Checklist Pemantauan APAR',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-apar.index',
+                'no_dokumen' => 'FR.SM/TI/015.007/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Keluar Masuk Barang DC DRC')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Keluar Masuk Barang DC DRC',
+                'kategori' => 'Umum',
+                'route_name' => 'form-keluar-masuk-barang-dc-drc.index',
+                'no_dokumen' => 'FR.SM/TI/014.003/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => ': 002-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Formulir Pengujian Infrastruktur')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Formulir Pengujian Infrastruktur',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-pengujian-infrastruktur.index',
+                'no_dokumen' => 'FR.SM/TI/025.002/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Berita Acara Serah Terima Barang')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Berita Acara Serah Terima Barang',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-berita-acara-serah-terima-barang.index',
+                'no_dokumen' => 'FR.SM/TI/011.002/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '02-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Rencana Pelatihan Pegawai')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Rencana Pelatihan Pegawai',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-rencana-pelatihan.index',
+                'no_dokumen' => 'DK.SM/TI/003.002/08-2022',
+                'tanggal_dokumen' => '29 Agustus 2022',
+                'versi_dokumen' => '002-2022',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Monitoring Grounding')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Monitoring Grounding',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-monitoring-grounding.index',
+                'no_dokumen' => 'FR.SM/TI/015.018/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Monitoring Grounding')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Monitoring Grounding',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-monitoring-grounding.index',
+                'no_dokumen' => 'FR.SM/TI/015.018/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
+        // Seeder untuk Form Secure Operation Incident
+        if (!\App\Models\FormTemplate::where('nama', 'Secure Operation Incident')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Secure Operation Incident',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-secure-operation.index',
+                'no_dokumen' => 'FR.IK/TI/006.03/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Formulir Laporan Backup')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Formulir Laporan Backup',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-backup.index',
+                'no_dokumen' => 'DK.SM/TI/012.002/02-2023',
+                'tanggal_dokumen' => '13 Februari 2023',
+                'versi_dokumen' => '001-2023',
+            ]);
+        }
+
+                if (!\App\Models\FormTemplate::where('route_name', 'form-pemusnahan.index')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Formulir Permohonan Pemusnahan Aset Perangkat',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-pemusnahan.index',
+                'no_dokumen' => 'FR.SM/TI/011.004/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('route_name', 'form-monitoring-isi-rak-dc-drc.index')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Form Monitoring Isi Rak DC / DRC',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-monitoring-isi-rak-dc-drc.index',
+                'no_dokumen' => 'FR.SM/TI/015.012/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
 
         if (!\App\Models\FormTemplate::where('nama', 'Berita Acara dan Troubleshooting Instalasi Layanan IT')->exists()) {
             \App\Models\FormTemplate::create([
@@ -105,6 +238,7 @@ class DatabaseSeeder extends Seeder
             MasterPerangkatSeeder::class,
             MasterSignerSeeder::class,
             FormItBusinessRequestSeeder::class,
+            FormMonitoringIsiRakDcDrcSeeder::class,
         ]);
     }
 }
