@@ -39,6 +39,7 @@ use App\Http\Controllers\FormBeritaAcaraSerahTerimaBarang\MasterBeritaAcaraSerah
 use App\Http\Controllers\FormMonitoringCCTV\FormMonitoringCCTVController;
 use App\Http\Controllers\FormChecklistPc\FormChecklistPcController;
 use App\Http\Controllers\FormBaItServices\BaItController;
+use App\Http\Controllers\FormKeluhan\FormKeluhanController;
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
@@ -62,8 +63,8 @@ Route::get('/', function () {
         + \App\Models\FormMonitoringCCTV\FormMonitoringCCTV::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
         + \App\Models\FormMonitoringGrounding\FormMonitoringGrounding::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
         + \App\Models\FormPcLaptopChecking\FormPcLaptopChecking::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
-        + \App\Models\FormChecklistPc\FormChecklistPc::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count();;
-
+        + \App\Models\FormChecklistPc\FormChecklistPc::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count()
+        + \App\Models\FormKeluhan\FormKeluhan::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count();
     $totalPengguna = 2; // Dummy: Pitra, Hamid (sebelum ada auth)
 
     $recentForms = collect()
@@ -164,6 +165,13 @@ Route::get('/', function () {
             return $item;
         }))
 
+         ->concat(\App\Models\FormKeluhan\FormKeluhan::latest()->take(5)->get()->map(function ($item) {
+            $item->type = 'Pengelolaan dan Penanganan Keluhan Pelanggan';
+            $item->route = route('form-keluhan.show', $item->id);
+            $item->title = "Keluhan Pelanggan - {$item->no_ref}";
+            return $item;
+        }))
+
         ->sortByDesc('created_at')
         ->take(5);
 
@@ -227,6 +235,8 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             $total = \App\Models\FormPcLaptopChecking\FormPcLaptopChecking::count();
         }elseif ($template->nama === 'Checklist Pemeliharaan PC-Notebook-Printer' || str_contains($template->nama, 'PC-Notebook-Printer')) {
             $total = \App\Models\FormChecklistPc\FormChecklistPc::count();
+        } elseif ($template->nama === 'Pengelolaan dan Penanganan Keluhan Pelanggan') {
+            $total = \App\Models\FormKeluhan\FormKeluhan::count();
         }
         
         $formulirs->push([
@@ -515,3 +525,11 @@ Route::put('/form-ba-it-services/{id}', [BaItController::class, 'update'])->name
 Route::get('/form-ba-it-services/{id}/pdf', [BaItController::class, 'exportPdf'])->name('ba-it.pdf');
 Route::delete('/form-ba-it-services/{id}', [BaItController::class, 'destroy'])->name('ba-it.destroy');
 Route::post('/ba-it-signer', [BaItController::class, 'storeSigner'])->name('ba-it-signer.store');
+
+// ==============================================================
+// ROUTES FORMULIR PENGELOLAAN DAN PENANGANAN KELUHAN PELANGGAN
+// ==============================================================
+Route::delete('form-keluhan/bulk/destroy', [FormKeluhanController::class, 'bulkDestroy'])->name('form-keluhan.bulk-destroy');
+Route::delete('form-keluhan/signer/bulk-destroy', [FormKeluhanController::class, 'bulkDestroySigner'])->name('form-keluhan.signer.bulk-destroy');
+Route::resource('form-keluhan', FormKeluhanController::class);
+Route::get('form-keluhan/{id}/detail', [FormKeluhanController::class, 'detail'])->name('form-keluhan.detail');
