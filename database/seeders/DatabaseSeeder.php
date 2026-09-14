@@ -90,6 +90,17 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        if (!\App\Models\FormTemplate::where('nama', 'Berita Acara dan Troubleshooting Instalasi Layanan IT')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Berita Acara dan Troubleshooting Instalasi Layanan IT',
+                'kategori' => 'Terbatas',
+                'route_name' => 'ba-it.index',
+                'no_dokumen' => 'FR.SM/IT/011.005/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
         $this->call([
             MasterPerangkatSeeder::class,
             MasterSignerSeeder::class,

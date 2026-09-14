@@ -15,6 +15,8 @@ use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
 use App\Http\Controllers\FormPemeliharaanAc\FormPemeliharaanAcController;
 use App\Http\Controllers\FormPemeliharaanAc\MasterAcController;
 use App\Http\Controllers\FormItBusinessRequest\FormItBusinessRequestController;
+use App\Http\Controllers\FormBaItServices\BaItController;
+
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
@@ -142,6 +144,9 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
 
         } elseif ($template->nama === 'Availability System Ticketing') {
             $total = \App\Models\FormAvailability\FormAvailability::count();
+
+        } elseif ($template->nama === 'Berita Acara Instalasi dan Troubleshooting Layanan IT') {
+            $total = \App\Models\FormBaItServices\BaItService::count();
         }
 
         $formulirs->push([
@@ -298,3 +303,17 @@ Route::resource(
     'form-availability',
     FormAvailabilityController::class
 );
+
+
+// ==============================================================
+// ROUTES BERITA ACARA IT SERVICES
+// ==============================================================
+Route::get('/form-ba-it-services', [BaItController::class, 'index'])->name('ba-it.index');
+Route::get('/form-ba-it-services/create', [BaItController::class, 'create'])->name('ba-it.create');
+Route::post('/form-ba-it-services', [BaItController::class, 'store'])->name('ba-it.store');
+Route::get('/form-ba-it-services/{id}', [BaItController::class, 'show'])->name('ba-it.show');
+Route::get('/form-ba-it-services/{id}/edit', [BaItController::class, 'edit'])->name('ba-it.edit');
+Route::put('/form-ba-it-services/{id}', [BaItController::class, 'update'])->name('ba-it.update');
+Route::get('/form-ba-it-services/{id}/pdf', [BaItController::class, 'exportPdf'])->name('ba-it.pdf');
+Route::delete('/form-ba-it-services/{id}', [BaItController::class, 'destroy'])->name('ba-it.destroy');
+Route::post('/ba-it-signer', [BaItController::class, 'storeSigner'])->name('ba-it-signer.store');
