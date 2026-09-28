@@ -101,6 +101,17 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        if (!\App\Models\FormTemplate::where('nama', 'Log Peminjaman Informasi / Dokumen')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Log Peminjaman Informasi / Dokumen',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-log-peminjaman.index',
+                'no_dokumen' => 'FR.SM/TI/004.004/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
         $this->call([
             MasterPerangkatSeeder::class,
             MasterSignerSeeder::class,

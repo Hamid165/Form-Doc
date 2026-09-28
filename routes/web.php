@@ -19,13 +19,15 @@ use App\Http\Controllers\FormApar\FormAparController;
 use App\Http\Controllers\FormApar\MasterAparController;
 use App\Http\Controllers\FormApar\MasterVendorController;
 use App\Http\Controllers\FormApar\AparHistoryController;
+use App\Http\Controllers\FormLogPeminjaman\FormLogPeminjamanController;
 use App\Http\Controllers\FormApar\MasterSignerController as MasterSignerAparController;
+
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
 Route::get('/', function () {
     $totalKategori = 1; // Dummy untuk saat ini
-    $totalJenisFormulir = 7; // CCTV, Hak Akses, Pemeliharaan Jaringan, Stock Opname, AC, IT Business Request, Availability
+    $totalJenisFormulir = 9; // CCTV, Hak Akses, Pemeliharaan Jaringan, Stock Opname, AC, IT Business Request, Availability
 
     $totalFormulirBulanIni =
             \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
@@ -44,6 +46,9 @@ Route::get('/', function () {
                 ->whereYear('created_at', date('Y'))
                 ->count()
             + \App\Models\FormItBusinessRequest\FormItBusinessRequest::whereMonth('created_at', date('m'))
+                ->whereYear('created_at', date('Y'))
+                ->count()
+            + \App\Models\FormLogPeminjaman\FormLogPeminjaman::whereMonth('created_at', date('m'))
                 ->whereYear('created_at', date('Y'))
                 ->count()
             + \App\Models\FormAvailability\FormAvailability::whereMonth('created_at', date('m'))
@@ -94,6 +99,13 @@ Route::get('/', function () {
             $item->type = 'Availability System Ticketing';
             $item->route = route('form-availability.show', $item->id);
             $item->title = "Availability Ticketing - {$item->no_ref}";
+            return $item;
+        }))
+        ->concat(\App\Models\FormLogPeminjaman\FormLogPeminjaman::latest()->take(5)->get()->map(function ($item) {
+            $item->type = 'Log Peminjaman';
+            $item->route = route('form-log-peminjaman.show', $item->id);
+            $item->title = "Log Peminjaman - {$item->no_ref}";
+            $item->nama_pemohon = $item->business_area;
             return $item;
         }))
 
@@ -150,9 +162,10 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
 
         } elseif ($template->nama === 'Formulir Checklist Pemantauan APAR') {
             $total = \App\Models\FormApar\FormApar::count();
-        }
 
-        
+        } elseif ($template->nama === 'Log Peminjaman Informasi / Dokumen') {
+            $total = \App\Models\FormLogPeminjaman\FormLogPeminjaman::count();
+        }
 
         $formulirs->push([
             'id' => $template->id,
@@ -309,6 +322,11 @@ Route::resource(
     FormAvailabilityController::class
 );
 
+// =============================================================
+// ROUTES FORMULIR LOG PEMINJAMAN
+// =============================================================
+Route::get('form-log-peminjaman/template', [FormLogPeminjamanController::class, 'downloadTemplate'])->name('form-log-peminjaman.template');
+Route::resource('form-log-peminjaman', FormLogPeminjamanController::class);
 
 // =============================================================
 // ROUTES FORMULIR CHECKLIST PEMANTAUAN APAR
