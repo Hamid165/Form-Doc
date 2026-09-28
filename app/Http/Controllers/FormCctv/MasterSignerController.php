@@ -45,6 +45,20 @@ class MasterSignerController extends Controller
             'jabatan_mengetahui' => $request->jabatan,
         ]);
 
+        // Update Monitoring Grounding forms
+        \App\Models\FormMonitoringGrounding\FormMonitoringGrounding::where('mengetahui_nama', $oldNama)->update([
+            'mengetahui_nama' => $master_signer->nama,
+            'mengetahui_nipp' => $master_signer->nipp,
+            'mengetahui_jabatan' => $master_signer->jabatan,
+        ]);
+
+        // Update PC Laptop Checking forms
+        \App\Models\FormPcLaptopChecking\FormPcLaptopChecking::where('mengetahui_nama', $oldNama)->update([
+            'mengetahui_nama' => $master_signer->nama,
+            'mengetahui_nipp' => $master_signer->nipp,
+            'mengetahui_jabatan' => $master_signer->jabatan,
+        ]);
+
         return back()->with('success', "Penandatangan {$request->nama} berhasil diperbarui.");
     }
 

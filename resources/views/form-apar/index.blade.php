@@ -1205,7 +1205,7 @@
                                 {{ $history->tanggal_perubahan ? $history->tanggal_perubahan->format('d/m/Y') : '-' }}
                             </td>
                             <td class="px-4 py-3 text-slate-900 font-mono font-semibold">
-                                {{ $history->masterApar?->kode_aset ?? ($history->kode_aset_baru ?: '-') }}
+                                {{ $history->kode_aset_lama ?: ($history->kode_aset_baru ?: ($history->masterApar?->kode_aset ?? '-')) }}
                             </td>
                             <td class="px-4 py-3 text-slate-900 font-semibold">
                                 {{ $history->jenis_perubahan ?: '-' }}
