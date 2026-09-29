@@ -24,6 +24,55 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        if (!User::where('email', 'rina@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Rina Amelia',
+                'email' => 'rina@example.com',
+                'role' => 'petugas',
+                'nip_kwt' => 'K.998811',
+                'unit_kerja' => 'TI Service Desk'
+            ]);
+        }
+
+        if (!User::where('email', 'sutrisno@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'B. Sutrisno',
+                'email' => 'sutrisno@example.com',
+                'role' => 'pimpinan',
+                'nip_kwt' => 'P.112233',
+                'unit_kerja' => 'TI Operations'
+            ]);
+        }
+
+        if (!\App\Models\FormCctv\MasterSigner::where('nama', 'B. Sutrisno')->exists()) {
+            \App\Models\FormCctv\MasterSigner::create([
+                'nama' => 'B. Sutrisno',
+                'nipp' => 'P.112233',
+                'jabatan' => 'Manager TI Operations',
+            ]);
+        }
+
+        if (!User::where('email', 'admin@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Admin Sistem',
+                'email' => 'admin@example.com',
+                'role' => 'admin',
+                'nip_kwt' => 'A.000001',
+                'unit_kerja' => 'TI Administrator'
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Berita Acara Penutupan Tiket Incident/Work Order')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Berita Acara Penutupan Tiket Incident/Work Order',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-bastik.index',
+                'no_dokumen' => 'FR.SM/TI/031.005/02-2023',
+                'tanggal_dokumen' => '13 Februari 2023',
+                'versi_dokumen' => '001-2023',
+            ]);
+        }
+
         if (!\App\Models\FormTemplate::where('nama', 'Pemeliharaan CCTV')->exists()) {
             \App\Models\FormTemplate::create([
                 'nama' => 'Pemeliharaan CCTV',

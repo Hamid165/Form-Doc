@@ -214,6 +214,14 @@
     </style>
 </head>
 <body>
+
+    @if(request('print'))
+        <script>
+            window.onload = function() {
+                window.print();
+            };
+        </script>
+    @endif
     
     <div class="a4-container relative">
         <!-- Tombol diletakkan di pojok kanan atas (text-align: right) -->

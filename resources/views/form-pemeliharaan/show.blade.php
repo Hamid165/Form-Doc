@@ -71,6 +71,14 @@
         </form>
     </div>
 
+    @if(request('print'))
+        <script>
+            window.onload = function() {
+                window.print();
+            };
+        </script>
+    @endif
+
     @php
         $items = $form_pemeliharaan->items;
         $itemsCount = $items->count();
