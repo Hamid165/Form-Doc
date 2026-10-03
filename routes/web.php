@@ -2,6 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 
+// ==============================================================
+// IMPORT CONTROLLERS
+// ==============================================================
+use App\Http\Controllers\ImplementationReviewController; // <-- Controller baru ditambahkan di sini
+
 use App\Http\Controllers\FormCctv\FormCctvController;
 use App\Http\Controllers\FormPencabutanHakAkses\FormPencabutanHakAksesController;
 use App\Http\Controllers\FormCctv\MasterCctvController;
@@ -12,16 +17,17 @@ use App\Http\Controllers\FormPemeliharaan\MasterPerangkatController;
 use App\Http\Controllers\FormBaStockOpname\BaStockOpnameController;
 use App\Http\Controllers\FormBaStockOpname\MasterBAStockController;
 use App\Http\Controllers\FormItBusinessRequest\FormItBusinessRequestController;
+use App\Http\Controllers\FormTemplateController;
 
 // ==============================================================
 // ROUTES DASHBOARD (Data Dummy & Ringkasan)
 // ==============================================================
 Route::get('/', function () {
-    // Diperbarui menjadi 5 kategori formulir
+    // Diperbarui menjadi 6 jenis formulir (ditambah Implementation Review)
     $totalKategori = 1;
-    $totalJenisFormulir = 5; // CCTV, Hak Akses, Pemeliharaan, BA Stock Opname, IT Business Request
+    $totalJenisFormulir = 6; 
 
-    // PERBAIKAN: Menambahkan perhitungan BA Stock Opname
+    // Menghitung total formulir bulan ini termasuk Implementation Review
     $totalFormulirBulanIni = \App\Models\FormCctv\FormCctv::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
                                 ->count()
@@ -36,11 +42,14 @@ Route::get('/', function () {
                                 ->count()
                             + \App\Models\FormItBusinessRequest\FormItBusinessRequest::whereMonth('created_at', date('m'))
                                 ->whereYear('created_at', date('Y'))
+                                ->count()
+                            + \App\Models\ImplementationReview::whereMonth('created_at', date('m')) // <-- Tambahan untuk Review
+                                ->whereYear('created_at', date('Y'))
                                 ->count();
 
     $totalPengguna = 2; // Dummy: Pitra, Hamid
 
-    // PERBAIKAN: Memasukkan data BA Stock Opname ke aktivitas terbaru
+    // Memasukkan data ke aktivitas terbaru
     $recentForms = collect()
         ->concat(\App\Models\FormCctv\FormCctv::latest()->take(5)->get()->map(function($item) {
             $item->type = 'CCTV';
@@ -72,14 +81,18 @@ Route::get('/', function () {
             $item->title = "IT Business Request - {$item->no_ref}";
             return $item;
         }))
+        ->concat(\App\Models\ImplementationReview::latest()->take(5)->get()->map(function($item) { // <-- Tambahan untuk Review
+            $item->type = 'Post Implementation Review';
+            $item->route = route('reviews.index'); // <-- Arahkan ke index
+            $item->title = "Review Sistem - {$item->obyek_peninjauan}";
+            return $item;
+        }))
         ->sortByDesc('created_at')
         ->take(5);
 
     return view('dashboard', compact('totalKategori', 'totalJenisFormulir', 'totalFormulirBulanIni', 'totalPengguna', 'recentForms'));
 })->name('dashboard');
 
-
-use App\Http\Controllers\FormTemplateController;
 
 // ==============================================================
 // ROUTES KATALOG FORMULIR & TEMPLATE
@@ -99,12 +112,9 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             $total = \App\Models\FormPencabutanHakAkses\FormPencabutanHakAkses::count();
         } elseif ($template->nama === 'Checklist Pemeliharaan Perangkat Jaringan') {
             $total = \App\Models\FormPemeliharaan\FormPemeliharaan::count();
-        }
-        // PERBAIKAN: Menambahkan perhitungan khusus untuk Berita Acara Stock Opname
-        elseif ($template->nama === 'Berita Acara Stock Opname' || str_contains($template->nama, 'Stock Opname')) {
+        } elseif ($template->nama === 'Berita Acara Stock Opname' || str_contains($template->nama, 'Stock Opname')) {
             $total = \App\Models\FormBaStockOpname\BaStockOpname::count();
-        }
-        elseif ($template->nama === 'Formulir IT Business Request' || str_contains($template->nama, 'Business Request')) {
+        } elseif ($template->nama === 'Formulir IT Business Request' || str_contains($template->nama, 'Business Request')) {
             $total = \App\Models\FormItBusinessRequest\FormItBusinessRequest::count();
         }
 
@@ -119,6 +129,21 @@ Route::get('/formulir', function (\Illuminate\Http\Request $request) {
             'versi_dokumen' => $template->versi_dokumen
         ]);
     }
+
+    // =========================================================================
+    // INI BLOK YANG HILANG: MENDAFTARKAN FORMULIR KITA SECARA MANUAL
+    // =========================================================================
+    $formulirs->push([
+        'id' => 9999, // ID unik agar tidak bentrok
+        'nama' => 'Formulir Post Implementation Review',
+        'kategori' => 'Umum', // Masuk ke tab Umum
+        'route' => route('reviews.index'), // Jika diklik akan pergi ke fitur kita
+        'total' => \App\Models\ImplementationReview::count(), 
+        'no_dokumen' => 'FR.SM/TI/020.005/10-2020',
+        'tanggal_dokumen' => '12 Oktober 2020',
+        'versi_dokumen' => '002-2020'
+    ]);
+    // =========================================================================
 
     if ($kategori !== 'All') {
         $formulirs = $formulirs->where('kategori', $kategori);
@@ -183,10 +208,7 @@ Route::resource('master-perangkat', MasterPerangkatController::class)->only(['st
 // ==============================================================
 // ROUTES FORMULIR BERITA ACARA STOCK OPNAME
 // ==============================================================
-
-// PERBAIKAN: Memindahkan Route Template ke ATAS Route Resource agar tidak terjadi 404
 Route::get('form-ba-stock-opname/template', [BaStockOpnameController::class, 'downloadTemplate'])->name('form-ba-stock-opname.template');
-
 Route::resource('form-ba-stock-opname', BaStockOpnameController::class);
 Route::resource('master-bastock', MasterBAStockController::class)->only(['store', 'update', 'destroy']);
 
@@ -195,3 +217,9 @@ Route::resource('master-bastock', MasterBAStockController::class)->only(['store'
 // ROUTES FORMULIR IT BUSINESS REQUEST
 // ==============================================================
 Route::resource('form-it-business-request', FormItBusinessRequestController::class);
+
+
+// ==============================================================
+// ROUTES POST IMPLEMENTATION REVIEW (Baru Ditambahkan)
+// ==============================================================
+Route::resource('reviews', ImplementationReviewController::class);
