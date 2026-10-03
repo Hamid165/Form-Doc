@@ -214,6 +214,14 @@
     </style>
 </head>
 <body>
+
+    @if(request('print'))
+        <script>
+            window.onload = function() {
+                window.print();
+            };
+        </script>
+    @endif
     
     <div class="a4-container relative">
         <!-- Tombol diletakkan di pojok kanan atas (text-align: right) -->
@@ -336,7 +344,7 @@
 
             <div class="footer-section clearfix">
                 <div class="signature-box">
-                    <p>Yogyakarta, <span>{{ $form->kota_tanggal ? \Carbon\Carbon::parse($form->kota_tanggal)->locale('id')->translatedFormat('j F Y') : '................................' }}</span></p>
+                    <p>Yogyakarta, <span>{{ $form->kota_tanggal ?: '................................' }}</span></p>
                     <p style="margin-top: 15px;">Mengetahui,</p>
                     <p style="margin-top: 5px; text-align: center;">{{ $form->mengetahui_jabatan ?: '..........................................' }}</p>
                     <div style="height: 60px;"></div>

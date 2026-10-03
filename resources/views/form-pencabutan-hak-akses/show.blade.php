@@ -230,6 +230,14 @@
 </head>
 <body>
 
+    @if(request('print'))
+        <script>
+            window.onload = function() {
+                window.print();
+            };
+        </script>
+    @endif
+
     <div class="a4-container">
         <div class="no-print" style="position: absolute; top: 15px; right: 20px; display: flex; gap: 10px; z-index: 100;">
             <a href="{{ route('form-pencabutan-hak-akses.index') }}" class="btn-kembali">Kembali</a>

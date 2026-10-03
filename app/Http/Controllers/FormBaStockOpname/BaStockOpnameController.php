@@ -32,11 +32,21 @@ class BaStockOpnameController extends Controller
     {
         $form = new BaStockOpname();
         $masterSigners = MasterBaStock::all();
-        return view('form-ba-stock-opname.create', compact('form', 'masterSigners'));
+
+        // GANTI 'form_templates' DENGAN NAMA TABEL ASLI DI DATABASE KAMU
+        $template = DB::table('form_templates')->where('nama', 'Berita Acara Stock Opname')->first();
+
+        return view('form-ba-stock-opname.create', compact('form', 'masterSigners', 'template'));
     }
 
     public function store(Request $request)
     {
+        $request->validate([
+            'jabatan_pimpinan_unit_kerja' => 'nullable|string',
+            'jabatan_pimpinan_it'         => 'nullable|string',
+            'jabatan_petugas_it'          => 'nullable|string',
+        ]);
+
         DB::transaction(function () use ($request) {
             $form = new BaStockOpname();
             $form->no_ref               = $request->input('no_ref');
@@ -47,6 +57,10 @@ class BaStockOpnameController extends Controller
             $form->tempat_kedudukan     = $request->input('tempat_kedudukan');
             $form->analisa              = $request->input('analisa');
             $form->tindak_lanjut        = $request->input('tindak_lanjut');
+
+            $form->jabatan_pimpinan_unit_kerja = $request->input('jabatan_pimpinan_unit_kerja');
+            $form->jabatan_pimpinan_it         = $request->input('jabatan_pimpinan_it');
+            $form->jabatan_petugas_it          = $request->input('jabatan_petugas_it');
 
             $form->pimpinan_unit_kerja  = $request->input('pimpinan_unit_kerja');
             $form->nipp_pimpinan_unit_kerja = $request->input('nipp_pimpinan_unit_kerja');
@@ -72,7 +86,11 @@ class BaStockOpnameController extends Controller
         $form = BaStockOpname::with('details')->findOrFail($id);
         $tgl_ttd = $form->tanggal_ttd ? Carbon::parse($form->tanggal_ttd)->locale('id')->translatedFormat('d F Y') : null;
         $masterSigners = MasterBaStock::all();
-        return view('form-ba-stock-opname.show', compact('form', 'tgl_ttd', 'masterSigners'));
+
+        // GANTI 'form_templates' DENGAN NAMA TABEL ASLI DI DATABASE KAMU
+        $template = DB::table('form_templates')->where('nama', 'Berita Acara Stock Opname')->first();
+
+        return view('form-ba-stock-opname.show', compact('form', 'tgl_ttd', 'masterSigners', 'template'));
     }
 
     public function edit($id)
@@ -80,11 +98,21 @@ class BaStockOpnameController extends Controller
         $form = BaStockOpname::with('details')->findOrFail($id);
         $items = $form->details->toArray();
         $masterSigners = MasterBaStock::all();
-        return view('form-ba-stock-opname.edit', compact('form', 'items', 'masterSigners'));
+
+        // GANTI 'form_templates' DENGAN NAMA TABEL ASLI DI DATABASE KAMU
+        $template = DB::table('form_templates')->where('nama', 'Berita Acara Stock Opname')->first();
+
+        return view('form-ba-stock-opname.edit', compact('form', 'items', 'masterSigners', 'template'));
     }
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'jabatan_pimpinan_unit_kerja' => 'nullable|string',
+            'jabatan_pimpinan_it'         => 'nullable|string',
+            'jabatan_petugas_it'          => 'nullable|string',
+        ]);
+
         DB::transaction(function () use ($request, $id) {
             $form = BaStockOpname::findOrFail($id);
             $form->no_ref               = $request->input('no_ref');
@@ -95,6 +123,10 @@ class BaStockOpnameController extends Controller
             $form->tempat_kedudukan     = $request->input('tempat_kedudukan');
             $form->analisa              = $request->input('analisa');
             $form->tindak_lanjut        = $request->input('tindak_lanjut');
+
+            $form->jabatan_pimpinan_unit_kerja = $request->input('jabatan_pimpinan_unit_kerja');
+            $form->jabatan_pimpinan_it         = $request->input('jabatan_pimpinan_it');
+            $form->jabatan_petugas_it          = $request->input('jabatan_petugas_it');
 
             $form->pimpinan_unit_kerja  = $request->input('pimpinan_unit_kerja');
             $form->nipp_pimpinan_unit_kerja = $request->input('nipp_pimpinan_unit_kerja');

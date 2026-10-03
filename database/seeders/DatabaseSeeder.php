@@ -24,6 +24,55 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        if (!User::where('email', 'rina@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Rina Amelia',
+                'email' => 'rina@example.com',
+                'role' => 'petugas',
+                'nip_kwt' => 'K.998811',
+                'unit_kerja' => 'TI Service Desk'
+            ]);
+        }
+
+        if (!User::where('email', 'sutrisno@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'B. Sutrisno',
+                'email' => 'sutrisno@example.com',
+                'role' => 'pimpinan',
+                'nip_kwt' => 'P.112233',
+                'unit_kerja' => 'TI Operations'
+            ]);
+        }
+
+        if (!\App\Models\FormCctv\MasterSigner::where('nama', 'B. Sutrisno')->exists()) {
+            \App\Models\FormCctv\MasterSigner::create([
+                'nama' => 'B. Sutrisno',
+                'nipp' => 'P.112233',
+                'jabatan' => 'Manager TI Operations',
+            ]);
+        }
+
+        if (!User::where('email', 'admin@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Admin Sistem',
+                'email' => 'admin@example.com',
+                'role' => 'admin',
+                'nip_kwt' => 'A.000001',
+                'unit_kerja' => 'TI Administrator'
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Berita Acara Penutupan Tiket Incident/Work Order')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Berita Acara Penutupan Tiket Incident/Work Order',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-bastik.index',
+                'no_dokumen' => 'FR.SM/TI/031.005/02-2023',
+                'tanggal_dokumen' => '13 Februari 2023',
+                'versi_dokumen' => '001-2023',
+            ]);
+        }
+
         if (!\App\Models\FormTemplate::where('nama', 'Pemeliharaan CCTV')->exists()) {
             \App\Models\FormTemplate::create([
                 'nama' => 'Pemeliharaan CCTV',
@@ -41,6 +90,17 @@ class DatabaseSeeder extends Seeder
                 'kategori' => 'Lainnya',
                 'route_name' => 'form-pencabutan-hak-akses.index',
                 'no_dokumen' => 'FR.SM/TI/013.004/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Checklist Pemeliharaan AC')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Checklist Pemeliharaan AC',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-pemeliharaan-ac.index',
+                'no_dokumen' => 'FR.SM/TI/015.011/10-2020',
                 'tanggal_dokumen' => '12 Oktober 2020',
                 'versi_dokumen' => '002-2020',
             ]);
@@ -78,10 +138,45 @@ class DatabaseSeeder extends Seeder
                 'versi_dokumen' => '001-2026',
             ]);
         }
+        
+        if (!\App\Models\FormTemplate::where('nama', 'Monitoring CCTV')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Monitoring CCTV',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-monitoring-cctv.index',
+                'no_dokumen' => 'FR.SM/TI/015.014/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Formulir Checklist Pemantauan APAR')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Formulir Checklist Pemantauan APAR',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-apar.index',
+                'no_dokumen' => 'FR.SM/TI/015.007/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
+
+        if (!\App\Models\FormTemplate::where('nama', 'Log Peminjaman Informasi / Dokumen')->exists()) {
+            \App\Models\FormTemplate::create([
+                'nama' => 'Log Peminjaman Informasi / Dokumen',
+                'kategori' => 'Terbatas',
+                'route_name' => 'form-log-peminjaman.index',
+                'no_dokumen' => 'FR.SM/TI/004.004/10-2020',
+                'tanggal_dokumen' => '12 Oktober 2020',
+                'versi_dokumen' => '002-2020',
+            ]);
+        }
 
         $this->call([
             MasterPerangkatSeeder::class,
+            MasterSignerSeeder::class,
             FormItBusinessRequestSeeder::class,
+            FormMonitoringIsiRakDcDrcSeeder::class,
         ]);
     }
 }
